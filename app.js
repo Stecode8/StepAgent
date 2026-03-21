@@ -241,6 +241,22 @@ function escapeAttr(str) {
 }
 
 // =============================================================
+// HEADER HIDE/SHOW ON SCROLL
+// =============================================================
+let lastScrollY = 0;
+const header = document.querySelector('header');
+
+window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    if (currentY > lastScrollY && currentY > 80) {
+        header.classList.add('header-hidden');
+    } else {
+        header.classList.remove('header-hidden');
+    }
+    lastScrollY = currentY;
+}, { passive: true });
+
+// =============================================================
 // FALLBACK: Load missing images one at a time via weidian JSONP
 // =============================================================
 const imgCache = {};
