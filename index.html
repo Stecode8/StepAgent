@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BukonBuy - Browse Products</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <h1 class="logo">BukonBuy</h1>
+        </div>
+        <div class="intro-box">
+            <img src="intro-img.png" alt="" class="intro-img">
+            <p class="intro-text">Welcome to my spreadsheet!</p>
+        </div>
+        <a href="https://litbuy.com/register?inviteCode=M3RAMDINI" target="_blank" rel="noopener noreferrer" class="signup-link">
+            <img src="litbuy-logo.png" alt="LitBuy" class="signup-logo">
+            Sign up to LitBuy!
+        </a>
+        <div class="search-bar">
+            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search products..." autocomplete="off">
+        </div>
+        <nav id="category-tabs" class="category-tabs">
+            <button class="category-pill active" data-category="all">All</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading products...</p>
+        </div>
+
+        <div id="error" class="error hidden">
+            <p>Could not load products. Please check your connection and try again.</p>
+            <button onclick="fetchProducts()">Retry</button>
+        </div>
+
+        <div id="product-grid" class="product-grid"></div>
+
+        <div id="no-results" class="no-results hidden">
+            <p>No products found.</p>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
