@@ -322,3 +322,55 @@ main {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
+/* In-app browser overlay */
+.inapp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.inapp-overlay.hidden {
+    display: none;
+}
+
+.inapp-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px 24px;
+    max-width: 340px;
+    text-align: center;
+    color: var(--text);
+}
+
+.inapp-card h2 {
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+}
+
+.inapp-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.inapp-card p strong {
+    color: var(--text);
+}
+
+.inapp-ok-btn {
+    background: var(--accent);
+    color: var(--pill-active-text);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}

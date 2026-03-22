@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BukonBuy - Browse Products</title>
+    <title>StepAgent - Browse Products</title>
     <link rel="icon" type="image/png" href="intro-img.png">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
 <body>
     <header>
         <div class="header-top">
-            <h1 class="logo">BukonBuy</h1>
+            <h1 class="logo">StepAgent</h1>
         </div>
         <div class="intro-box">
             <img src="intro-img.png" alt="" class="intro-img">
@@ -51,6 +51,27 @@
             <p>No products found.</p>
         </div>
     </main>
+
+    <!-- In-app browser overlay -->
+    <div id="inapp-overlay" class="inapp-overlay hidden">
+        <div class="inapp-card">
+            <h2>Open in Browser</h2>
+            <p>For the best experience, tap the <strong>three dots</strong> menu (<strong>&#8942;</strong>) at the top right and select <strong>"Open in browser"</strong>.</p>
+            <button id="inapp-ok" class="inapp-ok-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var ua = navigator.userAgent || '';
+        if (/Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(ua)) {
+            document.getElementById('inapp-overlay').classList.remove('hidden');
+        }
+        document.getElementById('inapp-ok').addEventListener('click', function() {
+            document.getElementById('inapp-overlay').classList.add('hidden');
+        });
+    })();
+    </script>
 
     <script src="app.js"></script>
 </body>
