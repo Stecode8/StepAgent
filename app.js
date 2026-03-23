@@ -100,6 +100,12 @@ function parseHtmlSheet(html, categoryName) {
 
         if (!link) continue;
 
+        // Skip products with no price or $0
+        if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
+
+        // Skip products with no photo
+        if (!photo) continue;
+
         // Extract weidian item ID from affiliate link (column D) for fallback image loading
         let weidianId = '';
         if (!photo) {
