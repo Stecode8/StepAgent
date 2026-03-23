@@ -93,6 +93,11 @@ function parseHtmlSheet(html, categoryName) {
             }
         }
 
+        // Fix malformed URLs: if query params use & without a leading ?, fix it
+        if (link && !link.includes('?') && link.includes('&')) {
+            link = link.replace('&', '?');
+        }
+
         if (!link) continue;
 
         // Extract weidian item ID from affiliate link (column D) for fallback image loading
