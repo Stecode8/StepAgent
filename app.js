@@ -98,6 +98,9 @@ function parseHtmlSheet(html, categoryName) {
             link = link.replace('&', '?');
         }
 
+        // Replace any invite code with our affiliate code
+        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+
         if (!link) continue;
 
         // Skip products with no price or $0
