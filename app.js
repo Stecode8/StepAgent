@@ -34,6 +34,8 @@ const gridEl = document.getElementById('product-grid');
 const noResultsEl = document.getElementById('no-results');
 const categoryTabsEl = document.getElementById('category-tabs');
 const searchInput = document.getElementById('search-input');
+const priceSortEl = document.getElementById('price-sort');
+let priceSort = 'default';
 
 // =============================================================
 // HTML PARSING — scrape the htmlview to get images + affiliate links
@@ -186,8 +188,18 @@ function setCategory(cat) {
 // =============================================================
 // SEARCH
 // =============================================================
+let searchDebounce = null;
 searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+        window.scrollTo(0, 0);
+        renderProducts();
+    }, 200);
+});
+
+priceSortEl.addEventListener('change', (e) => {
+    priceSort = e.target.value;
     renderProducts();
 });
 
@@ -209,6 +221,15 @@ function renderProducts() {
 
     // Sort products with photos first, no-photo products at the end
     filtered.sort((a, b) => (b.photo ? 1 : 0) - (a.photo ? 1 : 0));
+
+    // Apply price sort if selected
+    if (priceSort === 'low' || priceSort === 'high') {
+        filtered.sort((a, b) => {
+            const pa = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
+            const pb = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
+            return priceSort === 'low' ? pa - pb : pb - pa;
+        });
+    }
 
     if (filtered.length === 0 && allProducts.length > 0) {
         gridEl.innerHTML = '';

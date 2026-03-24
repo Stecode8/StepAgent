@@ -23,11 +23,18 @@
             Sign up to LitBuy!
         </a>
         <div class="search-bar">
-            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" id="search-input" placeholder="Search products..." autocomplete="off">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search products..." autocomplete="off">
+            </div>
+            <select id="price-sort">
+                <option value="default">Sort by</option>
+                <option value="low">Price: Low to High</option>
+                <option value="high">Price: High to Low</option>
+            </select>
         </div>
         <nav id="category-tabs" class="category-tabs">
             <button class="category-pill active" data-category="all">All</button>
