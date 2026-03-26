@@ -16,6 +16,11 @@ const TABS = [
     { name: 'Accessories',        gid: '1909872944' },
 ];
 
+const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
+const SHEET2_TABS = [
+    { name: 'Budget Finds', gid: '0' },
+];
+
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
@@ -40,8 +45,8 @@ let priceSort = 'default';
 // =============================================================
 // HTML PARSING — scrape the htmlview to get images + affiliate links
 // =============================================================
-function buildHtmlUrl(gid) {
-    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/htmlview/sheet?gid=${gid}`;
+function buildHtmlUrl(sheetId, gid) {
+    return `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview/sheet?gid=${gid}`;
 }
 
 function parseHtmlSheet(html, categoryName) {
@@ -125,6 +130,83 @@ function parseHtmlSheet(html, categoryName) {
     return products;
 }
 
+// Parser for sheet2 (column order: A=name, B=price, C=photo, D=link)
+function parseHtmlSheet2(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = doc.querySelectorAll('tr');
+    const products = [];
+
+    for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 4) continue;
+
+        const nameCell = cells[0];
+        const priceCell = cells[1];
+        const photoCell = cells[2];
+        const linkCell = cells[3];
+
+        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        const price = (priceCell.textContent || '').trim();
+
+        // Skip non-product rows
+        if (!name || name.toLowerCase() === 'item name') continue;
+        if (name.includes('CTRL') || name.includes('IMPORTANT') || name.includes('⬅') || name.includes('➡')) continue;
+        if (name === 'BEST SELLING ITEMS') continue;
+        if (price.includes(' ') && price.split('$').length > 2) continue;
+
+        // Get image: try <img> tag first, then fall back to URL text in cell
+        const img = photoCell.querySelector('img');
+        let photo = img ? img.getAttribute('src') : '';
+        if (!photo) {
+            const text = (photoCell.textContent || '').trim();
+            if (text.startsWith('http')) photo = text;
+        }
+        if (photo) {
+            photo = photo.replace(/=w\d+-h\d+$/, '=w400-h400');
+        }
+
+        // Get affiliate link from column D
+        const linkAnchor = linkCell.querySelector('a');
+        let link = '';
+        if (linkAnchor) {
+            const href = linkAnchor.getAttribute('href') || '';
+            const match = href.match(/[?&]q=([^&]+)/);
+            if (match) {
+                link = decodeURIComponent(match[1]);
+            } else {
+                link = href;
+            }
+        }
+        if (!link) {
+            // Fall back to text content if no <a> tag
+            const text = (linkCell.textContent || '').trim();
+            if (text.startsWith('http')) link = text;
+        }
+
+        if (link && !link.includes('?') && link.includes('&')) {
+            link = link.replace('&', '?');
+        }
+
+        // Replace any invite code with our affiliate code
+        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+
+        if (!link) continue;
+        if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
+        if (!photo) continue;
+
+        let weidianId = '';
+        if (!photo) {
+            const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+            if (idMatch) weidianId = idMatch[1];
+        }
+
+        products.push({ name, price, photo, link, category: categoryName, weidianId });
+    }
+
+    return products;
+}
+
 // =============================================================
 // FETCH PRODUCTS
 // =============================================================
@@ -135,16 +217,25 @@ async function fetchProducts() {
     noResultsEl.classList.add('hidden');
 
     try {
-        const results = await Promise.all(
+        const results1 = await Promise.all(
             TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(tab.gid));
+                const resp = await fetch(buildHtmlUrl(SHEET_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
                 return parseHtmlSheet(html, tab.name);
             })
         );
 
-        allProducts = results.flat();
+        const results2 = await Promise.all(
+            SHEET2_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheet2(html, tab.name);
+            })
+        );
+
+        allProducts = [...results1.flat(), ...results2.flat()];
         buildCategoryTabs();
         renderProducts();
         loadingEl.classList.add('hidden');
