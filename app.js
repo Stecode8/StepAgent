@@ -305,7 +305,7 @@ function setCategory(cat) {
     document.querySelectorAll('.category-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.category === cat);
     });
-    renderProducts();
+    renderProducts(true);
 }
 
 // =============================================================
@@ -315,21 +315,18 @@ let searchDebounce = null;
 searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(() => {
-        window.scrollTo(0, 0);
-        renderProducts();
-    }, 200);
+    searchDebounce = setTimeout(() => renderProducts(true), 200);
 });
 
 priceSortEl.addEventListener('change', (e) => {
     priceSort = e.target.value;
-    renderProducts();
+    renderProducts(true);
 });
 
 // =============================================================
 // RENDER
 // =============================================================
-function renderProducts() {
+function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
@@ -381,8 +378,14 @@ function renderProducts() {
         </div>`;
     }).join('');
 
-    // Fade-in cards as they scroll into view
-    gridEl.querySelectorAll('.product-card').forEach(card => cardObserver.observe(card));
+    // Fade-in cards as they scroll into view, or show instantly on filter/search
+    gridEl.querySelectorAll('.product-card').forEach(card => {
+        if (skipAnimation) {
+            card.classList.add('card-visible');
+        } else {
+            cardObserver.observe(card);
+        }
+    });
 
     // Load missing images one at a time from weidian
     loadMissingImages();
