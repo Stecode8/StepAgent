@@ -27,6 +27,7 @@ const REFRESH_INTERVAL = 5 * 60 * 1000;
 // APP STATE
 // =============================================================
 let allProducts = [];
+let currentFiltered = [];
 let activeCategory = 'all';
 let searchQuery = '';
 
@@ -41,6 +42,37 @@ const categoryTabsEl = document.getElementById('category-tabs');
 const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
+
+// Fade-in observer — animates cards as they enter the viewport
+const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.classList.add('card-visible');
+            cardObserver.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+// Delegated click handler for product cards (one listener, not one per card)
+gridEl.addEventListener('click', (e) => {
+    const card = e.target.closest('.product-card');
+    if (!card) return;
+    const idx = parseInt(card.dataset.index);
+    const p = currentFiltered[idx];
+    if (!p) return;
+    const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
+    const bigImg = p.photo
+        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
+        : placeholder;
+    document.getElementById('modal-img').src = bigImg;
+    document.getElementById('modal-img').alt = p.name;
+    document.getElementById('modal-name').textContent = p.name;
+    document.getElementById('modal-price').textContent = p.price;
+    document.getElementById('modal-buy-btn').href = p.link;
+    const modal = document.getElementById('product-modal');
+    modal.classList.remove('hidden', 'modal-closing');
+    document.body.style.overflow = 'hidden';
+});
 
 // =============================================================
 // HTML PARSING — scrape the htmlview to get images + affiliate links
@@ -329,6 +361,7 @@ function renderProducts() {
     }
 
     noResultsEl.classList.add('hidden');
+    currentFiltered = filtered;
 
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
 
@@ -348,30 +381,8 @@ function renderProducts() {
         </div>`;
     }).join('');
 
-    // Staggered fade-in for product cards
-    gridEl.querySelectorAll('.product-card').forEach((card, i) => {
-        setTimeout(() => card.classList.add('card-visible'), i * 40);
-    });
-
-    // Attach click handlers to open product modal
-    gridEl.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const idx = parseInt(card.dataset.index);
-            const p = filtered[idx];
-            if (!p) return;
-            const bigImg = p.photo
-                ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
-                : placeholder;
-            document.getElementById('modal-img').src = bigImg;
-            document.getElementById('modal-img').alt = p.name;
-            document.getElementById('modal-name').textContent = p.name;
-            document.getElementById('modal-price').textContent = p.price;
-            document.getElementById('modal-buy-btn').href = p.link;
-            const modal = document.getElementById('product-modal');
-            modal.classList.remove('hidden', 'modal-closing');
-            document.body.style.overflow = 'hidden';
-        });
-    });
+    // Fade-in cards as they scroll into view
+    gridEl.querySelectorAll('.product-card').forEach(card => cardObserver.observe(card));
 
     // Load missing images one at a time from weidian
     loadMissingImages();

@@ -260,6 +260,7 @@ main {
     display: block;
     opacity: 0;
     transform: translateY(16px);
+    will-change: transform, opacity;
 }
 
 .product-card.card-visible {
