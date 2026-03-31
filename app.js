@@ -337,7 +337,7 @@ function renderProducts() {
             ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
             : placeholder;
         return `
-        <a class="product-card" href="${escapeAttr(p.link)}" target="_blank" rel="noopener noreferrer">
+        <div class="product-card" data-index="${i}">
             <img id="pimg-${i}" src="${escapeAttr(imgSrc)}" alt="${escapeAttr(p.name)}" loading="lazy"
                  data-weidian="${escapeAttr(p.weidianId || '')}"
                  onerror="this.onerror=null;this.src='${placeholder}'">
@@ -345,8 +345,33 @@ function renderProducts() {
                 <div class="product-name">${escapeHtml(p.name)}</div>
                 <div class="product-price">${escapeHtml(p.price)}</div>
             </div>
-        </a>`;
+        </div>`;
     }).join('');
+
+    // Staggered fade-in for product cards
+    gridEl.querySelectorAll('.product-card').forEach((card, i) => {
+        setTimeout(() => card.classList.add('card-visible'), i * 40);
+    });
+
+    // Attach click handlers to open product modal
+    gridEl.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const idx = parseInt(card.dataset.index);
+            const p = filtered[idx];
+            if (!p) return;
+            const bigImg = p.photo
+                ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
+                : placeholder;
+            document.getElementById('modal-img').src = bigImg;
+            document.getElementById('modal-img').alt = p.name;
+            document.getElementById('modal-name').textContent = p.name;
+            document.getElementById('modal-price').textContent = p.price;
+            document.getElementById('modal-buy-btn').href = p.link;
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden', 'modal-closing');
+            document.body.style.overflow = 'hidden';
+        });
+    });
 
     // Load missing images one at a time from weidian
     loadMissingImages();
@@ -375,9 +400,17 @@ const header = document.querySelector('header');
 window.addEventListener('scroll', () => {
     const currentY = window.scrollY;
     if (currentY > lastScrollY && currentY > 80) {
+        // Scrolling down — hide entire header
         header.classList.add('header-hidden');
-    } else {
+        header.classList.remove('header-compact');
+    } else if (currentY <= 5) {
+        // At the top — show everything
         header.classList.remove('header-hidden');
+        header.classList.remove('header-compact');
+    } else {
+        // Scrolling up but not at top — show only search bar + price filter
+        header.classList.remove('header-hidden');
+        header.classList.add('header-compact');
     }
     lastScrollY = currentY;
 }, { passive: true });
@@ -447,6 +480,22 @@ async function loadMissingImages() {
         await new Promise(r => setTimeout(r, 200));
     }
 }
+
+// =============================================================
+// PRODUCT MODAL CLOSE
+// =============================================================
+function closeProductModal() {
+    const modal = document.getElementById('product-modal');
+    modal.classList.add('modal-closing');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('modal-closing');
+        document.body.style.overflow = '';
+    }, 250);
+}
+
+document.querySelector('.product-modal-close').addEventListener('click', closeProductModal);
+document.querySelector('.product-modal-backdrop').addEventListener('click', closeProductModal);
 
 // =============================================================
 // INIT

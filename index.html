@@ -59,6 +59,23 @@
         </div>
     </main>
 
+    <!-- Product detail modal -->
+    <div id="product-modal" class="product-modal hidden">
+        <div class="product-modal-backdrop"></div>
+        <div class="product-modal-content">
+            <button class="product-modal-close">&times;</button>
+            <img id="modal-img" src="" alt="" class="product-modal-img">
+            <div class="product-modal-info">
+                <div id="modal-name" class="product-modal-name"></div>
+                <div id="modal-price" class="product-modal-price"></div>
+            </div>
+            <a id="modal-buy-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-buy">
+                <img src="litbuy-logo.png" alt="LitBuy" class="modal-buy-logo">
+                Buy on LitBuy
+            </a>
+        </div>
+    </div>
+
     <!-- In-app browser overlay -->
     <div id="inapp-overlay" class="inapp-overlay hidden">
         <div class="inapp-card">
