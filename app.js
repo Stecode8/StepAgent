@@ -5,20 +5,26 @@ const SHEET_ID = '1CmvRYfDLvv94PhqnQM_4qWkGw3_sRaPrsxETCAD-8Rc';
 
 // Each tab with its gid and display name (skip MENU and ARCHIVE)
 const TABS = [
-    { name: 'Shoes',              gid: '776444105' },
-    { name: 'Hoodies & Jackets',  gid: '17185488' },
-    { name: 'Hoodies/Sweaters',   gid: '1874959735' },
-    { name: 'Bags',               gid: '818750136' },
-    { name: 'More Clothes',       gid: '172151799' },
-    { name: 'T-Shirts',           gid: '35806979' },
-    { name: 'Jeans/Pants',        gid: '1007277757' },
-    { name: 'Electronics',        gid: '692954863' },
-    { name: 'Accessories',        gid: '1909872944' },
+    { name: 'New Arrival',        gid: '3886014' },
+    { name: 'Shoes',              gid: '230384323' },
+    { name: 'Hoodies & Jackets',  gid: '1398944110' },
+    { name: 'Hoodies/Sweaters',   gid: '1229125430' },
+    { name: 'Bags',               gid: '441086967' },
+    { name: 'More Clothes',       gid: '1536467206' },
+    { name: 'T-Shirts',           gid: '1900197506' },
+    { name: 'Jeans/Pants',        gid: '290039758' },
+    { name: 'Electronics',        gid: '147452554' },
+    { name: 'Accessories',        gid: '2103333693' },
 ];
 
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
 const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
+];
+
+const SHEET3_ID = '1Wn1aauYDOiD23AWl9wDipOEPVIh4pJF-Rja-WfcVS5A';
+const SHEET3_TABS = [
+    { name: 'Video Finds', gid: '0' },
 ];
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
@@ -137,8 +143,12 @@ function parseHtmlSheet(html, categoryName) {
             link = link.replace('&', '?');
         }
 
-        // Replace any invite code with our affiliate code
-        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+        // Replace any invite code with our affiliate code, or append if missing
+        if (/inviteCode=/i.test(link)) {
+            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+        } else if (link) {
+            link += (link.includes('?') ? '&' : '?') + 'inviteCode=M3RAMDINI';
+        }
 
         if (!link) continue;
 
@@ -151,7 +161,7 @@ function parseHtmlSheet(html, categoryName) {
         // Extract weidian item ID from affiliate link (column D) for fallback image loading
         let weidianId = '';
         if (!photo) {
-            // Affiliate link format: mulebuy.com/product?id=XXXXXXX&platform=WEIDIAN
+            // Affiliate link format: litbuy.com/product/weidian/XXXXXXX
             const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
             if (idMatch) weidianId = idMatch[1];
         }
@@ -220,8 +230,12 @@ function parseHtmlSheet2(html, categoryName) {
             link = link.replace('&', '?');
         }
 
-        // Replace any invite code with our affiliate code
-        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+        // Replace any invite code with our affiliate code, or append if missing
+        if (/inviteCode=/i.test(link)) {
+            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+        } else if (link) {
+            link += (link.includes('?') ? '&' : '?') + 'inviteCode=M3RAMDINI';
+        }
 
         if (!link) continue;
         if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
@@ -249,7 +263,7 @@ async function fetchProducts() {
     noResultsEl.classList.add('hidden');
 
     try {
-        const results1 = await Promise.all(
+        const results1 = await Promise.allSettled(
             TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
@@ -258,7 +272,7 @@ async function fetchProducts() {
             })
         );
 
-        const results2 = await Promise.all(
+        const results2 = await Promise.allSettled(
             SHEET2_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
@@ -267,7 +281,27 @@ async function fetchProducts() {
             })
         );
 
-        allProducts = [...results1.flat(), ...results2.flat()];
+        const results3 = await Promise.allSettled(
+            SHEET3_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET3_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheet(html, tab.name);
+            })
+        );
+
+        // Collect successful results, log failures
+        const allResults = [...results1, ...results2, ...results3];
+        const failed = allResults.filter(r => r.status === 'rejected');
+        failed.forEach(r => console.error('Tab fetch failed:', r.reason));
+
+        allProducts = allResults
+            .filter(r => r.status === 'fulfilled')
+            .flatMap(r => r.value);
+
+        if (allProducts.length === 0 && failed.length > 0) {
+            throw failed[0].reason;
+        }
         buildCategoryTabs();
         renderProducts();
         loadingEl.classList.add('hidden');
