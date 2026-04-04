@@ -29,6 +29,10 @@ const SHEET3_TABS = [
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
+function isGoogleHosted(url) {
+    return /googleusercontent\.com|ggpht\.com|google\.com|googleapis\.com/i.test(url);
+}
+
 // =============================================================
 // APP STATE
 // =============================================================
@@ -67,9 +71,8 @@ gridEl.addEventListener('click', (e) => {
     const p = currentFiltered[idx];
     if (!p) return;
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-    const isGoogleImg = p.photo && (p.photo.includes('googleusercontent.com') || p.photo.includes('google.com'));
     const bigImg = p.photo
-        ? (isGoogleImg ? p.photo.replace(/=w\d+-h\d+$/, '=w800-h800') : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`)
+        ? (isGoogleHosted(p.photo) ? p.photo.replace(/=w\d+-h\d+$/, '=w800-h800') : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`)
         : placeholder;
     document.getElementById('modal-img').src = bigImg;
     document.getElementById('modal-img').alt = p.name;
@@ -116,9 +119,13 @@ function parseHtmlSheet(html, categoryName) {
         // Skip rows with multiple prices (summary rows)
         if (price.includes(' ') && price.split('$').length > 2) continue;
 
-        // Get image URL from column B (use getAttribute to preserve original URL)
+        // Get image URL from column B — try <img> tag first, then text URL
         const img = photoCell.querySelector('img');
         let photo = img ? img.getAttribute('src') : '';
+        if (!photo) {
+            const text = (photoCell.textContent || '').trim();
+            if (text.startsWith('http')) photo = text;
+        }
         // Upscale thumbnail: replace size params for higher resolution
         if (photo) {
             photo = photo.replace(/=w\d+-h\d+$/, '=w400-h400');
@@ -156,16 +163,13 @@ function parseHtmlSheet(html, categoryName) {
         // Skip products with no price or $0
         if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
 
-        // Skip products with no photo
-        if (!photo) continue;
-
-        // Extract weidian item ID from affiliate link (column D) for fallback image loading
+        // Extract weidian item ID from affiliate link for fallback image loading
         let weidianId = '';
-        if (!photo) {
-            // Affiliate link format: litbuy.com/product/weidian/XXXXXXX
-            const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
-            if (idMatch) weidianId = idMatch[1];
-        }
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        // Skip products with no photo AND no weidian fallback
+        if (!photo && !weidianId) continue;
 
         products.push({ name, price, photo, link, category: categoryName, weidianId });
     }
@@ -240,13 +244,12 @@ function parseHtmlSheet2(html, categoryName) {
 
         if (!link) continue;
         if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
-        if (!photo) continue;
 
         let weidianId = '';
-        if (!photo) {
-            const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
-            if (idMatch) weidianId = idMatch[1];
-        }
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        if (!photo && !weidianId) continue;
 
         products.push({ name, price, photo, link, category: categoryName, weidianId });
     }
@@ -416,9 +419,8 @@ function renderProducts(skipAnimation) {
     // Build new DOM in a fragment to avoid intermediate reflows
     const frag = document.createDocumentFragment();
     filtered.forEach((p, i) => {
-        const isGoogleImg = p.photo && (p.photo.includes('googleusercontent.com') || p.photo.includes('google.com'));
         const imgSrc = p.photo
-            ? (isGoogleImg ? p.photo : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`)
+            ? (isGoogleHosted(p.photo) ? p.photo : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`)
             : placeholder;
 
         const card = document.createElement('div');
@@ -433,8 +435,14 @@ function renderProducts(skipAnimation) {
         img.dataset.weidian = p.weidianId || '';
         img.dataset.originalSrc = p.photo || '';
         img.onerror = function() {
-            if (this.dataset.originalSrc && this.src !== this.dataset.originalSrc) {
-                this.src = this.dataset.originalSrc;
+            const orig = this.dataset.originalSrc;
+            if (orig && this.src !== orig) {
+                // Try the original URL directly
+                this.src = orig;
+            } else if (orig && !this.dataset.proxyRetried) {
+                // Try through proxy as last resort
+                this.dataset.proxyRetried = '1';
+                this.src = 'https://wsrv.nl/?url=' + encodeURIComponent(orig) + '&w=400&h=400&fit=cover';
             } else {
                 this.onerror = null;
                 this.src = placeholder;
