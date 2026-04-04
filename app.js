@@ -447,7 +447,8 @@ function renderProducts(skipAnimation) {
         card.appendChild(img);
         card.appendChild(info);
 
-        if (skipAnimation) {
+        // First 10 cards visible immediately (above the fold), rest animate in
+        if (skipAnimation || i < 10) {
             card.classList.add('card-visible');
         }
 
@@ -462,9 +463,9 @@ function renderProducts(skipAnimation) {
         requestAnimationFrame(() => { gridEl.style.minHeight = ''; });
     }
 
-    // Fade-in cards on initial load only
+    // Animate remaining cards as they scroll into view
     if (!skipAnimation) {
-        gridEl.querySelectorAll('.product-card').forEach(card => {
+        gridEl.querySelectorAll('.product-card:not(.card-visible)').forEach(card => {
             card.classList.add('card-animate');
             cardObserver.observe(card);
         });
