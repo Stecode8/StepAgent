@@ -427,7 +427,7 @@ function renderProducts(skipAnimation) {
         img.id = 'pimg-' + i;
         img.src = imgSrc;
         img.alt = p.name;
-        img.loading = i < 10 ? 'eager' : 'lazy';
+        img.loading = 'lazy';
         img.dataset.weidian = p.weidianId || '';
         img.onerror = function() { this.onerror = null; this.src = placeholder; };
 
@@ -466,7 +466,6 @@ function renderProducts(skipAnimation) {
     // Animate remaining cards as they scroll into view
     if (!skipAnimation) {
         gridEl.querySelectorAll('.product-card:not(.card-visible)').forEach(card => {
-            card.classList.add('card-animate');
             cardObserver.observe(card);
         });
     }
