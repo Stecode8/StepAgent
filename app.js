@@ -49,16 +49,6 @@ const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
 
-// Fade-in observer — animates cards as they enter the viewport
-const cardObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-        if (e.isIntersecting) {
-            e.target.classList.add('card-visible');
-            cardObserver.unobserve(e.target);
-        }
-    });
-}, { threshold: 0.1 });
-
 // Delegated click handler for product cards (one listener, not one per card)
 gridEl.addEventListener('click', (e) => {
     const card = e.target.closest('.product-card');
@@ -446,12 +436,6 @@ function renderProducts(skipAnimation) {
         info.appendChild(priceDiv);
         card.appendChild(img);
         card.appendChild(info);
-
-        // First 10 cards visible immediately (above the fold), rest animate in
-        if (skipAnimation || i < 10) {
-            card.classList.add('card-visible');
-        }
-
         frag.appendChild(card);
     });
 
@@ -461,13 +445,6 @@ function renderProducts(skipAnimation) {
     // Release the locked height after the new content is in the DOM
     if (skipAnimation) {
         requestAnimationFrame(() => { gridEl.style.minHeight = ''; });
-    }
-
-    // Animate remaining cards as they scroll into view
-    if (!skipAnimation) {
-        gridEl.querySelectorAll('.product-card:not(.card-visible)').forEach(card => {
-            cardObserver.observe(card);
-        });
     }
 
     // Load missing images one at a time from weidian
