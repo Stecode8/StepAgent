@@ -29,8 +29,11 @@ const SHEET3_TABS = [
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
-function isGoogleHosted(url) {
-    return /googleusercontent\.com|ggpht\.com|google\.com|googleapis\.com/i.test(url);
+// Only these Google domains allow cross-origin image loading.
+// docs.google.com/sheets-images-rt/ has cross-origin-resource-policy: same-site
+// and MUST be proxied through wsrv.nl.
+function isCrossOriginSafe(url) {
+    return /googleusercontent\.com|ggpht\.com|googleapis\.com/i.test(url);
 }
 
 // =============================================================
@@ -72,7 +75,7 @@ gridEl.addEventListener('click', (e) => {
     if (!p) return;
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
     const bigImg = p.photo
-        ? (isGoogleHosted(p.photo) ? p.photo.replace(/=w\d+-h\d+$/, '=w800-h800') : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`)
+        ? (isCrossOriginSafe(p.photo) ? p.photo.replace(/=w\d+-h\d+$/, '=w800-h800') : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`)
         : placeholder;
     document.getElementById('modal-img').src = bigImg;
     document.getElementById('modal-img').alt = p.name;
@@ -420,7 +423,7 @@ function renderProducts(skipAnimation) {
     const frag = document.createDocumentFragment();
     filtered.forEach((p, i) => {
         const imgSrc = p.photo
-            ? (isGoogleHosted(p.photo) ? p.photo : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`)
+            ? (isCrossOriginSafe(p.photo) ? p.photo : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`)
             : placeholder;
 
         const card = document.createElement('div');
