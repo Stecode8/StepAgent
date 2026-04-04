@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+html {
+    overscroll-behavior: none;
+}
+
 :root {
     --bg: #121212;
     --card-bg: #1e1e1e;
@@ -26,7 +30,7 @@ body {
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior: none;
 }
 
 /* Header */

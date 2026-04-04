@@ -36,6 +36,9 @@ let allProducts = [];
 let currentFiltered = [];
 let activeCategory = 'all';
 let searchQuery = '';
+const BATCH_SIZE = 20;
+let renderedCount = 0;
+let loadingMore = false;
 
 // =============================================================
 // DOM REFERENCES
@@ -393,61 +396,58 @@ function renderProducts(skipAnimation) {
 
     noResultsEl.classList.add('hidden');
     currentFiltered = filtered;
-
-    const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-
-    // Lock grid height before replacing content to prevent layout shift
-    const prevHeight = gridEl.offsetHeight;
-    if (skipAnimation && prevHeight > 0) {
-        gridEl.style.minHeight = prevHeight + 'px';
-    }
-
-    // Build new DOM in a fragment to avoid intermediate reflows
-    const frag = document.createDocumentFragment();
-    filtered.forEach((p, i) => {
-        const imgSrc = p.photo
-            ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
-            : placeholder;
-
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.dataset.index = i;
-
-        const img = document.createElement('img');
-        img.id = 'pimg-' + i;
-        img.src = imgSrc;
-        img.alt = p.name;
-        img.loading = 'lazy';
-        img.dataset.weidian = p.weidianId || '';
-        img.onerror = function() { this.onerror = null; this.src = placeholder; };
-
-        const info = document.createElement('div');
-        info.className = 'product-info';
-
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'product-name';
-        nameDiv.textContent = p.name;
-
-        const priceDiv = document.createElement('div');
-        priceDiv.className = 'product-price';
-        priceDiv.textContent = p.price;
-
-        info.appendChild(nameDiv);
-        info.appendChild(priceDiv);
-        card.appendChild(img);
-        card.appendChild(info);
-        frag.appendChild(card);
-    });
+    renderedCount = 0;
 
     gridEl.innerHTML = '';
-    gridEl.appendChild(frag);
+    appendBatch();
+}
 
-    // Release the locked height after the new content is in the DOM
-    if (skipAnimation) {
-        requestAnimationFrame(() => { gridEl.style.minHeight = ''; });
+function buildCard(p, i) {
+    const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
+    const imgSrc = p.photo
+        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
+        : placeholder;
+
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.dataset.index = i;
+
+    const img = document.createElement('img');
+    img.id = 'pimg-' + i;
+    img.src = imgSrc;
+    img.alt = p.name;
+    img.loading = 'lazy';
+    img.dataset.weidian = p.weidianId || '';
+    img.onerror = function() { this.onerror = null; this.src = placeholder; };
+
+    const info = document.createElement('div');
+    info.className = 'product-info';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'product-name';
+    nameDiv.textContent = p.name;
+
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'product-price';
+    priceDiv.textContent = p.price;
+
+    info.appendChild(nameDiv);
+    info.appendChild(priceDiv);
+    card.appendChild(img);
+    card.appendChild(info);
+    return card;
+}
+
+function appendBatch() {
+    const end = Math.min(renderedCount + BATCH_SIZE, currentFiltered.length);
+    if (renderedCount >= end) return;
+
+    const frag = document.createDocumentFragment();
+    for (let i = renderedCount; i < end; i++) {
+        frag.appendChild(buildCard(currentFiltered[i], i));
     }
-
-    // Load missing images one at a time from weidian
+    gridEl.appendChild(frag);
+    renderedCount = end;
     loadMissingImages();
 }
 
@@ -489,6 +489,19 @@ window.addEventListener('scroll', () => {
             }
             lastScrollY = currentY;
             scrollTicking = false;
+        });
+    }
+}, { passive: true });
+
+// Infinite scroll — load more cards when near bottom
+window.addEventListener('scroll', () => {
+    if (loadingMore || renderedCount >= currentFiltered.length) return;
+    const scrollBottom = window.innerHeight + window.scrollY;
+    if (scrollBottom >= document.body.offsetHeight - 800) {
+        loadingMore = true;
+        requestAnimationFrame(() => {
+            appendBatch();
+            loadingMore = false;
         });
     }
 }, { passive: true });
