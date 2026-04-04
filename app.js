@@ -319,6 +319,15 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
+    const prioritized = ['Video Finds', 'Budget Finds'];
+    for (const name of [...prioritized].reverse()) {
+        const idx = categories.indexOf(name);
+        if (idx > -1) {
+            categories.splice(idx, 1);
+            categories.unshift(name);
+        }
+    }
+
     addPill('All', 'all');
     for (const cat of categories) {
         addPill(cat, cat);
@@ -386,6 +395,7 @@ function renderProducts(skipAnimation) {
     }
 
     if (filtered.length === 0 && allProducts.length > 0) {
+        gridEl.style.minHeight = '';
         gridEl.innerHTML = '';
         noResultsEl.classList.remove('hidden');
         return;
@@ -396,30 +406,69 @@ function renderProducts(skipAnimation) {
 
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
 
-    gridEl.innerHTML = filtered.map((p, i) => {
+    // Lock grid height before replacing content to prevent layout shift
+    const prevHeight = gridEl.offsetHeight;
+    if (skipAnimation && prevHeight > 0) {
+        gridEl.style.minHeight = prevHeight + 'px';
+    }
+
+    // Build new DOM in a fragment to avoid intermediate reflows
+    const frag = document.createDocumentFragment();
+    filtered.forEach((p, i) => {
         const imgSrc = p.photo
             ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
             : placeholder;
-        return `
-        <div class="product-card" data-index="${i}">
-            <img id="pimg-${i}" src="${escapeAttr(imgSrc)}" alt="${escapeAttr(p.name)}" loading="lazy"
-                 data-weidian="${escapeAttr(p.weidianId || '')}"
-                 onerror="this.onerror=null;this.src='${placeholder}'">
-            <div class="product-info">
-                <div class="product-name">${escapeHtml(p.name)}</div>
-                <div class="product-price">${escapeHtml(p.price)}</div>
-            </div>
-        </div>`;
-    }).join('');
 
-    // Fade-in cards as they scroll into view, or show instantly on filter/search
-    gridEl.querySelectorAll('.product-card').forEach(card => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.dataset.index = i;
+
+        const img = document.createElement('img');
+        img.id = 'pimg-' + i;
+        img.src = imgSrc;
+        img.alt = p.name;
+        img.loading = 'lazy';
+        img.dataset.weidian = p.weidianId || '';
+        img.onerror = function() { this.onerror = null; this.src = placeholder; };
+
+        const info = document.createElement('div');
+        info.className = 'product-info';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'product-name';
+        nameDiv.textContent = p.name;
+
+        const priceDiv = document.createElement('div');
+        priceDiv.className = 'product-price';
+        priceDiv.textContent = p.price;
+
+        info.appendChild(nameDiv);
+        info.appendChild(priceDiv);
+        card.appendChild(img);
+        card.appendChild(info);
+
         if (skipAnimation) {
             card.classList.add('card-visible');
-        } else {
-            cardObserver.observe(card);
         }
+
+        frag.appendChild(card);
     });
+
+    gridEl.innerHTML = '';
+    gridEl.appendChild(frag);
+
+    // Release the locked height after the new content is in the DOM
+    if (skipAnimation) {
+        requestAnimationFrame(() => { gridEl.style.minHeight = ''; });
+    }
+
+    // Fade-in cards on initial load only
+    if (!skipAnimation) {
+        gridEl.querySelectorAll('.product-card').forEach(card => {
+            card.classList.add('card-animate');
+            cardObserver.observe(card);
+        });
+    }
 
     // Load missing images one at a time from weidian
     loadMissingImages();
@@ -443,24 +492,28 @@ function escapeAttr(str) {
 // HEADER HIDE/SHOW ON SCROLL
 // =============================================================
 let lastScrollY = 0;
+let scrollTicking = false;
 const header = document.querySelector('header');
 
 window.addEventListener('scroll', () => {
-    const currentY = window.scrollY;
-    if (currentY > lastScrollY && currentY > 80) {
-        // Scrolling down — hide entire header
-        header.classList.add('header-hidden');
-        header.classList.remove('header-compact');
-    } else if (currentY <= 5) {
-        // At the top — show everything
-        header.classList.remove('header-hidden');
-        header.classList.remove('header-compact');
-    } else {
-        // Scrolling up but not at top — show only search bar + price filter
-        header.classList.remove('header-hidden');
-        header.classList.add('header-compact');
+    if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            const currentY = window.scrollY;
+            if (currentY > lastScrollY && currentY > 80) {
+                header.classList.add('header-hidden');
+                header.classList.remove('header-compact');
+            } else if (currentY <= 5) {
+                header.classList.remove('header-hidden');
+                header.classList.remove('header-compact');
+            } else {
+                header.classList.remove('header-hidden');
+                header.classList.add('header-compact');
+            }
+            lastScrollY = currentY;
+            scrollTicking = false;
+        });
     }
-    lastScrollY = currentY;
 }, { passive: true });
 
 // =============================================================
