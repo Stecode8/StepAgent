@@ -67,8 +67,9 @@ gridEl.addEventListener('click', (e) => {
     const p = currentFiltered[idx];
     if (!p) return;
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
+    const isGoogleImg = p.photo && (p.photo.includes('googleusercontent.com') || p.photo.includes('google.com'));
     const bigImg = p.photo
-        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
+        ? (isGoogleImg ? p.photo.replace(/=w\d+-h\d+$/, '=w800-h800') : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`)
         : placeholder;
     document.getElementById('modal-img').src = bigImg;
     document.getElementById('modal-img').alt = p.name;
@@ -415,8 +416,9 @@ function renderProducts(skipAnimation) {
     // Build new DOM in a fragment to avoid intermediate reflows
     const frag = document.createDocumentFragment();
     filtered.forEach((p, i) => {
+        const isGoogleImg = p.photo && (p.photo.includes('googleusercontent.com') || p.photo.includes('google.com'));
         const imgSrc = p.photo
-            ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
+            ? (isGoogleImg ? p.photo : `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`)
             : placeholder;
 
         const card = document.createElement('div');
@@ -427,9 +429,17 @@ function renderProducts(skipAnimation) {
         img.id = 'pimg-' + i;
         img.src = imgSrc;
         img.alt = p.name;
-        img.loading = 'lazy';
+        img.loading = i < 10 ? 'eager' : 'lazy';
         img.dataset.weidian = p.weidianId || '';
-        img.onerror = function() { this.onerror = null; this.src = placeholder; };
+        img.dataset.originalSrc = p.photo || '';
+        img.onerror = function() {
+            if (this.dataset.originalSrc && this.src !== this.dataset.originalSrc) {
+                this.src = this.dataset.originalSrc;
+            } else {
+                this.onerror = null;
+                this.src = placeholder;
+            }
+        };
 
         const info = document.createElement('div');
         info.className = 'product-info';
