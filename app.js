@@ -284,7 +284,7 @@ async function fetchProducts() {
         );
 
         // Collect successful results, log failures
-        const allResults = [...results1, ...results2, ...results3];
+        const allResults = [...results3, ...results2, ...results1];
         const failed = allResults.filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
