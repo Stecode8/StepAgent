@@ -142,9 +142,9 @@ function parseHtmlSheet(html, categoryName) {
 
         // Replace any invite code with our affiliate code, or append if missing
         if (/inviteCode=/i.test(link)) {
-            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
         } else if (link) {
-            link += (link.includes('?') ? '&' : '?') + 'inviteCode=M3RAMDINI';
+            link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
         }
 
         if (!link) continue;
@@ -226,9 +226,9 @@ function parseHtmlSheet2(html, categoryName) {
 
         // Replace any invite code with our affiliate code, or append if missing
         if (/inviteCode=/i.test(link)) {
-            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=M3RAMDINI');
+            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
         } else if (link) {
-            link += (link.includes('?') ? '&' : '?') + 'inviteCode=M3RAMDINI';
+            link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
         }
 
         if (!link) continue;
