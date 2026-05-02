@@ -1,20 +1,18 @@
 // =============================================================
 // CONFIG
 // =============================================================
-const SHEET_ID = '1CmvRYfDLvv94PhqnQM_4qWkGw3_sRaPrsxETCAD-8Rc';
+const SHEET_ID = '1i-k661c5oEV_i0LP_qRDrnBabGHXbdBYNFyypLAyU1s';
 
-// Each tab with its gid and display name (skip MENU and ARCHIVE)
 const TABS = [
-    { name: 'New Arrival',        gid: '3886014' },
-    { name: 'Shoes',              gid: '230384323' },
-    { name: 'Hoodies & Jackets',  gid: '1398944110' },
-    { name: 'Hoodies/Sweaters',   gid: '1229125430' },
-    { name: 'Bags',               gid: '441086967' },
-    { name: 'More Clothes',       gid: '1536467206' },
-    { name: 'T-Shirts',           gid: '1900197506' },
-    { name: 'Jeans/Pants',        gid: '290039758' },
-    { name: 'Electronics',        gid: '147452554' },
-    { name: 'Accessories',        gid: '2103333693' },
+    { name: '\u{1F525}Trending Now \u{1F525}',        gid: '1437970547' },
+    { name: '\u{1F50D}Latest Finds \u{1F50D}',        gid: '1185828767' },
+    { name: '\u{1F45E}SHOES\u{1F45E}',                gid: '623384649' },
+    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',    gid: '852587554' },
+    { name: '\u{1F9E5}Coats and Jackets\u{1F9E5}',    gid: '904819645' },
+    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',   gid: '764098395' },
+    { name: '\u{1F45C} Accessories\u{1F45C}',         gid: '1695680711' },
+    { name: '\u{1F3A7}Electronic products\u{1F3A7}',  gid: '1234283086' },
+    { name: '\u26BD2026 FIFA World Cup\u26BD',        gid: '1581275900' },
 ];
 
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
@@ -66,8 +64,19 @@ gridEl.addEventListener('click', (e) => {
     document.getElementById('modal-img').src = bigImg;
     document.getElementById('modal-img').alt = p.name;
     document.getElementById('modal-name').textContent = p.name;
-    document.getElementById('modal-price').textContent = p.price;
+    if (p.eurPrice) {
+        document.getElementById('modal-price').textContent = p.price + ' / ' + p.eurPrice;
+    } else {
+        document.getElementById('modal-price').textContent = p.price;
+    }
     document.getElementById('modal-buy-btn').href = p.link;
+    const qcBtn = document.getElementById('modal-qc-btn');
+    if (p.qcLink) {
+        qcBtn.href = p.qcLink;
+        qcBtn.classList.remove('hidden');
+    } else {
+        qcBtn.classList.add('hidden');
+    }
     const modal = document.getElementById('product-modal');
     modal.classList.remove('hidden', 'modal-closing');
     document.body.style.overflow = 'hidden';
@@ -117,7 +126,7 @@ function parseHtmlSheet(html, categoryName) {
         }
         // Upscale thumbnail: replace size params for higher resolution
         if (photo) {
-            photo = photo.replace(/=w\d+-h\d+$/, '=w400-h400');
+            photo = photo.replace(/=w\d+-h\d+$/, '=w800-h800');
         }
 
         // Get affiliate link from column D (the <a> href)
@@ -199,7 +208,7 @@ function parseHtmlSheet2(html, categoryName) {
             if (text.startsWith('http')) photo = text;
         }
         if (photo) {
-            photo = photo.replace(/=w\d+-h\d+$/, '=w400-h400');
+            photo = photo.replace(/=w\d+-h\d+$/, '=w800-h800');
         }
 
         // Get affiliate link from column D
@@ -247,6 +256,148 @@ function parseHtmlSheet2(html, categoryName) {
 }
 
 // =============================================================
+// SHARED HELPERS — link extraction & invite code
+// =============================================================
+function extractLink(cell) {
+    const anchor = cell.querySelector('a');
+    if (!anchor) return '';
+    const href = anchor.getAttribute('href') || '';
+    const match = href.match(/[?&]q=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : href;
+}
+
+function fixLink(link) {
+    if (!link) return '';
+    if (!link.includes('?') && link.includes('&')) {
+        link = link.replace('&', '?');
+    }
+    if (/inviteCode=/i.test(link)) {
+        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
+    } else {
+        link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
+    }
+    return link;
+}
+
+// =============================================================
+// HTML PARSING — new spreadsheet (4 products per row, 5 cols each)
+// Layout per product: NAME | LINK | PRICE(USD) | IMAGE | QC
+// Next row has EUR prices: _ | EUR1 | EUR2 | EUR3 | EUR4
+// Products start at column index 1 (column 0 is empty)
+// =============================================================
+function parseHtmlSheetNew(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = Array.from(doc.querySelectorAll('tr'));
+    const products = [];
+
+    for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 6) continue;  // need at least col0 + 5 product cols
+
+        // Check text in first two cells for skip logic
+        const cell0Text = (cells[0].textContent || '').trim();
+        const cell1Text = (cells[1].textContent || '').trim();
+
+        // Skip header rows
+        if (cell1Text === 'PRODUCT' || cell1Text.includes('LitbuyLINK')) continue;
+
+        // Skip navigation/info rows
+        const skipTexts = ['MOST POPULAR', 'CTRL', 'IMPORTANT', 'TELEGRAM',
+                           'BEST FINDS', 'SIGN UP', 'USE CTRL', 'Click here'];
+        const combinedText = cell0Text + ' ' + cell1Text;
+        if (skipTexts.some(s => combinedText.includes(s))) continue;
+
+        // Skip rows with no images (section headers, EUR continuation rows, nav rows)
+        if (!row.querySelector('img')) continue;
+
+        // Look ahead for EUR prices in the next row
+        let eurPrices = [];
+        if (r + 1 < rows.length) {
+            const nextRow = rows[r + 1];
+            const nextCells = nextRow.querySelectorAll('td');
+            // EUR row has ~6 cells, no images
+            if (nextCells.length <= 8 && !nextRow.querySelector('img')) {
+                for (let e = 1; e < nextCells.length; e++) {
+                    const t = (nextCells[e].textContent || '').trim();
+                    if (t.includes('\u20AC') || t.includes('€')) {
+                        eurPrices.push(t);
+                    } else {
+                        eurPrices.push('');
+                    }
+                }
+            }
+        }
+
+        // Process up to 4 product groups of 5 columns each
+        // Products start at column 1: [1-5], [6-10], [11-15], [16-20]
+        for (let g = 0; g < 4; g++) {
+            const base = 1 + g * 5;
+            if (base + 4 >= cells.length) break;
+
+            const nameCell  = cells[base];
+            const linkCell  = cells[base + 1];
+            const priceCell = cells[base + 2];
+            const imgCell   = cells[base + 3];
+            const qcCell    = cells[base + 4];
+
+            const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+            if (!name || name === 'PRODUCT' || name === 'LitbuyLINK') continue;
+            if (name.includes('CTRL') || name.includes('IMPORTANT')) continue;
+
+            // USD price (like "44.62$")
+            const priceRaw = (priceCell.textContent || '').trim();
+            const priceNum = priceRaw.replace(/[^\d.]/g, '');
+            const usdPrice = priceNum ? ('$' + priceNum) : '';
+
+            // EUR price from next row
+            const eurPrice = eurPrices[g] || '';
+
+            // Image
+            const img = imgCell.querySelector('img');
+            let photo = img ? img.getAttribute('src') : '';
+            if (!photo) {
+                const t = (imgCell.textContent || '').trim();
+                if (t.startsWith('http')) photo = t;
+            }
+            if (photo) photo = photo.replace(/=s\d+[-\w]*$/, '=s1600').replace(/=w\d+-h\d+$/, '=w1600-h1600');
+
+            // Buy link
+            let link = extractLink(linkCell);
+            link = fixLink(link);
+            if (!link) continue;
+
+            // Skip products with no price
+            if (!usdPrice) continue;
+
+            // QC link (Telegram — don't add invite code)
+            const qcLink = extractLink(qcCell);
+
+            // Weidian ID for fallback images
+            let weidianId = '';
+            const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+            if (idMatch) weidianId = idMatch[1];
+
+            if (!photo && !weidianId) continue;
+
+            products.push({
+                name,
+                price: usdPrice,
+                eurPrice,
+                photo,
+                link,
+                qcLink: qcLink || '',
+                category: categoryName,
+                weidianId
+            });
+        }
+    }
+
+    return products;
+}
+
+// =============================================================
 // FETCH PRODUCTS
 // =============================================================
 async function fetchProducts() {
@@ -261,7 +412,7 @@ async function fetchProducts() {
                 const resp = await fetch(buildHtmlUrl(SHEET_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
-                return parseHtmlSheet(html, tab.name);
+                return parseHtmlSheetNew(html, tab.name);
             })
         );
 
@@ -284,7 +435,7 @@ async function fetchProducts() {
         );
 
         // Collect successful results, log failures
-        const allResults = [...results3, ...results2, ...results1];
+        const allResults = [...results1, ...results2, ...results3];
         const failed = allResults.filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
@@ -405,7 +556,7 @@ function renderProducts(skipAnimation) {
 function buildCard(p, i) {
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
     const imgSrc = p.photo
-        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=400&h=400&fit=cover`
+        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
         : placeholder;
 
     const card = document.createElement('div');
@@ -429,7 +580,11 @@ function buildCard(p, i) {
 
     const priceDiv = document.createElement('div');
     priceDiv.className = 'product-price';
-    priceDiv.textContent = p.price;
+    if (p.eurPrice) {
+        priceDiv.textContent = p.price + ' / ' + p.eurPrice;
+    } else {
+        priceDiv.textContent = p.price;
+    }
 
     info.appendChild(nameDiv);
     info.appendChild(priceDiv);
@@ -558,13 +713,13 @@ async function loadMissingImages() {
 
         // Check cache
         if (imgCache[wid]) {
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(imgCache[wid])}&w=400&h=400&fit=cover`;
+            img.src = `https://wsrv.nl/?url=${encodeURIComponent(imgCache[wid])}&w=800&h=800&fit=cover`;
             continue;
         }
 
         const url = await weidianImage(wid);
         if (url) {
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=400&h=400&fit=cover`;
+            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=800&h=800&fit=cover`;
         }
 
         // Small delay between each request
