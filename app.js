@@ -15,11 +15,6 @@ const TABS = [
     { name: '\u26BD2026 FIFA World Cup\u26BD',        gid: '1581275900' },
 ];
 
-const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
-const SHEET2_TABS = [
-    { name: 'Budget Finds', gid: '0' },
-];
-
 const SHEET3_ID = '1Wn1aauYDOiD23AWl9wDipOEPVIh4pJF-Rja-WfcVS5A';
 const SHEET3_TABS = [
     { name: 'Video Finds', gid: '0' },
@@ -167,86 +162,6 @@ function parseHtmlSheet(html, categoryName) {
         if (idMatch) weidianId = idMatch[1];
 
         // Skip products with no photo AND no weidian fallback
-        if (!photo && !weidianId) continue;
-
-        products.push({ name, price, photo, link, category: categoryName, weidianId });
-    }
-
-    return products;
-}
-
-// Parser for sheet2 (column order: A=name, B=price, C=photo, D=link)
-function parseHtmlSheet2(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 4) continue;
-
-        const nameCell = cells[0];
-        const priceCell = cells[1];
-        const photoCell = cells[2];
-        const linkCell = cells[3];
-
-        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        const price = (priceCell.textContent || '').trim();
-
-        // Skip non-product rows
-        if (!name || name.toLowerCase() === 'item name') continue;
-        if (name.includes('CTRL') || name.includes('IMPORTANT') || name.includes('⬅') || name.includes('➡')) continue;
-        if (name === 'BEST SELLING ITEMS') continue;
-        if (price.includes(' ') && price.split('$').length > 2) continue;
-
-        // Get image: try <img> tag first, then fall back to URL text in cell
-        const img = photoCell.querySelector('img');
-        let photo = img ? img.getAttribute('src') : '';
-        if (!photo) {
-            const text = (photoCell.textContent || '').trim();
-            if (text.startsWith('http')) photo = text;
-        }
-        if (photo) {
-            photo = photo.replace(/=w\d+-h\d+$/, '=w800-h800');
-        }
-
-        // Get affiliate link from column D
-        const linkAnchor = linkCell.querySelector('a');
-        let link = '';
-        if (linkAnchor) {
-            const href = linkAnchor.getAttribute('href') || '';
-            const match = href.match(/[?&]q=([^&]+)/);
-            if (match) {
-                link = decodeURIComponent(match[1]);
-            } else {
-                link = href;
-            }
-        }
-        if (!link) {
-            // Fall back to text content if no <a> tag
-            const text = (linkCell.textContent || '').trim();
-            if (text.startsWith('http')) link = text;
-        }
-
-        if (link && !link.includes('?') && link.includes('&')) {
-            link = link.replace('&', '?');
-        }
-
-        // Replace any invite code with our affiliate code, or append if missing
-        if (/inviteCode=/i.test(link)) {
-            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
-        } else if (link) {
-            link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
-        }
-
-        if (!link) continue;
-        if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
-
-        let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
         if (!photo && !weidianId) continue;
 
         products.push({ name, price, photo, link, category: categoryName, weidianId });
@@ -416,15 +331,6 @@ async function fetchProducts() {
             })
         );
 
-        const results2 = await Promise.allSettled(
-            SHEET2_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheet2(html, tab.name);
-            })
-        );
-
         const results3 = await Promise.allSettled(
             SHEET3_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET3_ID, tab.gid));
@@ -435,7 +341,7 @@ async function fetchProducts() {
         );
 
         // Collect successful results, log failures
-        const allResults = [...results1, ...results2, ...results3];
+        const allResults = [...results1, ...results3];
         const failed = allResults.filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
@@ -463,7 +369,7 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const prioritized = ['Video Finds', 'Budget Finds'];
+    const prioritized = ['Video Finds'];
     for (const name of [...prioritized].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
