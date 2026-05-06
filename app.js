@@ -20,6 +20,11 @@ const SHEET3_TABS = [
     { name: 'Video Finds', gid: '0' },
 ];
 
+const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
+const SHEET2_TABS = [
+    { name: 'Budget Finds', gid: '0' },
+];
+
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
@@ -162,6 +167,64 @@ function parseHtmlSheet(html, categoryName) {
         if (idMatch) weidianId = idMatch[1];
 
         // Skip products with no photo AND no weidian fallback
+        if (!photo && !weidianId) continue;
+
+        products.push({ name, price, photo, link, category: categoryName, weidianId });
+    }
+
+    return products;
+}
+
+// =============================================================
+// HTML PARSING — Budget Finds sheet (A=name, B=price, C=photo, D=link)
+// Price format: "CNY X ≈ USD Y" — extract USD value
+// Photo is an anchor href (image URL inside Google redirect), not an <img> tag
+// =============================================================
+function parseHtmlSheetBudget(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = doc.querySelectorAll('tr');
+    const products = [];
+
+    for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 4) continue;
+
+        const name = (cells[0].textContent || '').trim().replace(/\s+/g, ' ');
+        const priceRaw = (cells[1].textContent || '').trim();
+
+        if (!name || name.toLowerCase() === 'item name') continue;
+
+        // Extract USD value from "CNY 68.31≈ USD 9.28" → "$9.28"
+        const usdMatch = priceRaw.match(/USD\s*([\d.]+)/i);
+        if (!usdMatch) continue;
+        const price = '$' + usdMatch[1];
+
+        // Photo: try <img> first, then anchor href, then text URL
+        const photoCell = cells[2];
+        let photo = '';
+        const img = photoCell.querySelector('img');
+        if (img) {
+            photo = img.getAttribute('src') || '';
+        }
+        if (!photo) {
+            const photoLink = extractLink(photoCell);
+            if (photoLink && photoLink.startsWith('http')) photo = photoLink;
+        }
+        if (!photo) {
+            const t = (photoCell.textContent || '').trim();
+            if (t.startsWith('http')) photo = t;
+        }
+
+        // Affiliate link
+        let link = extractLink(cells[3]);
+        link = fixLink(link);
+        if (!link) continue;
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
         if (!photo && !weidianId) continue;
 
         products.push({ name, price, photo, link, category: categoryName, weidianId });
@@ -340,8 +403,18 @@ async function fetchProducts() {
             })
         );
 
-        // Collect successful results, log failures
-        const allResults = [...results1, ...results3];
+        const results2 = await Promise.allSettled(
+            SHEET2_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetBudget(html, tab.name);
+            })
+        );
+
+        // Collect successful results, log failures.
+        // Order: Video Finds, Budget Finds, then main sheet — matches category-pill order.
+        const allResults = [...results3, ...results2, ...results1];
         const failed = allResults.filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
@@ -369,7 +442,7 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const prioritized = ['Video Finds'];
+    const prioritized = ['Video Finds', 'Budget Finds'];
     for (const name of [...prioritized].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
