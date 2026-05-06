@@ -604,18 +604,33 @@ function escapeAttr(str) {
 // =============================================================
 let lastScrollY = 0;
 let scrollTicking = false;
+let searchFocused = false;
 const header = document.querySelector('header');
+
+// Pin the header to its full visible state while the search is focused.
+// Mobile keyboards shrink the viewport and auto-scroll the focused input,
+// which can yank a sticky header (and the input inside it) off-screen.
+searchInput.addEventListener('focus', () => {
+    searchFocused = true;
+    header.classList.remove('header-hidden');
+    header.classList.remove('header-compact');
+    if (window.scrollY > 0) window.scrollTo(0, 0);
+});
+searchInput.addEventListener('blur', () => {
+    searchFocused = false;
+});
 
 window.addEventListener('scroll', () => {
     if (!scrollTicking) {
         scrollTicking = true;
         requestAnimationFrame(() => {
+            if (searchFocused) {
+                lastScrollY = window.scrollY;
+                scrollTicking = false;
+                return;
+            }
             const currentY = window.scrollY;
-            // Don't hide the header while the search input is focused —
-            // the mobile keyboard's auto-scroll would otherwise yank the
-            // focused input off-screen.
-            const searchFocused = document.activeElement === searchInput;
-            if (!searchFocused && currentY > lastScrollY && currentY > 80) {
+            if (currentY > lastScrollY && currentY > 80) {
                 header.classList.add('header-hidden');
                 header.classList.remove('header-compact');
             } else if (currentY <= 5) {
@@ -623,7 +638,7 @@ window.addEventListener('scroll', () => {
                 header.classList.remove('header-compact');
             } else {
                 header.classList.remove('header-hidden');
-                if (!searchFocused) header.classList.add('header-compact');
+                header.classList.add('header-compact');
             }
             lastScrollY = currentY;
             scrollTicking = false;
