@@ -611,7 +611,11 @@ window.addEventListener('scroll', () => {
         scrollTicking = true;
         requestAnimationFrame(() => {
             const currentY = window.scrollY;
-            if (currentY > lastScrollY && currentY > 80) {
+            // Don't hide the header while the search input is focused —
+            // the mobile keyboard's auto-scroll would otherwise yank the
+            // focused input off-screen.
+            const searchFocused = document.activeElement === searchInput;
+            if (!searchFocused && currentY > lastScrollY && currentY > 80) {
                 header.classList.add('header-hidden');
                 header.classList.remove('header-compact');
             } else if (currentY <= 5) {
@@ -619,7 +623,7 @@ window.addEventListener('scroll', () => {
                 header.classList.remove('header-compact');
             } else {
                 header.classList.remove('header-hidden');
-                header.classList.add('header-compact');
+                if (!searchFocused) header.classList.add('header-compact');
             }
             lastScrollY = currentY;
             scrollTicking = false;
