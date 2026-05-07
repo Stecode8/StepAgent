@@ -447,16 +447,23 @@ async function fetchProducts() {
         );
 
         // Collect successful results, log failures.
-        // Order: Video Finds, Budget Finds, main sheet, then SHEET4 (BukonBuy).
-        // SHEET4 is last so its items appear below the main-sheet items within
-        // each shared category (the renderer's stable sort preserves this order).
-        const allResults = [...results3, ...results2, ...results1, ...results4];
-        const failed = allResults.filter(r => r.status === 'rejected');
+        // sourceOrder controls render order within a category: lower goes first,
+        // so SHEET4 (BukonBuy) items always sit below main-sheet items even when
+        // the renderer's photo-first sort would otherwise interleave them.
+        const sources = [
+            { results: results3, order: 0 }, // Video Finds
+            { results: results2, order: 1 }, // Budget Finds
+            { results: results1, order: 2 }, // main sheet
+            { results: results4, order: 3 }, // BukonBuy
+        ];
+        const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
-        allProducts = allResults
-            .filter(r => r.status === 'fulfilled')
-            .flatMap(r => r.value);
+        allProducts = sources.flatMap(({ results, order }) =>
+            results
+                .filter(r => r.status === 'fulfilled')
+                .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
+        );
 
         if (allProducts.length === 0 && failed.length > 0) {
             throw failed[0].reason;
@@ -541,8 +548,14 @@ function renderProducts(skipAnimation) {
         );
     }
 
-    // Sort products with photos first, no-photo products at the end
-    filtered.sort((a, b) => (b.photo ? 1 : 0) - (a.photo ? 1 : 0));
+    // Sort products with photos first, no-photo products at the end.
+    // Tiebreak on sourceOrder so within each bucket items keep their cross-sheet
+    // ordering (BukonBuy items stay below main-sheet items in shared categories).
+    filtered.sort((a, b) => {
+        const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
+        if (photoCmp !== 0) return photoCmp;
+        return (a.sourceOrder || 0) - (b.sourceOrder || 0);
+    });
 
     // Apply price sort if selected
     if (priceSort === 'low' || priceSort === 'high') {
