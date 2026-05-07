@@ -25,6 +25,23 @@ const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
 ];
 
+// Secondary product sheet — same A=Name, B=Photo, C=Price, D=Link layout as
+// SHEET3. Each tab's `name` is the *existing* category display label so its
+// products land in that category's pill alongside the main sheet's items.
+const SHEET4_ID = '1CmvRYfDLvv94PhqnQM_4qWkGw3_sRaPrsxETCAD-8Rc';
+const SHEET4_TABS = [
+    { name: '\u{1F50D}Latest Finds \u{1F50D}',         gid: '3886014' },    // New Arrival
+    { name: '\u{1F45E}SHOES\u{1F45E}',                 gid: '230384323' },  // SHOES
+    { name: '\u{1F9E5}Coats and Jackets\u{1F9E5}',     gid: '1398944110' }, // HOODIES & JACKETS
+    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',     gid: '1229125430' }, // HOODIES/SWEATERS
+    { name: '\u{1F45C} Accessories\u{1F45C}',          gid: '441086967' },  // BAGS
+    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',    gid: '1536467206' }, // MORE CLOTHES
+    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',    gid: '1900197506' }, // T-SHIRT
+    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',     gid: '290039758' },  // JEANS/PANTS
+    { name: '\u{1F3A7}Electronic products\u{1F3A7}',   gid: '147452554' },  // ELECTRONIC
+    { name: '\u{1F45C} Accessories\u{1F45C}',          gid: '2103333693' }, // ACCESSORIES
+];
+
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
@@ -50,6 +67,16 @@ const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
 
+// Build the rendered URL for a product photo. Google-hosted images (lh3/lh4/etc.
+// .googleusercontent.com) already serve CORS-friendly headers and are fast, but
+// wsrv.nl intermittently returns 404 when proxying them — load those direct.
+// Everything else (e.g. Geili CDN) still needs the proxy to bypass CORP headers.
+function photoUrl(src, w, h) {
+    if (!src) return '';
+    if (/(^|\.)googleusercontent\.com\//.test(src)) return src;
+    return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
+}
+
 // Delegated click handler for product cards (one listener, not one per card)
 gridEl.addEventListener('click', (e) => {
     const card = e.target.closest('.product-card');
@@ -58,9 +85,7 @@ gridEl.addEventListener('click', (e) => {
     const p = currentFiltered[idx];
     if (!p) return;
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-    const bigImg = p.photo
-        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
-        : placeholder;
+    const bigImg = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
     document.getElementById('modal-img').src = bigImg;
     document.getElementById('modal-img').alt = p.name;
     document.getElementById('modal-name').textContent = p.name;
@@ -412,9 +437,20 @@ async function fetchProducts() {
             })
         );
 
+        const results4 = await Promise.allSettled(
+            SHEET4_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheet(html, tab.name);
+            })
+        );
+
         // Collect successful results, log failures.
-        // Order: Video Finds, Budget Finds, then main sheet — matches category-pill order.
-        const allResults = [...results3, ...results2, ...results1];
+        // Order: Video Finds, Budget Finds, main sheet, then SHEET4 (BukonBuy).
+        // SHEET4 is last so its items appear below the main-sheet items within
+        // each shared category (the renderer's stable sort preserves this order).
+        const allResults = [...results3, ...results2, ...results1, ...results4];
         const failed = allResults.filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
 
@@ -534,9 +570,7 @@ function renderProducts(skipAnimation) {
 
 function buildCard(p, i) {
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-    const imgSrc = p.photo
-        ? `https://wsrv.nl/?url=${encodeURIComponent(p.photo)}&w=800&h=800&fit=cover`
-        : placeholder;
+    const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
     card.className = 'product-card';
@@ -547,6 +581,9 @@ function buildCard(p, i) {
     img.src = imgSrc;
     img.alt = p.name;
     img.loading = 'lazy';
+    // Google blocks googleusercontent.com requests with non-Google referers (429).
+    // Strip referer so direct loads from lh3.googleusercontent.com succeed.
+    img.referrerPolicy = 'no-referrer';
     img.dataset.weidian = p.weidianId || '';
     img.onerror = function() { this.onerror = null; this.src = placeholder; };
 
@@ -711,13 +748,13 @@ async function loadMissingImages() {
 
         // Check cache
         if (imgCache[wid]) {
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(imgCache[wid])}&w=800&h=800&fit=cover`;
+            img.src = photoUrl(imgCache[wid], 800, 800);
             continue;
         }
 
         const url = await weidianImage(wid);
         if (url) {
-            img.src = `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=800&h=800&fit=cover`;
+            img.src = photoUrl(url, 800, 800);
         }
 
         // Small delay between each request
