@@ -45,6 +45,364 @@ const SHEET4_TABS = [
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
+// SEARCH ALIASES — short forms, brand expansions, category synonyms
+//
+// Each row in SYNONYM_GROUPS is a set of equivalent terms; typing any of them
+// also tries matching the others. So `['lv', 'louis vuitton']` means searching
+// "lv" finds "Louis Vuitton ..." products AND vice versa. Keep terms
+// lowercased. Add freely.
+//
+// Caution on very short aliases (1-2 chars): matching uses \b word boundary,
+// so "lv" won't match "involve" — but it WILL match anything starting with
+// those letters. Avoid initials that commonly start unrelated words
+// (`am` matches "American", `h` matches every H word, `ye` matches "yellow").
+// When in doubt, only include the longer canonical form.
+// =============================================================
+const SYNONYM_GROUPS = [
+    // ===== Luxury / designer houses =====
+    ['lv', 'louis vuitton'],
+    ['ysl', 'slp', 'saint laurent', 'yves saint laurent'],
+    ['cdg', 'comme des garcons', 'comme des garçons', 'play cdg'],
+    ['bv', 'bottega veneta', 'bottega'],
+    ['d&g', 'dg', 'dolce gabbana', 'dolce and gabbana', 'dolce & gabbana'],
+    ['mm', 'mmm', 'mm6', 'maison margiela', 'margiela'],
+    ['rl', 'polo', 'ralph lauren', 'polo ralph lauren'],
+    ['rrl', 'double rl'],
+    ['gg', 'gucci'],
+    ['cd', 'dior', 'christian dior'],
+    ['ff', 'fendi'],
+    ['cc', 'chanel'],
+    ['hermes', 'hermès'],
+    ['vltn', 'valentino'],
+    ['mcm', 'mode creation munich'],
+    ['bb', 'burberry', 'tb burberry'],
+    ['celine', 'céline'],
+    ['gvc', 'givenchy'],
+    ['loewe'],
+    ['balmain'],
+    ['miu miu', 'miumiu'],
+    ['prada'],
+    ['versace', 'medusa'],
+    ['moncler'],
+    ['canada goose', 'cg'],
+    ['arcteryx', "arc'teryx", 'arc teryx'],
+    ['stone island'],
+    ['patagonia', 'patagucci'],
+    ['mschf'],
+    ['amiri'],
+    ['rhude'],
+    ['represent'],
+    ['purple', 'purple brand'],
+    ['gallery', 'gallery dept', 'gallery department'],
+    ['eric emanuel'],
+    ['chrome hearts'],
+    ['crtz', 'corteiz', 'cortiez'],
+    ['sup', 'supreme'],
+    ['palace'],
+    ['stussy', 'stüssy'],
+    ['kith'],
+    ['fog', 'essentials', 'fear of god'],
+    ['assc', 'anti social social club'],
+    ['vlone'],
+    ['trapstar'],
+    ['sp5der', 'spider', 'sp5'],
+    ['bape', 'a bathing ape', 'bathing ape'],
+    ['aape'],
+    ['bbc', 'billionaire boys club', 'ice cream'],
+    ['bal', 'balenciaga'],
+    ['gd', 'goyard'],
+    ['mk', 'michael kors'],
+    ['tb', 'thom browne', 'tory burch'],
+    ['tnf', 'nf', 'north face', 'the north face'],
+    ['cpfm', 'cactus plant flea market'],
+    ['travis scott', 'cactus jack'],
+    ['ovo', "october's very own", 'octobers very own', 'drake'],
+    ['ow', 'off white', 'off-white', 'virgil'],
+
+    // ===== Streetwear / Japanese / niche =====
+    ['hm', 'human made'],
+    ['nbhd', 'neighborhood'],
+    ['wtaps'],
+    ['sacai'],
+    ['kapital'],
+    ['needles'],
+    ['undercover'],
+    ['visvim'],
+    ['junya', 'junya watanabe'],
+    ['y3', 'y-3'],
+    ['yohji', 'yohji yamamoto'],
+    ['issey', 'issey miyake', 'pleats please'],
+    ['rick owens', 'drkshdw'],
+    ['vetements'],
+    ['acne', 'acne studios'],
+    ['jacquemus'],
+    ['raf', 'raf simons'],
+    ['ann', 'ann demeulemeester'],
+    ['marni'],
+    ['lanvin'],
+
+    // ===== Mainstream / sport / workwear =====
+    ['nike'],
+    ['adidas', 'three stripes', '3 stripes'],
+    ['puma'],
+    ['reebok'],
+    ['vans'],
+    ['converse', 'chuck taylor', 'chucks'],
+    ['asics'],
+    ['onitsuka', 'onitsuka tiger'],
+    ['salomon'],
+    ['hoka'],
+    ['on cloud', 'oncloud', 'on running'],
+    ['nb', 'new balance'],
+    ['carhartt', 'carhartt wip', 'wip'],
+    ['dickies'],
+    ['levis', "levi's", 'levi strauss'],
+    ['wrangler'],
+    ['lacoste'],
+    ['tommy', 'tommy hilfiger', 'th'],
+    ['ck', 'calvin klein'],
+    ['hugo boss', 'boss'],
+    ['armani', 'ea', 'emporio armani', 'giorgio armani'],
+    ['zegna'],
+    ['brunello', 'brunello cucinelli'],
+    ['loro piana', 'lp'],
+    ['tom ford'],
+
+    // ===== Jordan / Air Max / Yeezy / model shorthand =====
+    ['aj', 'air jordan', 'jordan'],
+    ['aj1', 'air jordan 1', 'jordan 1', 'j1'],
+    ['aj3', 'air jordan 3', 'jordan 3'],
+    ['aj4', 'air jordan 4', 'jordan 4', 'j4'],
+    ['aj5', 'air jordan 5', 'jordan 5'],
+    ['aj6', 'air jordan 6', 'jordan 6'],
+    ['aj11', 'air jordan 11', 'jordan 11'],
+    ['aj12', 'air jordan 12', 'jordan 12'],
+    ['aj13', 'air jordan 13', 'jordan 13'],
+    ['af1', 'air force 1', 'air force one', 'forces'],
+    ['sb', 'nike sb', 'sb dunk', 'dunk sb'],
+    ['dunk', 'nike dunk'],
+    ['blazer', 'nike blazer'],
+    ['cortez', 'nike cortez'],
+    ['tn', 'air max plus', 'air max tn'],
+    ['am1', 'air max 1'],
+    ['am90', 'air max 90'],
+    ['am95', 'air max 95'],
+    ['am97', 'air max 97'],
+    ['am270', 'air max 270'],
+    ['am720', 'air max 720'],
+    ['vapormax', 'vapor max'],
+    ['pegasus', 'nike pegasus'],
+    ['ub', 'ultraboost', 'ultra boost'],
+    ['nmd', 'adidas nmd'],
+    ['ss', 'stan smith'],
+    ['superstar'],
+    ['samba'],
+    ['gazelle'],
+    ['spzl', 'spezial'],
+    ['campus'],
+    ['handball', 'handball spezial'],
+    ['forum', 'adidas forum'],
+    ['yz', 'yzy', 'yeezy'],
+    ['yz350', 'yeezy 350', 'boost 350'],
+    ['yz450', 'yeezy 450'],
+    ['yz500', 'yeezy 500'],
+    ['yz700', 'yeezy 700'],
+    ['yzy slide', 'yeezy slide'],
+    ['foam runner', 'yeezy foam', 'foam rnr'],
+    ['nb550', 'new balance 550', '550'],
+    ['nb327', 'new balance 327', '327'],
+    ['nb990', 'new balance 990', '990'],
+    ['nb991', 'new balance 991', '991'],
+    ['nb992', 'new balance 992', '992'],
+    ['nb993', 'new balance 993', '993'],
+    ['nb2002', 'new balance 2002', '2002r', '2002'],
+    ['nb9060', 'new balance 9060', '9060'],
+    ['nb1906', 'new balance 1906', '1906'],
+    ['nb530', 'new balance 530', '530'],
+    ['nb574', 'new balance 574', '574'],
+    ['gel lyte', 'gel-lyte', 'gellyte'],
+    ['kayano', 'gel kayano', 'gel-kayano'],
+    ['nimbus', 'gel nimbus'],
+    ['novablast'],
+    ['mexico 66', 'onitsuka mexico'],
+    ['xt6', 'xt-6', 'xt 6', 'salomon xt6'],
+    ['xt4', 'xt-4'],
+    ['speedcross', 'salomon speedcross'],
+    ['clifton', 'hoka clifton'],
+    ['bondi', 'hoka bondi'],
+    ['old skool', 'old school', 'vans old skool'],
+    ['sk8 hi', 'sk8-hi', 'sk8hi'],
+    ['slip on', 'slip-on', 'slipon'],
+
+    // ===== Footwear (general / non-sneaker) =====
+    ['shoes', 'sneakers', 'kicks', 'trainers', 'footwear'],
+    ['boots', 'boot'],
+    ['slides', 'sliders', 'slide', 'slippers'],
+    ['sandals', 'sandal'],
+    ['loafers', 'loafer', 'mules', 'mule'],
+    ['heels', 'heel', 'pumps', 'stiletto'],
+    ['flats', 'ballet flats', 'flat'],
+    ['doc martens', 'dr martens', 'dr. martens', 'dms'],
+    ['timberland', 'timbs'],
+    ['ugg', 'uggs'],
+    ['crocs', 'croc'],
+    ['birkenstock', 'birks'],
+    ['clarks', 'wallabee', 'wallabees'],
+
+    // ===== Tops =====
+    ['hoodie', 'hoodies', 'hooded', 'tech fleece', 'pullover', 'sweatshirt', 'sweater', 'zip up', 'zip-up'],
+    ['crewneck', 'crew neck', 'crew'],
+    ['sweater', 'sweaters', 'knit', 'knitwear', 'cardigan', 'jumper'],
+    ['tee', 'tshirt', 't-shirt', 't shirt', 'shirt', 't-shirts'],
+    ['long sleeve', 'longsleeve', 'long-sleeve', 'ls tee', 'ls'],
+    ['polo shirt', 'polo'],
+    ['button up', 'button down', 'button-up', 'button-down', 'dress shirt', 'oxford', 'oxford shirt'],
+    ['tank', 'tank top', 'singlet', 'sleeveless'],
+    ['flannel'],
+
+    // ===== Bottoms =====
+    ['pants', 'trousers', 'slacks'],
+    ['jeans', 'denim', 'denims'],
+    ['joggers', 'sweatpants', 'track pants', 'trackpants', 'jogger'],
+    ['shorts', 'short', 'sweatshorts'],
+    ['cargo', 'cargos', 'cargo pants', 'cargo shorts'],
+    ['skirt', 'skirts'],
+    ['leggings', 'tights'],
+
+    // ===== Outerwear =====
+    ['jacket', 'jackets'],
+    ['coat', 'coats'],
+    ['puffer', 'down jacket', 'puffer jacket', 'down'],
+    ['parka'],
+    ['trench', 'trench coat'],
+    ['bomber', 'bomber jacket', 'ma1', 'ma-1'],
+    ['varsity', 'letterman', 'varsity jacket'],
+    ['denim jacket', 'jean jacket', 'trucker jacket'],
+    ['windbreaker', 'anorak', 'shell', 'shell jacket', 'rain jacket'],
+    ['vest', 'gilet'],
+    ['tech', 'tech fleece'],
+    ['fleece'],
+
+    // ===== Sets / formal / dresses =====
+    ['tracksuit', 'track suit', 'tracksuits'],
+    ['set', 'co-ord', 'coord', 'matching set', 'two piece', '2 piece'],
+    ['suit', 'blazer', 'sport coat'],
+    ['dress', 'dresses', 'gown'],
+
+    // ===== Bags =====
+    ['bag', 'bags', 'handbag', 'purse'],
+    ['tote', 'tote bag'],
+    ['crossbody', 'cross body', 'shoulder bag', 'sling', 'sling bag', 'messenger'],
+    ['backpack', 'back pack', 'rucksack'],
+    ['duffel', 'duffle', 'duffel bag', 'duffle bag', 'gym bag', 'weekender'],
+    ['fanny pack', 'belt bag', 'waist bag', 'bum bag', 'hip pack'],
+    ['clutch'],
+    ['speedy', 'lv speedy'],
+    ['neverfull', 'lv neverfull'],
+    ['birkin', 'hermes birkin'],
+    ['kelly', 'hermes kelly'],
+
+    // ===== Small leather goods / accessories =====
+    ['wallet', 'wallets', 'cardholder', 'card holder', 'bifold', 'bi-fold', 'long wallet'],
+    ['belt', 'belts', 'buckle'],
+    ['hat', 'hats', 'cap', 'caps'],
+    ['beanie', 'beanies', 'knit hat', 'skull cap'],
+    ['bucket hat', 'bucket', 'fisherman hat'],
+    ['snapback', 'trucker hat', 'trucker cap', 'baseball cap', 'dad hat'],
+    ['scarf', 'scarves'],
+    ['gloves', 'glove', 'mittens'],
+    ['tie', 'necktie', 'bowtie', 'bow tie'],
+
+    // ===== Jewelry / eyewear / watches =====
+    ['sunglasses', 'shades', 'sunnies'],
+    ['glasses', 'eyewear', 'frames', 'spectacles'],
+    ['watch', 'watches', 'wristwatch'],
+    ['rolex', 'submariner', 'datejust', 'daytona', 'gmt'],
+    ['audemars piguet', 'royal oak'],
+    ['patek', 'patek philippe', 'nautilus'],
+    ['cartier', 'love bracelet', 'juste un clou'],
+    ['bracelet', 'bracelets', 'cuff', 'bangle'],
+    ['necklace', 'necklaces', 'chain', 'chains', 'pendant'],
+    ['ring', 'rings', 'band'],
+    ['earring', 'earrings', 'studs', 'hoops'],
+    ['pin', 'pins', 'brooch'],
+    ['keychain', 'keychains', 'key chain', 'lanyard', 'key holder'],
+
+    // ===== Electronics / tech =====
+    ['headphones', 'headphone', 'cans', 'over-ear', 'over ear'],
+    ['earbuds', 'earphones', 'in-ear', 'iems', 'in ear'],
+    ['airpods', 'air pods', 'airpod', 'airpods pro', 'airpods max'],
+    ['speaker', 'speakers', 'bluetooth speaker', 'wireless speaker'],
+    ['phone', 'smartphone', 'iphone', 'android'],
+    ['phone case', 'phonecase', 'iphone case'],
+    ['airpods case', 'airpod case'],
+    ['charger', 'charging cable', 'usb cable', 'lightning cable', 'usb-c'],
+    ['power bank', 'powerbank', 'portable charger'],
+    ['smartwatch', 'apple watch', 'iwatch'],
+    ['drone'],
+    ['camera', 'cam'],
+    ['mouse', 'gaming mouse'],
+    ['keyboard', 'mechanical keyboard'],
+
+    // ===== Misc =====
+    ['perfume', 'cologne', 'fragrance', 'eau de parfum', 'edp', 'edt'],
+    ['lighter', 'zippo'],
+    ['umbrella'],
+    ['stuffed animal', 'plush', 'plushie', 'plushy'],
+    ['lego', 'legos'],
+    ['football jersey', 'soccer jersey', 'jersey'],
+    ['fifa', 'world cup'],
+];
+
+// Build the lookup dict from groups. For each term, list all other terms in
+// the same group(s). A term can appear in multiple groups (e.g. 'tee' and
+// 'shirt' are bridges) — we union their expansions.
+const SEARCH_ALIASES = (() => {
+    const dict = {};
+    for (const group of SYNONYM_GROUPS) {
+        for (const term of group) {
+            const list = dict[term] || (dict[term] = []);
+            for (const other of group) {
+                if (other !== term && !list.includes(other)) list.push(other);
+            }
+        }
+    }
+    return dict;
+})();
+
+// Memoized OR-regex per token. \b anchors the start of each expansion so
+// short forms like "lv" don't false-match inside other words ("involve"),
+// while still matching at the start of any word ("LV Monogram Bag").
+// Digit-ending aliases (aj1, am90, 550, ...) get a (?!\d) lookahead so that
+// "aj1" doesn't accidentally match "aj11" or "am90" match "am900".
+const _tokenMatcherCache = {};
+function tokenMatcher(token) {
+    if (_tokenMatcherCache[token]) return _tokenMatcherCache[token];
+    const expansions = [token, ...(SEARCH_ALIASES[token] || [])];
+    const parts = expansions.map(s => {
+        const esc = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return /\d$/.test(s) ? esc + '(?!\\d)' : esc;
+    });
+    return (_tokenMatcherCache[token] = new RegExp('\\b(?:' + parts.join('|') + ')', 'i'));
+}
+
+function matchesSearch(name, query) {
+    query = (query || '').trim();
+    if (!query) return true;
+    name = name.toLowerCase();
+
+    // Whole-query match (with aliases). Uses the same word-boundary regex so
+    // "air jordan 1" doesn't accidentally match "Air Jordan 11".
+    if (tokenMatcher(query).test(name)) return true;
+
+    // Per-token AND: each token (or any of its aliases) must match somewhere
+    // in the name. This handles "nike hoodie" → "Nike Tech Fleece Hoodie".
+    const tokens = query.split(/\s+/).filter(Boolean);
+    if (tokens.length <= 1) return false;
+    return tokens.every(t => tokenMatcher(t).test(name));
+}
+
+// =============================================================
 // APP STATE
 // =============================================================
 let allProducts = [];
@@ -543,9 +901,7 @@ function renderProducts(skipAnimation) {
     }
 
     if (searchQuery) {
-        filtered = filtered.filter(p =>
-            p.name.toLowerCase().includes(searchQuery)
-        );
+        filtered = filtered.filter(p => matchesSearch(p.name, searchQuery));
     }
 
     // Sort products with photos first, no-photo products at the end.
