@@ -25,23 +25,6 @@ const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
 ];
 
-// Secondary product sheet — same A=Name, B=Photo, C=Price, D=Link layout as
-// SHEET3. Each tab's `name` is the *existing* category display label so its
-// products land in that category's pill alongside the main sheet's items.
-const SHEET4_ID = '1CmvRYfDLvv94PhqnQM_4qWkGw3_sRaPrsxETCAD-8Rc';
-const SHEET4_TABS = [
-    { name: '\u{1F50D}Latest Finds \u{1F50D}',         gid: '3886014' },    // New Arrival
-    { name: '\u{1F45E}SHOES\u{1F45E}',                 gid: '230384323' },  // SHOES
-    { name: '\u{1F9E5}Coats and Jackets\u{1F9E5}',     gid: '1398944110' }, // HOODIES & JACKETS
-    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',     gid: '1229125430' }, // HOODIES/SWEATERS
-    { name: '\u{1F45C} Accessories\u{1F45C}',          gid: '441086967' },  // BAGS
-    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',    gid: '1536467206' }, // MORE CLOTHES
-    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',    gid: '1900197506' }, // T-SHIRT
-    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',     gid: '290039758' },  // JEANS/PANTS
-    { name: '\u{1F3A7}Electronic products\u{1F3A7}',   gid: '147452554' },  // ELECTRONIC
-    { name: '\u{1F45C} Accessories\u{1F45C}',          gid: '2103333693' }, // ACCESSORIES
-];
-
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
@@ -795,24 +778,12 @@ async function fetchProducts() {
             })
         );
 
-        const results4 = await Promise.allSettled(
-            SHEET4_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheet(html, tab.name);
-            })
-        );
-
         // Collect successful results, log failures.
-        // sourceOrder controls render order within a category: lower goes first,
-        // so SHEET4 (BukonBuy) items always sit below main-sheet items even when
-        // the renderer's photo-first sort would otherwise interleave them.
+        // sourceOrder controls render order within a category: lower goes first.
         const sources = [
             { results: results3, order: 0 }, // Video Finds
             { results: results2, order: 1 }, // Budget Finds
             { results: results1, order: 2 }, // main sheet
-            { results: results4, order: 3 }, // BukonBuy
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -905,8 +876,8 @@ function renderProducts(skipAnimation) {
     }
 
     // Sort products with photos first, no-photo products at the end.
-    // Tiebreak on sourceOrder so within each bucket items keep their cross-sheet
-    // ordering (BukonBuy items stay below main-sheet items in shared categories).
+    // Tiebreak on sourceOrder so items keep their cross-sheet ordering within a
+    // bucket (Video Finds → Budget Finds → main sheet).
     filtered.sort((a, b) => {
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
