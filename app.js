@@ -781,9 +781,9 @@ async function fetchProducts() {
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results3, order: 0 }, // Video Finds
-            { results: results2, order: 1 }, // Budget Finds
-            { results: results1, order: 2 }, // main sheet
+            { results: results2, order: 0 }, // Budget Finds (realboul1)
+            { results: results1, order: 1 }, // main sheet
+            { results: results3, order: 2 }, // Video Finds
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -814,12 +814,20 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const prioritized = ['Video Finds', 'Budget Finds'];
-    for (const name of [...prioritized].reverse()) {
+    const frontPinned = ['Budget Finds'];
+    for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
             categories.splice(idx, 1);
             categories.unshift(name);
+        }
+    }
+    const endPinned = ['Video Finds'];
+    for (const name of endPinned) {
+        const idx = categories.indexOf(name);
+        if (idx > -1) {
+            categories.splice(idx, 1);
+            categories.push(name);
         }
     }
 
@@ -877,7 +885,7 @@ function renderProducts(skipAnimation) {
 
     // Sort products with photos first, no-photo products at the end.
     // Tiebreak on sourceOrder so items keep their cross-sheet ordering within a
-    // bucket (Video Finds → Budget Finds → main sheet).
+    // bucket (Budget Finds → main sheet → Video Finds).
     filtered.sort((a, b) => {
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
