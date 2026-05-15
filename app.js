@@ -25,6 +25,11 @@ const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
 ];
 
+const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
+const SHEET4_TABS = [
+    { name: 'Special Finds', gid: '0' },
+];
+
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 // =============================================================
@@ -624,6 +629,69 @@ function fixLink(link) {
 }
 
 // =============================================================
+// HTML PARSING — Special Finds sheet (A=name, B=image, C=price, D=link)
+// Price cell contains USD and EUR separated by <br>, e.g. "15.18$" / "13.88€"
+// =============================================================
+function parseHtmlSheetSpecial(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = doc.querySelectorAll('tr');
+    const products = [];
+
+    for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 4) continue;
+
+        const name = (cells[0].textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name || name.toLowerCase() === 'product') continue;
+
+        // Price cell: read child text nodes/lines to separate USD and EUR.
+        // innerText respects <br>, fall back to textContent split heuristics.
+        const priceCell = cells[2];
+        const priceText = (priceCell.innerText || priceCell.textContent || '').trim();
+        const usdMatch = priceText.match(/([\d.]+)\s*\$/);
+        const eurMatch = priceText.match(/([\d.]+)\s*€/);
+        const usdPrice = usdMatch ? ('$' + usdMatch[1]) : '';
+        const eurPrice = eurMatch ? (eurMatch[1] + '€') : '';
+        if (!usdPrice) continue;
+
+        // Image
+        const imgCell = cells[1];
+        let photo = '';
+        const img = imgCell.querySelector('img');
+        if (img) photo = img.getAttribute('src') || '';
+        if (!photo) {
+            const t = (imgCell.textContent || '').trim();
+            if (t.startsWith('http')) photo = t;
+        }
+        if (photo) photo = photo.replace(/=s\d+[-\w]*$/, '=s1600').replace(/=w\d+-h\d+$/, '=w1600-h1600');
+
+        // Affiliate link
+        let link = extractLink(cells[3]);
+        link = fixLink(link);
+        if (!link) continue;
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        if (!photo && !weidianId) continue;
+
+        products.push({
+            name,
+            price: usdPrice,
+            eurPrice,
+            photo,
+            link,
+            category: categoryName,
+            weidianId
+        });
+    }
+
+    return products;
+}
+
+// =============================================================
 // HTML PARSING — new spreadsheet (4 products per row, 5 cols each)
 // Layout per product: NAME | LINK | PRICE(USD) | IMAGE | QC
 // Next row has EUR prices: _ | EUR1 | EUR2 | EUR3 | EUR4
@@ -742,6 +810,30 @@ function parseHtmlSheetNew(html, categoryName) {
 }
 
 // =============================================================
+// CATEGORY INFERENCE — map a Special Finds product name to one of the
+// standard tabs (SHOES, T-shirt and shorts, Hoodies and Pants, ...) so the
+// product also surfaces at the top of that tab. Falls back to '' (no extra
+// surfacing) when nothing matches confidently.
+// =============================================================
+function inferStandardCategory(name) {
+    const n = name.toLowerCase();
+    // Shoes — explicit "shoes"/"sneakers" words, plus common model/brand
+    // keywords that imply footwear ("jordan", "air max", "574" via "new balance").
+    if (/\b(shoes?|sneakers?|slides?|slippers?|kicks|trainers?|jordan|af1|dunk|cortez|forum|gel|b22|courts?|new balance|nike air|air max)\b/.test(n)) return TABS[2].name;
+    // T-shirts / shorts / polos / tanks
+    if (/\b(tee|t-shirts?|tshirts?|shirts?|polo|shorts?|tank)\b/.test(n)) return TABS[5].name;
+    // Hoodies / sweaters / pants / jeans / co-ord sets
+    if (/\b(hoodies?|sweaters?|sweatshirts?|crewnecks?|pants|jeans|joggers?|trousers|tracksuits?|set)\b/.test(n)) return TABS[3].name;
+    // Coats / jackets / puffers
+    if (/\b(coats?|jackets?|puffers?|parkas?)\b/.test(n)) return TABS[4].name;
+    // Accessories — bags / belts / hats / small leather goods / jewelry
+    if (/\b(bags?|belts?|hats?|caps?|wallets?|sunglasses|watches?|necklaces?|bracelets?|rings?|earrings?|scarves?|scarf)\b/.test(n)) return TABS[6].name;
+    // Electronics
+    if (/\b(headphones?|earbuds?|airpods?|speakers?|phone case|charger|drone|camera|keyboard)\b/.test(n)) return TABS[7].name;
+    return '';
+}
+
+// =============================================================
 // FETCH PRODUCTS
 // =============================================================
 async function fetchProducts() {
@@ -778,12 +870,22 @@ async function fetchProducts() {
             })
         );
 
+        const results4 = await Promise.allSettled(
+            SHEET4_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetSpecial(html, tab.name);
+            })
+        );
+
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results2, order: 0 }, // Budget Finds (realboul1)
-            { results: results1, order: 1 }, // main sheet
-            { results: results3, order: 2 }, // Video Finds
+            { results: results4, order: 0 }, // Special Finds (pinned top)
+            { results: results2, order: 1 }, // Budget Finds
+            { results: results1, order: 2 }, // main sheet
+            { results: results3, order: 3 }, // Video Finds
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -793,6 +895,18 @@ async function fetchProducts() {
                 .filter(r => r.status === 'fulfilled')
                 .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
         );
+
+        // Surface Special Finds products at the top of their matched standard
+        // category too (e.g. "Bape Tee" also appears in T-shirt and shorts).
+        // extraCategory is checked alongside category in the filter — the
+        // product appears in both its tab AND the inferred tab, but only once
+        // in "All" because filtering doesn't duplicate the array.
+        for (const p of allProducts) {
+            if (p.category === 'Special Finds') {
+                const extra = inferStandardCategory(p.name);
+                if (extra) p.extraCategory = extra;
+            }
+        }
 
         if (allProducts.length === 0 && failed.length > 0) {
             throw failed[0].reason;
@@ -814,7 +928,7 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Budget Finds'];
+    const frontPinned = ['Special Finds', 'Budget Finds'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -876,17 +990,24 @@ function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === activeCategory);
+        filtered = filtered.filter(p => p.category === activeCategory || p.extraCategory === activeCategory);
     }
 
     if (searchQuery) {
         filtered = filtered.filter(p => matchesSearch(p.name, searchQuery));
     }
 
-    // Sort products with photos first, no-photo products at the end.
-    // Tiebreak on sourceOrder so items keep their cross-sheet ordering within a
-    // bucket (Budget Finds → main sheet → Video Finds).
+    // Sort order:
+    //   1. Pinned: Special Finds surfaced into a standard tab (extraCategory
+    //      match) come first, ahead of even photo'd products from that tab.
+    //   2. Photos first, no-photo products at the end.
+    //   3. sourceOrder tiebreak (Special Finds → Budget Finds → main sheet → Video Finds).
     filtered.sort((a, b) => {
+        if (activeCategory !== 'all') {
+            const aPin = a.extraCategory === activeCategory ? 0 : 1;
+            const bPin = b.extraCategory === activeCategory ? 0 : 1;
+            if (aPin !== bPin) return aPin - bPin;
+        }
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
@@ -921,7 +1042,7 @@ function buildCard(p, i) {
     const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
-    card.className = 'product-card';
+    card.className = 'product-card' + (p.category === 'Special Finds' ? ' pinned' : '');
     card.dataset.index = i;
 
     const img = document.createElement('img');
