@@ -281,6 +281,53 @@ header.header-compact .category-tabs {
     transform: scale(0.93);
 }
 
+/* Special Finds pill — gold star + highlight */
+.category-pill[data-category="Special Finds"] {
+    background: linear-gradient(135deg, rgba(245, 197, 24, 0.18) 0%, rgba(245, 197, 24, 0.08) 100%);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(245, 197, 24, 0.2);
+}
+
+.category-pill[data-category="Special Finds"]::before {
+    content: '★ ';
+    color: var(--accent);
+}
+
+.category-pill[data-category="Special Finds"].active {
+    background: var(--accent-gradient);
+    color: #000;
+}
+
+.category-pill[data-category="Special Finds"].active::before {
+    color: #000;
+}
+
+/* Budget Finds pill — green star + highlight */
+.category-pill[data-category="Budget Finds"] {
+    background: linear-gradient(135deg, rgba(48, 209, 88, 0.18) 0%, rgba(48, 209, 88, 0.08) 100%);
+    border-color: #30d158;
+    color: #30d158;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(48, 209, 88, 0.2);
+}
+
+.category-pill[data-category="Budget Finds"]::before {
+    content: '★ ';
+    color: #30d158;
+}
+
+.category-pill[data-category="Budget Finds"].active {
+    background: linear-gradient(135deg, #30d158 0%, #28a745 100%);
+    color: #000;
+    border-color: #30d158;
+}
+
+.category-pill[data-category="Budget Finds"].active::before {
+    color: #000;
+}
+
 /* ===== Main Content ===== */
 main {
     padding: 16px;
@@ -360,6 +407,48 @@ main {
         box-shadow:
             0 0 0 1px rgba(245, 197, 24, 0.45),
             0 6px 26px rgba(245, 197, 24, 0.28);
+    }
+}
+
+/* Budget Finds cards — green ring, gradient green star badge */
+.product-card.budget {
+    position: relative;
+    border: 1.5px solid #30d158;
+    box-shadow:
+        0 0 0 1px rgba(48, 209, 88, 0.25),
+        0 4px 20px rgba(48, 209, 88, 0.18);
+    background: linear-gradient(180deg, rgba(48, 209, 88, 0.06) 0%, var(--card-bg) 60%);
+}
+
+.product-card.budget::before {
+    content: '★';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #30d158 0%, #28a745 100%);
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.product-card.budget .product-price {
+    color: #30d158;
+}
+
+@media (hover: hover) {
+    .product-card.budget:hover {
+        border-color: #30d158;
+        box-shadow:
+            0 0 0 1px rgba(48, 209, 88, 0.45),
+            0 6px 26px rgba(48, 209, 88, 0.28);
     }
 }
 

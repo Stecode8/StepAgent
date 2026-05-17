@@ -1042,7 +1042,10 @@ function buildCard(p, i) {
     const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
-    card.className = 'product-card' + (p.category === 'Special Finds' ? ' pinned' : '');
+    let extraClass = '';
+    if (p.category === 'Special Finds') extraClass = ' pinned';
+    else if (p.category === 'Budget Finds') extraClass = ' budget';
+    card.className = 'product-card' + extraClass;
     card.dataset.index = i;
 
     const img = document.createElement('img');
