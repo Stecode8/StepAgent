@@ -728,6 +728,117 @@ main {
     background: rgba(245, 197, 24, 0.12);
 }
 
+/* ===== Discord Invite Popup ===== */
+.discord-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: discord-fade-in 0.25s ease-out;
+}
+
+.discord-popup.hidden {
+    display: none;
+}
+
+@keyframes discord-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.discord-popup-card {
+    position: relative;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 32px 24px 24px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    color: var(--text);
+    box-shadow: var(--shadow-lg);
+    animation: discord-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes discord-pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.discord-popup-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.discord-popup-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.discord-popup-icon {
+    width: 64px;
+    height: 64px;
+    margin: 4px auto 16px;
+    background: #5865F2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(88, 101, 242, 0.4);
+}
+
+.discord-popup-card h2 {
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.discord-popup-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.discord-popup-btn {
+    display: inline-block;
+    background: #5865F2;
+    color: #fff;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 36px;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(88, 101, 242, 0.3);
+    transition: background 0.15s, transform 0.15s;
+}
+
+.discord-popup-btn:hover {
+    background: #4752c4;
+    transform: translateY(-1px);
+}
+
 /* ===== In-app Browser Overlay ===== */
 .inapp-overlay {
     position: fixed;
