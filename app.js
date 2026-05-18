@@ -1415,13 +1415,16 @@ const header = document.querySelector('header');
 searchInput.addEventListener('focus', () => {
     searchFocused = true;
     header.classList.remove('header-hidden');
-    header.classList.remove('header-compact');
-    if (window.scrollY > 0) window.scrollTo(0, 0);
 });
 searchInput.addEventListener('blur', () => {
     searchFocused = false;
 });
 
+// Hide the header on scroll-down, show on scroll-up.
+// Uses a hysteresis threshold so micro-scrolls don't flip the state and
+// jitter the page. Only transform is animated — height is constant, so the
+// content underneath never shifts.
+const SCROLL_DELTA = 8;
 window.addEventListener('scroll', () => {
     if (!scrollTicking) {
         scrollTicking = true;
@@ -1432,15 +1435,17 @@ window.addEventListener('scroll', () => {
                 return;
             }
             const currentY = window.scrollY;
-            if (currentY > lastScrollY && currentY > 80) {
+            const delta = currentY - lastScrollY;
+            if (Math.abs(delta) < SCROLL_DELTA) {
+                scrollTicking = false;
+                return;
+            }
+            if (currentY <= 5) {
+                header.classList.remove('header-hidden');
+            } else if (delta > 0 && currentY > 80) {
                 header.classList.add('header-hidden');
-                header.classList.remove('header-compact');
-            } else if (currentY <= 5) {
+            } else if (delta < 0) {
                 header.classList.remove('header-hidden');
-                header.classList.remove('header-compact');
-            } else {
-                header.classList.remove('header-hidden');
-                header.classList.add('header-compact');
             }
             lastScrollY = currentY;
             scrollTicking = false;

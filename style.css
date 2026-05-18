@@ -63,13 +63,6 @@ header.header-hidden {
     transform: translateY(-100%);
 }
 
-header.header-compact .header-top,
-header.header-compact .intro-box,
-header.header-compact .signup-link,
-header.header-compact .category-tabs {
-    display: none;
-}
-
 .header-top {
     position: relative;
     display: flex;
