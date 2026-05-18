@@ -762,8 +762,8 @@ main {
 /* ===== Discord Invite Toast (bottom-right) ===== */
 .discord-popup {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: calc(20px + env(safe-area-inset-right, 0px));
     z-index: 10001;
     max-width: 320px;
     width: calc(100% - 40px);
@@ -864,9 +864,9 @@ main {
 
 @media (max-width: 480px) {
     .discord-popup {
-        bottom: 12px;
-        right: 12px;
-        left: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        right: calc(12px + env(safe-area-inset-right, 0px));
+        left: calc(12px + env(safe-area-inset-left, 0px));
         width: auto;
         max-width: none;
     }

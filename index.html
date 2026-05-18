@@ -115,23 +115,32 @@
 
     <script>
     (function() {
-        var ua = navigator.userAgent || '';
-        if (/Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(ua)) {
-            document.getElementById('inapp-overlay').classList.remove('hidden');
-        }
-        document.getElementById('inapp-ok').addEventListener('click', function() {
-            document.getElementById('inapp-overlay').classList.add('hidden');
-        });
+        try {
+            var ua = navigator.userAgent || '';
+            if (/Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(ua)) {
+                var overlay = document.getElementById('inapp-overlay');
+                if (overlay) overlay.classList.remove('hidden');
+            }
+            var okBtn = document.getElementById('inapp-ok');
+            if (okBtn) okBtn.addEventListener('click', function() {
+                var o = document.getElementById('inapp-overlay');
+                if (o) o.classList.add('hidden');
+            });
+        } catch (e) {}
 
-        var discordPopup = document.getElementById('discord-popup');
-        var discordClose = document.getElementById('discord-popup-close');
-        if (!localStorage.getItem('discord-popup-dismissed')) {
-            setTimeout(function() { discordPopup.classList.remove('hidden'); }, 1200);
-        }
-        discordClose.addEventListener('click', function() {
-            discordPopup.classList.add('hidden');
-            try { localStorage.setItem('discord-popup-dismissed', '1'); } catch (e) {}
-        });
+        try {
+            var discordPopup = document.getElementById('discord-popup');
+            var discordClose = document.getElementById('discord-popup-close');
+            var dismissed = false;
+            try { dismissed = localStorage.getItem('discord-popup-dismissed-v2') === '1'; } catch (e) {}
+            if (discordPopup && !dismissed) {
+                setTimeout(function() { discordPopup.classList.remove('hidden'); }, 1200);
+            }
+            if (discordClose) discordClose.addEventListener('click', function() {
+                if (discordPopup) discordPopup.classList.add('hidden');
+                try { localStorage.setItem('discord-popup-dismissed-v2', '1'); } catch (e) {}
+            });
+        } catch (e) {}
     })();
     </script>
 
