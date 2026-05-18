@@ -1,4 +1,279 @@
 // =============================================================
+// i18n — UI string translations
+// =============================================================
+const TRANSLATIONS = {
+    en: {
+        intro: 'Welcome to my spreadsheet!',
+        signup: 'Sign up to LitBuy!',
+        youtube: 'My YouTube Channel',
+        search_placeholder: 'brand search',
+        sort_default: 'Sort by',
+        sort_low: 'Price: Low to High',
+        sort_high: 'Price: High to Low',
+        cat_all: 'All',
+        cat_special: 'Special Finds',
+        cat_budget: 'Budget Finds',
+        cat_video: 'Video Finds',
+        loading: 'Loading products...',
+        error_load: 'Could not load products. Please check your connection and try again.',
+        retry: 'Retry',
+        no_results: 'No products found.',
+        inapp_title: 'Open in Browser',
+        inapp_body: 'For the best experience, tap the <strong>three dots</strong> menu (<strong>&#8942;</strong>) at the top right and select <strong>"Open in browser"</strong>.',
+        inapp_ok: 'OK',
+        discord_title: 'Join our Discord!',
+        discord_body: 'Get exclusive drops & chat with the community.',
+        discord_btn: 'Join Server',
+        buy: 'Buy on LitBuy',
+        qc: 'View QC Photos',
+    },
+    fr: {
+        intro: 'Bienvenue sur ma feuille !',
+        signup: 'Inscrivez-vous sur LitBuy !',
+        youtube: 'Ma chaîne YouTube',
+        search_placeholder: 'rechercher une marque',
+        sort_default: 'Trier par',
+        sort_low: 'Prix : croissant',
+        sort_high: 'Prix : décroissant',
+        cat_all: 'Tout',
+        cat_special: 'Trouvailles Spéciales',
+        cat_budget: 'Petits Prix',
+        cat_video: 'Trouvailles Vidéo',
+        loading: 'Chargement des produits...',
+        error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
+        retry: 'Réessayer',
+        no_results: 'Aucun produit trouvé.',
+        inapp_title: 'Ouvrir dans le navigateur',
+        inapp_body: 'Pour une meilleure expérience, appuyez sur le menu <strong>trois points</strong> (<strong>&#8942;</strong>) en haut à droite et sélectionnez <strong>« Ouvrir dans le navigateur »</strong>.',
+        inapp_ok: 'OK',
+        discord_title: 'Rejoignez notre Discord !',
+        discord_body: 'Drops exclusifs et chat avec la communauté.',
+        discord_btn: 'Rejoindre',
+        buy: 'Acheter sur LitBuy',
+        qc: 'Voir les photos QC',
+    },
+    de: {
+        intro: 'Willkommen in meiner Tabelle!',
+        signup: 'Bei LitBuy anmelden!',
+        youtube: 'Mein YouTube-Kanal',
+        search_placeholder: 'Marke suchen',
+        sort_default: 'Sortieren nach',
+        sort_low: 'Preis: aufsteigend',
+        sort_high: 'Preis: absteigend',
+        cat_all: 'Alle',
+        cat_special: 'Besondere Funde',
+        cat_budget: 'Schnäppchen',
+        cat_video: 'Video-Funde',
+        loading: 'Produkte werden geladen...',
+        error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
+        retry: 'Erneut versuchen',
+        no_results: 'Keine Produkte gefunden.',
+        inapp_title: 'Im Browser öffnen',
+        inapp_body: 'Für ein besseres Erlebnis tippe auf das <strong>Drei-Punkte</strong>-Menü (<strong>&#8942;</strong>) oben rechts und wähle <strong>„Im Browser öffnen"</strong>.',
+        inapp_ok: 'OK',
+        discord_title: 'Tritt unserem Discord bei!',
+        discord_body: 'Exklusive Drops & Community-Chat.',
+        discord_btn: 'Beitreten',
+        buy: 'Bei LitBuy kaufen',
+        qc: 'QC-Fotos ansehen',
+    },
+    es: {
+        intro: '¡Bienvenido a mi hoja!',
+        signup: '¡Regístrate en LitBuy!',
+        youtube: 'Mi canal de YouTube',
+        search_placeholder: 'buscar marca',
+        sort_default: 'Ordenar por',
+        sort_low: 'Precio: menor a mayor',
+        sort_high: 'Precio: mayor a menor',
+        cat_all: 'Todo',
+        cat_special: 'Hallazgos Especiales',
+        cat_budget: 'Ofertas',
+        cat_video: 'Hallazgos en Video',
+        loading: 'Cargando productos...',
+        error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
+        retry: 'Reintentar',
+        no_results: 'No se encontraron productos.',
+        inapp_title: 'Abrir en el navegador',
+        inapp_body: 'Para una mejor experiencia, toca el menú de <strong>tres puntos</strong> (<strong>&#8942;</strong>) arriba a la derecha y selecciona <strong>«Abrir en el navegador»</strong>.',
+        inapp_ok: 'OK',
+        discord_title: '¡Únete a nuestro Discord!',
+        discord_body: 'Drops exclusivos y chat con la comunidad.',
+        discord_btn: 'Unirse',
+        buy: 'Comprar en LitBuy',
+        qc: 'Ver fotos QC',
+    },
+    it: {
+        intro: 'Benvenuto nel mio foglio!',
+        signup: 'Iscriviti a LitBuy!',
+        youtube: 'Il mio canale YouTube',
+        search_placeholder: 'cerca un marchio',
+        sort_default: 'Ordina per',
+        sort_low: 'Prezzo: crescente',
+        sort_high: 'Prezzo: decrescente',
+        cat_all: 'Tutto',
+        cat_special: 'Trovate Speciali',
+        cat_budget: 'Offerte',
+        cat_video: 'Trovate Video',
+        loading: 'Caricamento prodotti...',
+        error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
+        retry: 'Riprova',
+        no_results: 'Nessun prodotto trovato.',
+        inapp_title: 'Apri nel browser',
+        inapp_body: 'Per una migliore esperienza, tocca il menu a <strong>tre puntini</strong> (<strong>&#8942;</strong>) in alto a destra e seleziona <strong>«Apri nel browser»</strong>.',
+        inapp_ok: 'OK',
+        discord_title: 'Unisciti al nostro Discord!',
+        discord_body: 'Drop esclusivi e chat con la community.',
+        discord_btn: 'Entra',
+        buy: 'Acquista su LitBuy',
+        qc: 'Vedi foto QC',
+    },
+};
+
+window.i18n = (function() {
+    const SUPPORTED = ['en', 'fr', 'de', 'es', 'it'];
+    let currentLang = 'en';
+    const dynCache = {}; // { lang: { originalText: translatedText } }
+
+    function detectLang() {
+        try {
+            const stored = localStorage.getItem('lang');
+            if (stored && SUPPORTED.includes(stored)) return stored;
+        } catch (e) {}
+        const browser = (navigator.language || 'en').slice(0, 2).toLowerCase();
+        return SUPPORTED.includes(browser) ? browser : 'en';
+    }
+
+    function loadDynCache(lang) {
+        if (dynCache[lang]) return dynCache[lang];
+        try {
+            const raw = localStorage.getItem('i18n-dyn-' + lang);
+            dynCache[lang] = raw ? JSON.parse(raw) : {};
+        } catch (e) { dynCache[lang] = {}; }
+        return dynCache[lang];
+    }
+    function saveDynCache(lang) {
+        try { localStorage.setItem('i18n-dyn-' + lang, JSON.stringify(dynCache[lang] || {})); } catch (e) {}
+    }
+
+    function t(key) {
+        const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        return dict[key] != null ? dict[key] : (TRANSLATIONS.en[key] || '');
+    }
+
+    // Sync lookup for dynamic strings — returns cached translation or original
+    function dyn(text) {
+        if (!text || currentLang === 'en') return text;
+        const cache = loadDynCache(currentLang);
+        return cache[text] || text;
+    }
+
+    // Translate one string via Google's free endpoint
+    async function translateOne(text, lang) {
+        const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' +
+            encodeURIComponent(lang) + '&dt=t&q=' + encodeURIComponent(text);
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('translate http ' + resp.status);
+        const data = await resp.json();
+        if (!Array.isArray(data) || !Array.isArray(data[0])) return text;
+        return data[0].map(seg => seg && seg[0] ? seg[0] : '').join('');
+    }
+
+    // Translate a list of strings, filling cache. Returns when all done.
+    async function translateMany(texts, lang, onProgress) {
+        if (lang === 'en') return;
+        const cache = loadDynCache(lang);
+        const unique = [...new Set(texts.filter(Boolean))];
+        const todo = unique.filter(t => !cache[t]);
+        if (todo.length === 0) return;
+
+        const CONCURRENCY = 6;
+        let idx = 0;
+        async function worker() {
+            while (idx < todo.length) {
+                const i = idx++;
+                const text = todo[i];
+                try {
+                    const result = await translateOne(text, lang);
+                    cache[text] = result || text;
+                } catch (e) {
+                    cache[text] = text; // fallback: keep original, don't retry
+                }
+                if (onProgress) onProgress();
+            }
+        }
+        const workers = [];
+        for (let i = 0; i < Math.min(CONCURRENCY, todo.length); i++) workers.push(worker());
+        await Promise.all(workers);
+        saveDynCache(lang);
+    }
+
+    function apply() {
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const val = t(key);
+            if (val) el.textContent = val;
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(el => {
+            const key = el.getAttribute('data-i18n-html');
+            const val = t(key);
+            if (val) el.innerHTML = val;
+        });
+        document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+            const spec = el.getAttribute('data-i18n-attr') || '';
+            const [attr, key] = spec.split(':');
+            if (!attr || !key) return;
+            const val = t(key);
+            if (val) el.setAttribute(attr, val);
+        });
+        // Re-translate category pills (uses translatePill in app code)
+        document.querySelectorAll('.category-pill').forEach(btn => {
+            const value = btn.dataset.category;
+            if (typeof translatePill === 'function') {
+                btn.textContent = translatePill(value, value);
+            }
+        });
+    }
+
+    // Translate all dynamic strings (categories + product names) for the current
+    // language, then re-render so cards/pills pick up the new translations.
+    async function translateDynamic() {
+        if (currentLang === 'en') return;
+        let products;
+        try { products = allProducts; } catch (e) { return; }
+        if (!products || !products.length) return;
+        const names = products.map(p => p.name);
+        const cats = [...new Set(products.map(p => p.category))];
+        await translateMany([...names, ...cats], currentLang);
+        if (typeof buildCategoryTabs === 'function') buildCategoryTabs();
+        if (typeof renderProducts === 'function') renderProducts(true);
+    }
+
+    function setLang(lang) {
+        if (!SUPPORTED.includes(lang)) lang = 'en';
+        currentLang = lang;
+        try { localStorage.setItem('lang', lang); } catch (e) {}
+        apply();
+        translateDynamic();
+    }
+    function init() {
+        currentLang = detectLang();
+        const sel = document.getElementById('lang-select');
+        if (sel) {
+            sel.value = currentLang;
+            sel.addEventListener('change', e => setLang(e.target.value));
+        }
+        apply();
+    }
+    return {
+        t, dyn, setLang, apply, init, translateDynamic,
+        get current() { return currentLang; },
+    };
+})();
+
+document.addEventListener('DOMContentLoaded', () => window.i18n.init());
+
+// =============================================================
 // CONFIG
 // =============================================================
 const SHEET_ID = '1i-k661c5oEV_i0LP_qRDrnBabGHXbdBYNFyypLAyU1s';
@@ -433,8 +708,9 @@ gridEl.addEventListener('click', (e) => {
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
     const bigImg = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
     document.getElementById('modal-img').src = bigImg;
-    document.getElementById('modal-img').alt = p.name;
-    document.getElementById('modal-name').textContent = p.name;
+    const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
+    document.getElementById('modal-img').alt = displayName;
+    document.getElementById('modal-name').textContent = displayName;
     if (p.eurPrice) {
         document.getElementById('modal-price').textContent = p.price + ' / ' + p.eurPrice;
     } else {
@@ -914,6 +1190,7 @@ async function fetchProducts() {
         buildCategoryTabs();
         renderProducts();
         loadingEl.classList.add('hidden');
+        if (window.i18n) window.i18n.translateDynamic();
     } catch (err) {
         console.error('Failed to fetch products:', err);
         loadingEl.classList.add('hidden');
@@ -954,10 +1231,26 @@ function buildCategoryTabs() {
 function addPill(label, value) {
     const btn = document.createElement('button');
     btn.className = 'category-pill' + (activeCategory === value ? ' active' : '');
-    btn.textContent = label;
     btn.dataset.category = value;
+    btn.dataset.catKey = catTranslationKey(value);
+    btn.textContent = translatePill(value, label);
     btn.addEventListener('click', () => setCategory(value));
     categoryTabsEl.appendChild(btn);
+}
+
+function catTranslationKey(value) {
+    if (value === 'all') return 'cat_all';
+    if (value === 'Special Finds') return 'cat_special';
+    if (value === 'Budget Finds') return 'cat_budget';
+    if (value === 'Video Finds') return 'cat_video';
+    return '';
+}
+
+function translatePill(value, fallback) {
+    const key = catTranslationKey(value);
+    if (key) return (window.i18n && window.i18n.t(key)) || fallback;
+    // Sheet-driven category — fall back to dynamic-translation cache
+    return (window.i18n && window.i18n.dyn(value)) || fallback;
 }
 
 function setCategory(cat) {
@@ -1064,7 +1357,7 @@ function buildCard(p, i) {
 
     const nameDiv = document.createElement('div');
     nameDiv.className = 'product-name';
-    nameDiv.textContent = p.name;
+    nameDiv.textContent = (window.i18n && window.i18n.dyn(p.name)) || p.name;
 
     const priceDiv = document.createElement('div');
     priceDiv.className = 'product-price';
