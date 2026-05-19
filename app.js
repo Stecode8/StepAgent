@@ -938,9 +938,17 @@ function parseHtmlSheetCategory(html, categoryName) {
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
         let photo = img.getAttribute('src') || '';
-        if (photo) photo = photo
-            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-            .replace(/=w\d+-h\d+$/, '=w800-h800');
+        // docsubipk URLs are session-bound inline-upload tokens that expire
+        // before the browser/proxy can fetch them — skip them entirely so
+        // we don't fire 60 doomed wsrv.nl requests on every load, and let
+        // the weidian fallback (via data-weidian id) populate the photo.
+        if (/lh\d+\.googleusercontent\.com\/docsubipk\//.test(photo)) {
+            photo = '';
+        } else if (photo) {
+            photo = photo
+                .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+                .replace(/=w\d+-h\d+$/, '=w800-h800');
+        }
 
         let link = extractLink(linkCell);
         link = fixLink(link);
