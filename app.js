@@ -1412,16 +1412,19 @@ window.addEventListener('scroll', () => {
     });
 }, { passive: true });
 
-// Infinite scroll — load more cards when near bottom
+// Infinite scroll — load more cards when near bottom.
+// Synchronous append + try/finally so loadingMore can't get stuck true
+// if rAF is throttled or appendBatch throws.
 window.addEventListener('scroll', () => {
     if (loadingMore || renderedCount >= currentFiltered.length) return;
     const scrollBottom = window.innerHeight + window.scrollY;
     if (scrollBottom >= document.body.offsetHeight - 800) {
         loadingMore = true;
-        requestAnimationFrame(() => {
+        try {
             appendBatch();
+        } finally {
             loadingMore = false;
-        });
+        }
     }
 }, { passive: true });
 
@@ -1558,4 +1561,14 @@ document.querySelector('.product-modal-backdrop').addEventListener('click', clos
 // INIT
 // =============================================================
 fetchProducts();
-setInterval(fetchProducts, REFRESH_INTERVAL);
+
+// Auto-refresh only when the tab is hidden, so the user is never
+// interrupted mid-scroll by a grid wipe + re-render. When they come
+// back to the tab they get fresh data without seeing the reset.
+let lastRefresh = Date.now();
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    if (Date.now() - lastRefresh < REFRESH_INTERVAL) return;
+    lastRefresh = Date.now();
+    fetchProducts();
+});
