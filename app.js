@@ -690,17 +690,16 @@ const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
 
-// Build the rendered URL for a product photo. Google-hosted images (lh3/lh4/etc.
-// .googleusercontent.com) usually serve CORS-friendly headers and are fast, so
-// load them direct. EXCEPTION: lh*.googleusercontent.com/docsubipk/* URLs are
-// inline Google Docs previews that appear public via curl but fail in-browser
-// (session-bound tokens / referer checks). Route those through wsrv.nl proxy.
+// Build the rendered URL for a product photo. Google-hosted images
+// (lh3/lh4/etc. .googleusercontent.com), INCLUDING the docsubipk inline
+// previews, load direct. wsrv.nl was returning 404 for docsubipk URLs
+// because Google appears to bind those tokens to the requester's session
+// — the user's browser session has the token, wsrv.nl doesn't. Going
+// direct + the no-referrer document meta keeps the request inside the
+// same session that fetched the spreadsheet.
 // Everything else (e.g. Geili CDN) still needs the proxy to bypass CORP headers.
 function photoUrl(src, w, h) {
     if (!src) return '';
-    if (/lh\d+\.googleusercontent\.com\/docsubipk\//.test(src)) {
-        return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
-    }
     if (/(^|\.)googleusercontent\.com\//.test(src)) return src;
     return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
 }
