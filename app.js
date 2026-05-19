@@ -1137,6 +1137,13 @@ async function fetchProducts() {
         if (allProducts.length === 0 && failed.length > 0) {
             throw failed[0].reason;
         }
+        // Fire-and-forget: start warming imgCache for products that will
+        // need the weidian fallback (those without a usable p.photo).
+        // By the time the user filters to Discount Items, many photos
+        // are already resolved so loadMissingImages just hits the cache.
+        // Uses the same weidianImage() that loadMissingImages does, so
+        // dedupe + failure-caching is shared and no extra JSONP fires.
+        prefetchWeidianImages(allProducts);
         buildCategoryTabs();
         renderProducts();
         loadingEl.classList.add('hidden');
@@ -1487,6 +1494,27 @@ function weidianImage(itemId) {
 // sections take 30s+ to fully load.
 const FALLBACK_CONCURRENCY = 6;
 let fallbackRunning = false;
+
+// Warm imgCache for products that will need the weidian fallback.
+// Runs in the background right after fetchProducts; by the time the
+// user scrolls to Discount Items the photos are already resolved.
+// Touches NO DOM — only fills imgCache via weidianImage(), which
+// already handles dedupe + failure caching, so loadMissingImages
+// hitting these same ids later is a no-op cache lookup.
+async function prefetchWeidianImages(products) {
+    const targets = products.filter(p =>
+        p.weidianId && !p.photo && !(p.weidianId in imgCache)
+    );
+    if (targets.length === 0) return;
+    let cursor = 0;
+    const worker = async () => {
+        while (cursor < targets.length) {
+            const p = targets[cursor++];
+            try { await weidianImage(p.weidianId); } catch (e) { /* swallow */ }
+        }
+    };
+    await Promise.all(Array.from({ length: FALLBACK_CONCURRENCY }, worker));
+}
 
 async function loadMissingImages() {
     if (fallbackRunning) return; // re-entry guard; appendBatch fires this per batch
