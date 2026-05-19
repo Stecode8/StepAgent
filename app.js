@@ -720,14 +720,12 @@ gridEl.addEventListener('click', (e) => {
         : (p.photo ? photoUrl(p.photo, 800, 800) : placeholder);
     const modalImg = document.getElementById('modal-img');
     modalImg.referrerPolicy = 'no-referrer';
-    // On error: try the weidian fallback. Avoid infinite loops by clearing onerror first.
-    modalImg.onerror = async function() {
+    // Weidian fallback is dead (HTTP2 protocol error). On modal img
+    // failure just show the placeholder so the rest of the modal
+    // (name/price/buy link) still works.
+    modalImg.onerror = function() {
         modalImg.onerror = null;
         modalImg.src = placeholder;
-        if (p.weidianId) {
-            const url = imgCache[p.weidianId] || await weidianImage(p.weidianId);
-            if (url) modalImg.src = photoUrl(url, 800, 800);
-        }
     };
     modalImg.src = bigImg;
     const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
@@ -1332,7 +1330,12 @@ function appendBatch() {
     }
     gridEl.appendChild(frag);
     renderedCount = end;
-    loadMissingImages();
+    // Weidian fallback endpoint (thor.weidian.com/detail/getItemSkuInfo)
+    // is dead — every JSONP call fails with ERR_HTTP2_PROTOCOL_ERROR.
+    // Disabling the call eliminates 50+ failed requests per render and
+    // keeps the console clean. Cards whose direct image fails will stay
+    // on the placeholder until the upstream is restored or replaced.
+    // loadMissingImages();
 }
 
 function escapeHtml(str) {
