@@ -1240,17 +1240,21 @@ async function fetchProducts() {
                 .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
         );
 
-        // Per-product image overrides — for items whose spreadsheet
-        // cell has no usable image. The key is a substring matched
-        // against p.name (lowercased). First match wins.
-        const PHOTO_OVERRIDES = [
-            { match: '3dap',  src: 'img-3dap-watch.png' },
+        // Per-product overrides — for items whose spreadsheet cell
+        // has a missing image or unclear name. `match` is a substring
+        // tested against p.name (lowercased). First match wins.
+        // `src` (optional) → photo override.
+        // `name` (optional) → display-name override.
+        const PRODUCT_OVERRIDES = [
+            { match: '3dap',  src: 'img-3dap-watch.png', name: 'Swatch X AP' },
         ];
         for (const p of allProducts) {
-            if (p.photo) continue;
             const lower = (p.name || '').toLowerCase();
-            for (const o of PHOTO_OVERRIDES) {
-                if (lower.includes(o.match)) { p.photo = o.src; break; }
+            for (const o of PRODUCT_OVERRIDES) {
+                if (!lower.includes(o.match)) continue;
+                if (o.src && !p.photo) p.photo = o.src;
+                if (o.name) p.name = o.name;
+                break;
             }
         }
 
