@@ -1284,7 +1284,11 @@ function buildCard(p, i) {
     // setting referrerPolicy after has no effect.
     // Google blocks googleusercontent.com requests with non-Google referers (429).
     img.referrerPolicy = 'no-referrer';
-    img.dataset.weidian = p.weidianId || '';
+    // Only set the attribute if we have an actual id. An empty data-weidian
+    // still matches `img[data-weidian]` in querySelectorAll and would put
+    // loadMissingImages's while-loop into an infinite spin (filter passes
+    // but processOne can't populate imgCache for an empty id).
+    if (p.weidianId) img.dataset.weidian = p.weidianId;
     img.onerror = function() { this.onerror = null; this.src = placeholder; };
     img.src = imgSrc;
 
@@ -1503,11 +1507,17 @@ async function loadMissingImages() {
         // Iterate until no pending images remain (catches images added by appendBatch
         // during fallback execution). Images whose weidianId has already been tried
         // and returned no result are excluded so this loop terminates.
-        while (true) {
+        // Hard ceiling on while-loop iterations to absolutely prevent a
+        // pathological case from pegging the CPU and freezing the page.
+        let safety = 50;
+        while (safety-- > 0) {
             const pending = Array.from(document.querySelectorAll('img[data-weidian]'))
                 .filter(img => {
-                    if (img.src !== placeholder && !img.src.startsWith('data:')) return false;
                     const wid = img.dataset.weidian;
+                    // Skip empty ids — they'd otherwise cause an infinite
+                    // loop since processOne can't populate imgCache for ''.
+                    if (!wid) return false;
+                    if (img.src !== placeholder && !img.src.startsWith('data:')) return false;
                     // Skip if already tried and produced no image.
                     if (wid in imgCache && !imgCache[wid]) return false;
                     return true;
