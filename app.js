@@ -1105,21 +1105,25 @@ async function fetchProducts() {
             })(),
         ]);
 
-        // Main sheet — Discount section (extracted from the MAIN tab)
-        const results5disc = await Promise.allSettled([
-            (async () => {
-                const tab = SHEET5_DISCOUNT_TAB;
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetDiscount(html, tab.name);
-            })(),
-        ]);
+        // Discount section temporarily disabled — docsubipk image tokens
+        // can't be loaded reliably from the live site (Weidian fallback
+        // dead, wsrv.nl returns 404 for session-bound tokens, direct
+        // fetch inconsistent in some browser environments). Re-enable
+        // by uncommenting the block below + restoring the sources entry.
+        // const results5disc = await Promise.allSettled([
+        //     (async () => {
+        //         const tab = SHEET5_DISCOUNT_TAB;
+        //         const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+        //         if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+        //         const html = await resp.text();
+        //         return parseHtmlSheetDiscount(html, tab.name);
+        //     })(),
+        // ]);
 
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results5disc, order: 0 }, // Discount Items (pinned top)
+            // { results: results5disc, order: 0 }, // Discount Items — disabled
             { results: results2,    order: 1 }, // Budget Finds (legacy sheet)
             { results: results5bud, order: 1 }, // Budget Finds (new sheet, same pill)
             { results: results4,    order: 2 }, // Special Finds
