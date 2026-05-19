@@ -975,14 +975,32 @@ function parseHtmlSheetCategory(html, categoryName) {
 // Row layout in this section: [emoji] | PIC | NAME | PRICE | LINK | _ | _ | QC
 // =============================================================
 function parseHtmlSheetDiscount(html, categoryName) {
+    // The MAIN SPREADSHEET tab is ~3.7 MB, but the discount section is only
+    // ~60 rows of it. Running DOMParser on the full document locks the main
+    // thread for several seconds on phones. Slice the raw HTML down to the
+    // discount section first (string ops are ~50x faster than DOM parsing)
+    // and parse only that.
+    const sectionRe = /limited.?time offers/i;
+    const startIdx = html.search(sectionRe);
+    if (startIdx < 0) return [];
+    // Back up to the start of the <tr> that contains the section header so
+    // its row counts toward the index; we still skip it with the +2 offset
+    // below. Then find the first "Back to top" after it (next section break).
+    const trStart = html.lastIndexOf('<tr', startIdx);
+    const sliceStart = trStart >= 0 ? trStart : startIdx;
+    const endRel = html.slice(sliceStart).search(/back to top/i);
+    const sliceEnd = endRel > 0 ? sliceStart + endRel : Math.min(sliceStart + 200000, html.length);
+    const chunk = html.slice(sliceStart, sliceEnd);
+
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    // Wrap the slice in a minimal table so cells nest correctly.
+    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
     const rows = Array.from(doc.querySelectorAll('tr'));
     const products = [];
 
     let start = -1;
     for (let i = 0; i < rows.length; i++) {
-        if (/limited.?time offers/i.test(rows[i].textContent || '')) {
+        if (sectionRe.test(rows[i].textContent || '')) {
             start = i + 2; // skip section header + column header
             break;
         }
