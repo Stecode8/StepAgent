@@ -709,6 +709,9 @@ let priceSort = 'default';
 // Everything else (e.g. Geili CDN) still needs the proxy to bypass CORP headers.
 function photoUrl(src, w, h) {
     if (!src) return '';
+    // Local (relative) paths — used for per-product image overrides
+    // shipped with the site. Return them direct, never proxy.
+    if (!/^https?:\/\//i.test(src)) return src;
     if (/(^|\.)googleusercontent\.com\//.test(src)) return src;
     return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
 }
@@ -1236,6 +1239,20 @@ async function fetchProducts() {
                 .filter(r => r.status === 'fulfilled')
                 .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
         );
+
+        // Per-product image overrides — for items whose spreadsheet
+        // cell has no usable image. The key is a substring matched
+        // against p.name (lowercased). First match wins.
+        const PHOTO_OVERRIDES = [
+            { match: '3dap',  src: 'img-3dap-watch.png' },
+        ];
+        for (const p of allProducts) {
+            if (p.photo) continue;
+            const lower = (p.name || '').toLowerCase();
+            for (const o of PHOTO_OVERRIDES) {
+                if (lower.includes(o.match)) { p.photo = o.src; break; }
+            }
+        }
 
         if (allProducts.length === 0 && failed.length > 0) {
             throw failed[0].reason;
