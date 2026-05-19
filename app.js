@@ -12,8 +12,8 @@ const TRANSLATIONS = {
         sort_high: 'Price: High to Low',
         cat_all: 'All',
         cat_special: 'Special Finds',
+        cat_discount: '🔥 Discount Items',
         cat_budget: 'Budget Finds',
-        cat_video: 'Video Finds',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
         retry: 'Retry',
@@ -36,8 +36,8 @@ const TRANSLATIONS = {
         sort_high: 'Prix : décroissant',
         cat_all: 'Tout',
         cat_special: 'Trouvailles Spéciales',
+        cat_discount: '🔥 Promotions',
         cat_budget: 'Petits Prix',
-        cat_video: 'Trouvailles Vidéo',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
         retry: 'Réessayer',
@@ -60,8 +60,8 @@ const TRANSLATIONS = {
         sort_high: 'Preis: absteigend',
         cat_all: 'Alle',
         cat_special: 'Besondere Funde',
+        cat_discount: '🔥 Rabatte',
         cat_budget: 'Schnäppchen',
-        cat_video: 'Video-Funde',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
         retry: 'Erneut versuchen',
@@ -84,8 +84,8 @@ const TRANSLATIONS = {
         sort_high: 'Precio: mayor a menor',
         cat_all: 'Todo',
         cat_special: 'Hallazgos Especiales',
+        cat_discount: '🔥 Descuentos',
         cat_budget: 'Ofertas',
-        cat_video: 'Hallazgos en Video',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
         retry: 'Reintentar',
@@ -108,8 +108,8 @@ const TRANSLATIONS = {
         sort_high: 'Prezzo: decrescente',
         cat_all: 'Tutto',
         cat_special: 'Trovate Speciali',
+        cat_discount: '🔥 Sconti',
         cat_budget: 'Offerte',
-        cat_video: 'Trovate Video',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
         retry: 'Riprova',
@@ -271,25 +271,6 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
-const SHEET_ID = '1i-k661c5oEV_i0LP_qRDrnBabGHXbdBYNFyypLAyU1s';
-
-const TABS = [
-    { name: '\u{1F525}Trending Now \u{1F525}',        gid: '1437970547' },
-    { name: '\u{1F50D}Latest Finds \u{1F50D}',        gid: '1185828767' },
-    { name: '\u{1F45E}SHOES\u{1F45E}',                gid: '623384649' },
-    { name: '\u{1F97C}Hoodies and Pants\u{1F456}',    gid: '852587554' },
-    { name: '\u{1F9E5}Coats and Jackets\u{1F9E5}',    gid: '904819645' },
-    { name: '\u{1F455}T-shirt and shorts\u{1FA73}',   gid: '764098395' },
-    { name: '\u{1F45C} Accessories\u{1F45C}',         gid: '1695680711' },
-    { name: '\u{1F3A7}Electronic products\u{1F3A7}',  gid: '1234283086' },
-    { name: '\u26BD2026 FIFA World Cup\u26BD',        gid: '1581275900' },
-];
-
-const SHEET3_ID = '1Wn1aauYDOiD23AWl9wDipOEPVIh4pJF-Rja-WfcVS5A';
-const SHEET3_TABS = [
-    { name: 'Video Finds', gid: '0' },
-];
-
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
 const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
@@ -299,6 +280,32 @@ const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
 const SHEET4_TABS = [
     { name: 'Special Finds', gid: '0' },
 ];
+
+// Main multi-tab sheet — per-category clothes tabs, a Budget tab that
+// merges into Budget Finds, and the MAIN tab's "New Year Limited-Time
+// Offers" section which is extracted as the Discount Items pill.
+const SHEET5_ID = '1qDDvfzOS6ILnVKil-V4dOZAEFbyYhSyk9S-lHzaJjnY';
+const SHEET5_TABS = [
+    { name: '👟 Shoes',           gid: '12405383' },
+    { name: '👖 Pants',           gid: '513501659' },
+    { name: '👕 T-Shirts',        gid: '1346409329' },
+    { name: '🩳 Shorts',          gid: '314806305' },
+    { name: '🧥 Hoodies',         gid: '1338354785' },
+    { name: '🧶 Sweaters',        gid: '1707026158' },
+    { name: '🏃 Tracksuits',      gid: '232441216' },
+    { name: '🦺 Jackets & Vests', gid: '1506514331' },
+    { name: '🥶 Winter Jackets',  gid: '573232849' },
+    { name: '❄️ Winter Products', gid: '1693767562' },
+    { name: '⚽ Football',        gid: '1625961130' },
+    { name: '🌸 Perfume',         gid: '1778849992' },
+    { name: '🆕 New Links',       gid: '1800079464' },
+];
+// Budget Products tab — products tagged 'Budget Finds' so they merge
+// into the existing Budget Finds pill.
+const SHEET5_BUDGET_TAB = { name: 'Budget Finds', gid: '800817013' };
+// Discount tab — same gid as MAIN SPREADSHEET; parser extracts only the
+// "New Year Limited-Time Offers" section.
+const SHEET5_DISCOUNT_TAB = { name: 'Discount Items', gid: '525974875' };
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
@@ -684,11 +691,16 @@ const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
 
 // Build the rendered URL for a product photo. Google-hosted images (lh3/lh4/etc.
-// .googleusercontent.com) already serve CORS-friendly headers and are fast, but
-// wsrv.nl intermittently returns 404 when proxying them — load those direct.
+// .googleusercontent.com) usually serve CORS-friendly headers and are fast, so
+// load them direct. EXCEPTION: lh*.googleusercontent.com/docsubipk/* URLs are
+// inline Google Docs previews that appear public via curl but fail in-browser
+// (session-bound tokens / referer checks). Route those through wsrv.nl proxy.
 // Everything else (e.g. Geili CDN) still needs the proxy to bypass CORP headers.
 function photoUrl(src, w, h) {
     if (!src) return '';
+    if (/lh\d+\.googleusercontent\.com\/docsubipk\//.test(src)) {
+        return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
+    }
     if (/(^|\.)googleusercontent\.com\//.test(src)) return src;
     return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
 }
@@ -701,10 +713,26 @@ gridEl.addEventListener('click', (e) => {
     const p = currentFiltered[idx];
     if (!p) return;
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-    const bigImg = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
-    document.getElementById('modal-img').src = bigImg;
+    // Prefer the cached weidian image if the card already resolved one — the
+    // p.photo source (docsubipk for discount items) often 404s by modal time.
+    const cachedWeidian = p.weidianId && imgCache[p.weidianId];
+    const bigImg = cachedWeidian
+        ? photoUrl(cachedWeidian, 800, 800)
+        : (p.photo ? photoUrl(p.photo, 800, 800) : placeholder);
+    const modalImg = document.getElementById('modal-img');
+    modalImg.referrerPolicy = 'no-referrer';
+    // On error: try the weidian fallback. Avoid infinite loops by clearing onerror first.
+    modalImg.onerror = async function() {
+        modalImg.onerror = null;
+        modalImg.src = placeholder;
+        if (p.weidianId) {
+            const url = imgCache[p.weidianId] || await weidianImage(p.weidianId);
+            if (url) modalImg.src = photoUrl(url, 800, 800);
+        }
+    };
+    modalImg.src = bigImg;
     const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
-    document.getElementById('modal-img').alt = displayName;
+    modalImg.alt = displayName;
     document.getElementById('modal-name').textContent = displayName;
     if (p.eurPrice) {
         document.getElementById('modal-price').textContent = p.price + ' / ' + p.eurPrice;
@@ -729,92 +757,6 @@ gridEl.addEventListener('click', (e) => {
 // =============================================================
 function buildHtmlUrl(sheetId, gid) {
     return `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview/sheet?gid=${gid}`;
-}
-
-function parseHtmlSheet(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 4) continue;
-
-        // Column A = name, B = photo, C = price, D = affiliate link, E = source
-        const nameCell = cells[0];
-        const photoCell = cells[1];
-        const priceCell = cells[2];
-        const linkCell = cells[3];
-        const sourceCell = cells[4];
-
-        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        const price = (priceCell.textContent || '').trim();
-
-        // Skip non-product rows
-        if (!name || name.toLowerCase() === 'item name') continue;
-        if (name.includes('CTRL') || name.includes('IMPORTANT') || name.includes('⬅') || name.includes('➡')) continue;
-        if (name === 'BEST SELLING ITEMS') continue;
-
-        // Skip rows with multiple prices (summary rows)
-        if (price.includes(' ') && price.split('$').length > 2) continue;
-
-        // Get image URL from column B — try <img> tag first, then text URL
-        const img = photoCell.querySelector('img');
-        let photo = img ? img.getAttribute('src') : '';
-        if (!photo) {
-            const text = (photoCell.textContent || '').trim();
-            if (text.startsWith('http')) photo = text;
-        }
-        // Upscale thumbnail: replace size params for higher resolution
-        if (photo) {
-            photo = photo.replace(/=w\d+-h\d+$/, '=w800-h800');
-        }
-
-        // Get affiliate link from column D (the <a> href)
-        // The href goes through Google redirect, extract the actual URL
-        const linkAnchor = linkCell.querySelector('a');
-        let link = '';
-        if (linkAnchor) {
-            const href = linkAnchor.getAttribute('href') || '';
-            // Google wraps links as: https://www.google.com/url?q=ACTUAL_URL&sa=...
-            const match = href.match(/[?&]q=([^&]+)/);
-            if (match) {
-                link = decodeURIComponent(match[1]);
-            } else {
-                link = href;
-            }
-        }
-
-        // Fix malformed URLs: if query params use & without a leading ?, fix it
-        if (link && !link.includes('?') && link.includes('&')) {
-            link = link.replace('&', '?');
-        }
-
-        // Replace any invite code with our affiliate code, or append if missing
-        if (/inviteCode=/i.test(link)) {
-            link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
-        } else if (link) {
-            link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
-        }
-
-        if (!link) continue;
-
-        // Skip products with no price or $0
-        if (!price || price === '$0' || price === '$0.00' || price === '0') continue;
-
-        // Extract weidian item ID from affiliate link for fallback image loading
-        let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        // Skip products with no photo AND no weidian fallback
-        if (!photo && !weidianId) continue;
-
-        products.push({ name, price, photo, link, category: categoryName, weidianId });
-    }
-
-    return products;
 }
 
 // =============================================================
@@ -864,7 +806,8 @@ function parseHtmlSheetBudget(html, categoryName) {
         if (!link) continue;
 
         let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
         if (!photo && !weidianId) continue;
@@ -943,7 +886,8 @@ function parseHtmlSheetSpecial(html, categoryName) {
         if (!link) continue;
 
         let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
         if (!photo && !weidianId) continue;
@@ -963,145 +907,127 @@ function parseHtmlSheetSpecial(html, categoryName) {
 }
 
 // =============================================================
-// HTML PARSING — new spreadsheet (4 products per row, 5 cols each)
-// Layout per product: NAME | LINK | PRICE(USD) | IMAGE | QC
-// Next row has EUR prices: _ | EUR1 | EUR2 | EUR3 | EUR4
-// Products start at column index 1 (column 0 is empty)
+// HTML PARSING — main multi-tab sheet (clothes categories + budget)
+// Row layout: [emoji] | PIC(img) | NAME | PRICE | LINK | QC
+// First few rows are category title / back-link / column header; skipped
+// by requiring the PIC cell to contain an <img>.
 // =============================================================
-function parseHtmlSheetNew(html, categoryName) {
+function parseHtmlSheetCategory(html, categoryName) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const rows = Array.from(doc.querySelectorAll('tr'));
     const products = [];
 
-    for (let r = 0; r < rows.length; r++) {
-        const row = rows[r];
+    for (const row of rows) {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 6) continue;  // need at least col0 + 5 product cols
+        if (cells.length < 5) continue;
 
-        // Check text in first two cells for skip logic
-        const cell0Text = (cells[0].textContent || '').trim();
-        const cell1Text = (cells[1].textContent || '').trim();
+        const picCell   = cells[1];
+        const nameCell  = cells[2];
+        const priceCell = cells[3];
+        const linkCell  = cells[4];
+        const qcCell    = cells[5] || null;
 
-        // Skip header rows
-        if (cell1Text === 'PRODUCT' || cell1Text.includes('LitbuyLINK')) continue;
+        const img = picCell.querySelector('img');
+        if (!img) continue; // header rows have no image
 
-        // Skip navigation/info rows
-        const skipTexts = ['MOST POPULAR', 'CTRL', 'IMPORTANT', 'TELEGRAM',
-                           'BEST FINDS', 'SIGN UP', 'USE CTRL', 'Click here'];
-        const combinedText = cell0Text + ' ' + cell1Text;
-        if (skipTexts.some(s => combinedText.includes(s))) continue;
+        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name || name === 'ITEM NAMES') continue;
 
-        // Skip rows with no images (section headers, EUR continuation rows, nav rows)
-        if (!row.querySelector('img')) continue;
+        const price = (priceCell.textContent || '').trim();
+        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
-        // Look ahead for EUR prices in the next row
-        let eurPrices = [];
-        if (r + 1 < rows.length) {
-            const nextRow = rows[r + 1];
-            const nextCells = nextRow.querySelectorAll('td');
-            // EUR row has ~6 cells, no images
-            if (nextCells.length <= 8 && !nextRow.querySelector('img')) {
-                for (let e = 1; e < nextCells.length; e++) {
-                    const t = (nextCells[e].textContent || '').trim();
-                    if (t.includes('\u20AC') || t.includes('€')) {
-                        eurPrices.push(t);
-                    } else {
-                        eurPrices.push('');
-                    }
-                }
-            }
-        }
+        let photo = img.getAttribute('src') || '';
+        if (photo) photo = photo
+            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+            .replace(/=w\d+-h\d+$/, '=w800-h800');
 
-        // Process up to 4 product groups of 5 columns each
-        // Products start at column 1: [1-5], [6-10], [11-15], [16-20]
-        for (let g = 0; g < 4; g++) {
-            const base = 1 + g * 5;
-            if (base + 4 >= cells.length) break;
+        let link = extractLink(linkCell);
+        link = fixLink(link);
+        if (!link) continue;
 
-            const nameCell  = cells[base];
-            const linkCell  = cells[base + 1];
-            const priceCell = cells[base + 2];
-            const imgCell   = cells[base + 3];
-            const qcCell    = cells[base + 4];
+        let qcLink = qcCell ? extractLink(qcCell) : '';
 
-            const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-            if (!name || name === 'PRODUCT' || name === 'LitbuyLINK') continue;
-            if (name.includes('CTRL') || name.includes('IMPORTANT')) continue;
+        let weidianId = '';
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
 
-            // USD price (like "44.62$")
-            const priceRaw = (priceCell.textContent || '').trim();
-            const priceNum = priceRaw.replace(/[^\d.]/g, '');
-            const usdPrice = priceNum ? ('$' + priceNum) : '';
-
-            // EUR price from next row
-            const eurPrice = eurPrices[g] || '';
-
-            // Image
-            const img = imgCell.querySelector('img');
-            let photo = img ? img.getAttribute('src') : '';
-            if (!photo) {
-                const t = (imgCell.textContent || '').trim();
-                if (t.startsWith('http')) photo = t;
-            }
-            if (photo) photo = photo.replace(/=s\d+[-\w]*$/, '=s1600').replace(/=w\d+-h\d+$/, '=w1600-h1600');
-
-            // Buy link
-            let link = extractLink(linkCell);
-            link = fixLink(link);
-            if (!link) continue;
-
-            // Skip products with no price
-            if (!usdPrice) continue;
-
-            // QC link (Telegram — don't add invite code)
-            const qcLink = extractLink(qcCell);
-
-            // Weidian ID for fallback images
-            let weidianId = '';
-            const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i);
-            if (idMatch) weidianId = idMatch[1];
-
-            if (!photo && !weidianId) continue;
-
-            products.push({
-                name,
-                price: usdPrice,
-                eurPrice,
-                photo,
-                link,
-                qcLink: qcLink || '',
-                category: categoryName,
-                weidianId
-            });
-        }
+        products.push({ name, price, photo, link, qcLink: qcLink || '', category: categoryName, weidianId });
     }
 
     return products;
 }
 
 // =============================================================
-// CATEGORY INFERENCE — map a Special Finds product name to one of the
-// standard tabs (SHOES, T-shirt and shorts, Hoodies and Pants, ...) so the
-// product also surfaces at the top of that tab. Falls back to '' (no extra
-// surfacing) when nothing matches confidently.
+// HTML PARSING — Discount section of the MAIN spreadsheet tab.
+// Skips ahead to the "New Year Limited-Time Offers" section header
+// and only parses rows after it. Names are prefixed with "New Year
+// Discounts -" in the sheet; we strip that prefix.
+// Row layout in this section: [emoji] | PIC | NAME | PRICE | LINK | _ | _ | QC
 // =============================================================
-function inferStandardCategory(name) {
-    const n = name.toLowerCase();
-    // Shoes — explicit "shoes"/"sneakers" words, plus common model/brand
-    // keywords that imply footwear ("jordan", "air max", "574" via "new balance").
-    if (/\b(shoes?|sneakers?|slides?|slippers?|kicks|trainers?|jordan|af1|dunk|cortez|forum|gel|b22|courts?|new balance|nike air|air max)\b/.test(n)) return TABS[2].name;
-    // T-shirts / shorts / polos / tanks
-    if (/\b(tee|t-shirts?|tshirts?|shirts?|polo|shorts?|tank)\b/.test(n)) return TABS[5].name;
-    // Hoodies / sweaters / pants / jeans / co-ord sets
-    if (/\b(hoodies?|sweaters?|sweatshirts?|crewnecks?|pants|jeans|joggers?|trousers|tracksuits?|set)\b/.test(n)) return TABS[3].name;
-    // Coats / jackets / puffers
-    if (/\b(coats?|jackets?|puffers?|parkas?)\b/.test(n)) return TABS[4].name;
-    // Accessories — bags / belts / hats / small leather goods / jewelry
-    if (/\b(bags?|belts?|hats?|caps?|wallets?|sunglasses|watches?|necklaces?|bracelets?|rings?|earrings?|scarves?|scarf)\b/.test(n)) return TABS[6].name;
-    // Electronics
-    if (/\b(headphones?|earbuds?|airpods?|speakers?|phone case|charger|drone|camera|keyboard)\b/.test(n)) return TABS[7].name;
-    return '';
+function parseHtmlSheetDiscount(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = Array.from(doc.querySelectorAll('tr'));
+    const products = [];
+
+    let start = -1;
+    for (let i = 0; i < rows.length; i++) {
+        if (/limited.?time offers/i.test(rows[i].textContent || '')) {
+            start = i + 2; // skip section header + column header
+            break;
+        }
+    }
+    if (start < 0) return products;
+
+    for (let i = start; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        // Section terminator: "Back to top" / "CHEAP FINDS" follow the
+        // discount block as short rows. Stop parsing the moment we exit
+        // the uniformly 8-column discount table.
+        if (cells.length < 5) break;
+        const rowText = (rows[i].textContent || '').trim();
+        if (/^back to top/i.test(rowText)) break;
+
+        const picCell   = cells[1];
+        const nameCell  = cells[2];
+        const priceCell = cells[3];
+        const linkCell  = cells[4];
+        const qcCell    = cells[cells.length - 1];
+
+        const img = picCell.querySelector('img');
+        if (!img) continue;
+
+        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        name = name.replace(/^new year discounts\s*-+\s*/i, '');
+        if (!name) continue;
+
+        const price = (priceCell.textContent || '').trim();
+        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
+
+        let photo = img.getAttribute('src') || '';
+        // Google serves these inline at =s136-w130-h136 (tiny thumb).
+        // Upgrade to =s800 so cards render at a usable resolution.
+        if (photo) photo = photo
+            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+            .replace(/=w\d+-h\d+$/, '=w800-h800');
+
+        let link = extractLink(linkCell);
+        link = fixLink(link);
+        if (!link) continue;
+
+        const qcLink = qcCell ? extractLink(qcCell) : '';
+
+        let weidianId = '';
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, isDiscount: true });
+    }
+
+    return products;
 }
 
 // =============================================================
@@ -1114,24 +1040,6 @@ async function fetchProducts() {
     noResultsEl.classList.add('hidden');
 
     try {
-        const results1 = await Promise.allSettled(
-            TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetNew(html, tab.name);
-            })
-        );
-
-        const results3 = await Promise.allSettled(
-            SHEET3_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET3_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheet(html, tab.name);
-            })
-        );
-
         const results2 = await Promise.allSettled(
             SHEET2_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
@@ -1150,13 +1058,46 @@ async function fetchProducts() {
             })
         );
 
+        // Main sheet — per-category clothes tabs
+        const results5cat = await Promise.allSettled(
+            SHEET5_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetCategory(html, tab.name);
+            })
+        );
+
+        // Main sheet — Budget Products tab, tagged as Budget Finds
+        const results5bud = await Promise.allSettled([
+            (async () => {
+                const tab = SHEET5_BUDGET_TAB;
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetCategory(html, tab.name);
+            })(),
+        ]);
+
+        // Main sheet — Discount section (extracted from the MAIN tab)
+        const results5disc = await Promise.allSettled([
+            (async () => {
+                const tab = SHEET5_DISCOUNT_TAB;
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetDiscount(html, tab.name);
+            })(),
+        ]);
+
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results4, order: 0 }, // Special Finds (pinned top)
-            { results: results2, order: 1 }, // Budget Finds
-            { results: results1, order: 2 }, // main sheet
-            { results: results3, order: 3 }, // Video Finds
+            { results: results5disc, order: 0 }, // Discount Items (pinned top)
+            { results: results2,    order: 1 }, // Budget Finds (legacy sheet)
+            { results: results5bud, order: 1 }, // Budget Finds (new sheet, same pill)
+            { results: results4,    order: 2 }, // Special Finds
+            { results: results5cat, order: 3 }, // Clothes categories
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -1166,18 +1107,6 @@ async function fetchProducts() {
                 .filter(r => r.status === 'fulfilled')
                 .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
         );
-
-        // Surface Special Finds products at the top of their matched standard
-        // category too (e.g. "Bape Tee" also appears in T-shirt and shorts).
-        // extraCategory is checked alongside category in the filter — the
-        // product appears in both its tab AND the inferred tab, but only once
-        // in "All" because filtering doesn't duplicate the array.
-        for (const p of allProducts) {
-            if (p.category === 'Special Finds') {
-                const extra = inferStandardCategory(p.name);
-                if (extra) p.extraCategory = extra;
-            }
-        }
 
         if (allProducts.length === 0 && failed.length > 0) {
             throw failed[0].reason;
@@ -1200,20 +1129,12 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Special Finds', 'Budget Finds'];
+    const frontPinned = ['Discount Items', 'Budget Finds', 'Special Finds'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
             categories.splice(idx, 1);
             categories.unshift(name);
-        }
-    }
-    const endPinned = ['Video Finds'];
-    for (const name of endPinned) {
-        const idx = categories.indexOf(name);
-        if (idx > -1) {
-            categories.splice(idx, 1);
-            categories.push(name);
         }
     }
 
@@ -1237,7 +1158,7 @@ function catTranslationKey(value) {
     if (value === 'all') return 'cat_all';
     if (value === 'Special Finds') return 'cat_special';
     if (value === 'Budget Finds') return 'cat_budget';
-    if (value === 'Video Finds') return 'cat_video';
+    if (value === 'Discount Items') return 'cat_discount';
     return '';
 }
 
@@ -1278,24 +1199,15 @@ function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === activeCategory || p.extraCategory === activeCategory);
+        filtered = filtered.filter(p => p.category === activeCategory);
     }
 
     if (searchQuery) {
         filtered = filtered.filter(p => matchesSearch(p.name, searchQuery));
     }
 
-    // Sort order:
-    //   1. Pinned: Special Finds surfaced into a standard tab (extraCategory
-    //      match) come first, ahead of even photo'd products from that tab.
-    //   2. Photos first, no-photo products at the end.
-    //   3. sourceOrder tiebreak (Special Finds → Budget Finds → main sheet → Video Finds).
+    // Sort: photos first, then sourceOrder tiebreak (Special Finds → Budget Finds).
     filtered.sort((a, b) => {
-        if (activeCategory !== 'all') {
-            const aPin = a.extraCategory === activeCategory ? 0 : 1;
-            const bPin = b.extraCategory === activeCategory ? 0 : 1;
-            if (aPin !== bPin) return aPin - bPin;
-        }
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
@@ -1332,20 +1244,23 @@ function buildCard(p, i) {
     const card = document.createElement('div');
     let extraClass = '';
     if (p.category === 'Special Finds') extraClass = ' pinned';
+    else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
     else if (p.category === 'Budget Finds') extraClass = ' budget';
     card.className = 'product-card' + extraClass;
     card.dataset.index = i;
 
     const img = document.createElement('img');
     img.id = 'pimg-' + i;
-    img.src = imgSrc;
     img.alt = p.name;
     img.loading = 'lazy';
+    // Strip referer BEFORE setting src so the policy applies to the actual
+    // network request. Some browsers fire the fetch immediately on src= and
+    // setting referrerPolicy after has no effect.
     // Google blocks googleusercontent.com requests with non-Google referers (429).
-    // Strip referer so direct loads from lh3.googleusercontent.com succeed.
     img.referrerPolicy = 'no-referrer';
     img.dataset.weidian = p.weidianId || '';
     img.onerror = function() { this.onerror = null; this.src = placeholder; };
+    img.src = imgSrc;
 
     const info = document.createElement('div');
     info.className = 'product-info';
@@ -1365,6 +1280,12 @@ function buildCard(p, i) {
     info.appendChild(nameDiv);
     info.appendChild(priceDiv);
     card.appendChild(img);
+    if (p.category === 'Discount Items' || p.isDiscount) {
+        const badge = document.createElement('div');
+        badge.className = 'discount-badge';
+        badge.textContent = 'Discount!';
+        card.appendChild(badge);
+    }
     card.appendChild(info);
     return card;
 }
@@ -1473,20 +1394,26 @@ window.addEventListener('scroll', () => {
 // FALLBACK: Load missing images one at a time via weidian JSONP
 // =============================================================
 const imgCache = {};
+const pendingWeidian = {}; // id -> Promise — dedupes concurrent fetches
 
 function weidianImage(itemId) {
-    return new Promise(resolve => {
-        if (imgCache[itemId]) return resolve(imgCache[itemId]);
+    // `in` check, not truthiness — '' means "tried, no image available" and
+    // should NOT trigger a retry on subsequent loadMissingImages passes.
+    if (itemId in imgCache) return Promise.resolve(imgCache[itemId]);
+    if (pendingWeidian[itemId]) return pendingWeidian[itemId];
 
+    pendingWeidian[itemId] = new Promise(resolve => {
         const cb = '_wd' + Math.random().toString(36).slice(2);
         const timeout = setTimeout(() => { done(''); }, 10000);
 
         function done(url) {
             clearTimeout(timeout);
             delete window[cb];
+            delete pendingWeidian[itemId];
             const el = document.getElementById('s_' + cb);
             if (el) el.remove();
-            if (url) imgCache[itemId] = url;
+            // Cache both successes AND failures (as '') so we don't retry forever.
+            imgCache[itemId] = url || '';
             resolve(url);
         }
 
@@ -1508,30 +1435,60 @@ function weidianImage(itemId) {
         s.onerror = () => done('');
         document.body.appendChild(s);
     });
+    return pendingWeidian[itemId];
 }
 
+// Worker-pool fallback loader. Runs up to FALLBACK_CONCURRENCY weidian
+// fetches in parallel, with no inter-request throttle — the JSONP endpoint
+// handles bursts fine and serial waiting was making ~60-card discount
+// sections take 30s+ to fully load.
+const FALLBACK_CONCURRENCY = 6;
+let fallbackRunning = false;
+
 async function loadMissingImages() {
-    const imgs = document.querySelectorAll('img[data-weidian]');
-    const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
-
-    for (const img of imgs) {
-        const wid = img.dataset.weidian;
-        if (!wid) continue;
-        if (img.src !== placeholder && !img.src.startsWith('data:')) continue;
-
-        // Check cache
-        if (imgCache[wid]) {
-            img.src = photoUrl(imgCache[wid], 800, 800);
-            continue;
+    if (fallbackRunning) return; // re-entry guard; appendBatch fires this per batch
+    fallbackRunning = true;
+    try {
+        const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
+        // Re-scan each pass because cards keep getting appended.
+        async function processOne(img) {
+            const wid = img.dataset.weidian;
+            if (!wid) return;
+            if (img.src !== placeholder && !img.src.startsWith('data:')) return;
+            if (wid in imgCache) {
+                // Either a cached URL or a cached failure ('').
+                if (imgCache[wid]) img.src = photoUrl(imgCache[wid], 800, 800);
+                return;
+            }
+            const url = await weidianImage(wid);
+            if (url) img.src = photoUrl(url, 800, 800);
         }
 
-        const url = await weidianImage(wid);
-        if (url) {
-            img.src = photoUrl(url, 800, 800);
-        }
+        // Iterate until no pending images remain (catches images added by appendBatch
+        // during fallback execution). Images whose weidianId has already been tried
+        // and returned no result are excluded so this loop terminates.
+        while (true) {
+            const pending = Array.from(document.querySelectorAll('img[data-weidian]'))
+                .filter(img => {
+                    if (img.src !== placeholder && !img.src.startsWith('data:')) return false;
+                    const wid = img.dataset.weidian;
+                    // Skip if already tried and produced no image.
+                    if (wid in imgCache && !imgCache[wid]) return false;
+                    return true;
+                });
+            if (pending.length === 0) break;
 
-        // Small delay between each request
-        await new Promise(r => setTimeout(r, 200));
+            let cursor = 0;
+            const worker = async () => {
+                while (cursor < pending.length) {
+                    const img = pending[cursor++];
+                    await processOne(img);
+                }
+            };
+            await Promise.all(Array.from({ length: FALLBACK_CONCURRENCY }, worker));
+        }
+    } finally {
+        fallbackRunning = false;
     }
 }
 

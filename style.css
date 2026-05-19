@@ -382,6 +382,21 @@ header.header-hidden {
     color: #000;
 }
 
+/* Discount Items pill — red flame + highlight */
+.category-pill[data-category="Discount Items"] {
+    background: linear-gradient(135deg, rgba(255, 59, 48, 0.22) 0%, rgba(255, 59, 48, 0.08) 100%);
+    border-color: #ff3b30;
+    color: #ff5a4d;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(255, 59, 48, 0.25);
+}
+
+.category-pill[data-category="Discount Items"].active {
+    background: linear-gradient(135deg, #ff3b30 0%, #d92b21 100%);
+    color: #fff;
+    border-color: #ff3b30;
+}
+
 /* Budget Finds pill — green star + highlight */
 .category-pill[data-category="Budget Finds"] {
     background: linear-gradient(135deg, rgba(48, 209, 88, 0.18) 0%, rgba(48, 209, 88, 0.08) 100%);
@@ -485,6 +500,54 @@ main {
         box-shadow:
             0 0 0 1px rgba(245, 197, 24, 0.45),
             0 6px 26px rgba(245, 197, 24, 0.28);
+    }
+}
+
+/* Discount Items cards — red ring, animated "Discount!" badge */
+.product-card.discount {
+    position: relative;
+    border: 1.5px solid #ff3b30;
+    box-shadow:
+        0 0 0 1px rgba(255, 59, 48, 0.3),
+        0 4px 22px rgba(255, 59, 48, 0.22);
+    background: linear-gradient(180deg, rgba(255, 59, 48, 0.09) 0%, var(--card-bg) 60%);
+}
+
+.product-card.discount .product-price {
+    color: #ff5a4d;
+    font-weight: 700;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    padding: 3px 9px;
+    background: linear-gradient(135deg, #ff3b30 0%, #d92b21 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(255, 59, 48, 0.55);
+    transform: rotate(-4deg);
+    pointer-events: none;
+    animation: discount-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes discount-pulse {
+    0%, 100% { transform: rotate(-4deg) scale(1); }
+    50%      { transform: rotate(-4deg) scale(1.08); }
+}
+
+@media (hover: hover) {
+    .product-card.discount:hover {
+        border-color: #ff3b30;
+        box-shadow:
+            0 0 0 1px rgba(255, 59, 48, 0.5),
+            0 6px 28px rgba(255, 59, 48, 0.32);
     }
 }
 
