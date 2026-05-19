@@ -1376,37 +1376,36 @@ searchInput.addEventListener('blur', () => {
     searchFocused = false;
 });
 
-// Hide the header on scroll-down, show on scroll-up.
-// Uses a hysteresis threshold so micro-scrolls don't flip the state and
-// jitter the page. Only transform is animated — height is constant, so the
-// content underneath never shifts.
+// Hide the header on scroll-down, show on scroll-up. Hysteresis is
+// only applied to the HIDE direction — any scroll-up reveals the bar
+// immediately, so the user never feels like it's "stuck hidden".
+// Only transform is animated, so the height never shifts.
 const SCROLL_DELTA = 8;
 window.addEventListener('scroll', () => {
-    if (!scrollTicking) {
-        scrollTicking = true;
-        requestAnimationFrame(() => {
-            if (searchFocused) {
-                lastScrollY = window.scrollY;
-                scrollTicking = false;
-                return;
-            }
-            const currentY = window.scrollY;
-            const delta = currentY - lastScrollY;
-            if (Math.abs(delta) < SCROLL_DELTA) {
-                scrollTicking = false;
-                return;
-            }
-            if (currentY <= 5) {
-                header.classList.remove('header-hidden');
-            } else if (delta > 0 && currentY > getStickyThreshold()) {
-                header.classList.add('header-hidden');
-            } else if (delta < 0) {
-                header.classList.remove('header-hidden');
-            }
-            lastScrollY = currentY;
-            scrollTicking = false;
-        });
-    }
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+        scrollTicking = false;
+        if (searchFocused) {
+            lastScrollY = window.scrollY;
+            return;
+        }
+        const currentY = window.scrollY;
+        const delta = currentY - lastScrollY;
+
+        if (currentY <= 50) {
+            // Near top — always show.
+            header.classList.remove('header-hidden');
+        } else if (delta < 0) {
+            // Any upward movement — reveal immediately, no threshold.
+            header.classList.remove('header-hidden');
+        } else if (delta > SCROLL_DELTA && currentY > getStickyThreshold()) {
+            // Scroll-down past banner with hysteresis — hide.
+            header.classList.add('header-hidden');
+        }
+        // Always update so we don't accumulate drift between events.
+        lastScrollY = currentY;
+    });
 }, { passive: true });
 
 // Infinite scroll — load more cards when near bottom
