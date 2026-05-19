@@ -13,6 +13,7 @@ const TRANSLATIONS = {
         cat_all: 'All',
         cat_special: 'Special Finds',
         cat_discount: '🔥 Discount Items',
+        cat_bestsellers: '🌟 Best Sellers',
         cat_budget: 'Budget Finds',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
@@ -37,6 +38,7 @@ const TRANSLATIONS = {
         cat_all: 'Tout',
         cat_special: 'Trouvailles Spéciales',
         cat_discount: '🔥 Promotions',
+        cat_bestsellers: '🌟 Meilleures Ventes',
         cat_budget: 'Petits Prix',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
@@ -61,6 +63,7 @@ const TRANSLATIONS = {
         cat_all: 'Alle',
         cat_special: 'Besondere Funde',
         cat_discount: '🔥 Rabatte',
+        cat_bestsellers: '🌟 Bestseller',
         cat_budget: 'Schnäppchen',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
@@ -85,6 +88,7 @@ const TRANSLATIONS = {
         cat_all: 'Todo',
         cat_special: 'Hallazgos Especiales',
         cat_discount: '🔥 Descuentos',
+        cat_bestsellers: '🌟 Más Vendidos',
         cat_budget: 'Ofertas',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
@@ -109,6 +113,7 @@ const TRANSLATIONS = {
         cat_all: 'Tutto',
         cat_special: 'Trovate Speciali',
         cat_discount: '🔥 Sconti',
+        cat_bestsellers: '🌟 Più Venduti',
         cat_budget: 'Offerte',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
@@ -306,6 +311,10 @@ const SHEET5_BUDGET_TAB = { name: 'Budget Finds', gid: '800817013' };
 // Discount tab — same gid as MAIN SPREADSHEET; parser extracts only the
 // "New Year Limited-Time Offers" section.
 const SHEET5_DISCOUNT_TAB = { name: 'Discount Items', gid: '525974875' };
+// Best Sellers tab — same gid; parser extracts the showcase rows BEFORE
+// the discount section header (the curated featured products at the top
+// of the MAIN tab).
+const SHEET5_BESTSELLERS_TAB = { name: 'Best Sellers', gid: '525974875' };
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
@@ -1057,6 +1066,85 @@ function parseHtmlSheetDiscount(html, categoryName) {
 }
 
 // =============================================================
+// HTML PARSING — Best Sellers / showcase section of the MAIN tab.
+// Sits between the column-header row (PIC | ITEM NAMES | ...) and
+// the "🎊 New Year Limited-Time Offers 🎊" header. Same 8-column row
+// layout as the discount section, so we reuse the same field offsets.
+// =============================================================
+function parseHtmlSheetBestSellers(html, categoryName) {
+    // Slice the raw HTML between the column header and the discount
+    // section start, same micro-optimisation as parseHtmlSheetDiscount
+    // (DOMParser on the full 3.7MB doc would lock the main thread).
+    const headerRe = /ITEM NAMES/i;
+    const headerIdx = html.search(headerRe);
+    if (headerIdx < 0) return [];
+    const headerTrStart = html.lastIndexOf('<tr', headerIdx);
+    const sliceStart = headerTrStart >= 0 ? headerTrStart : headerIdx;
+    const endRel = html.slice(sliceStart).search(/limited.?time offers/i);
+    const sliceEnd = endRel > 0 ? sliceStart + endRel : Math.min(sliceStart + 200000, html.length);
+    const chunk = html.slice(sliceStart, sliceEnd);
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
+    const rows = Array.from(doc.querySelectorAll('tr'));
+    const products = [];
+
+    // Skip rows until we pass the column header (the one containing
+    // "ITEM NAMES" + "PRICE"). Start collecting from the row after.
+    let start = -1;
+    for (let i = 0; i < rows.length; i++) {
+        const t = (rows[i].textContent || '').toUpperCase();
+        if (t.includes('ITEM NAMES') && t.includes('PRICE')) {
+            start = i + 1;
+            break;
+        }
+    }
+    if (start < 0) return products;
+
+    for (let i = start; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length < 5) break;
+        const rowText = (rows[i].textContent || '').trim();
+        if (/^back to top/i.test(rowText)) break;
+
+        const picCell   = cells[1];
+        const nameCell  = cells[2];
+        const priceCell = cells[3];
+        const linkCell  = cells[4];
+        const qcCell    = cells[cells.length - 1];
+
+        const img = picCell.querySelector('img');
+        if (!img) continue;
+
+        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name) continue;
+
+        const price = (priceCell.textContent || '').trim();
+        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
+
+        let photo = img.getAttribute('src') || '';
+        if (photo && !/\/docsubipk\//.test(photo)) photo = photo
+            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+            .replace(/=w\d+-h\d+$/, '=w800-h800');
+
+        let link = extractLink(linkCell);
+        link = fixLink(link);
+        if (!link) continue;
+
+        let qcLink = '';
+        if (qcCell && qcCell.querySelector('a')) qcLink = extractLink(qcCell);
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId });
+    }
+
+    return products;
+}
+
+// =============================================================
 // FETCH PRODUCTS
 // =============================================================
 async function fetchProducts() {
@@ -1116,14 +1204,26 @@ async function fetchProducts() {
             })(),
         ]);
 
+        // Main sheet — Best Sellers / showcase (rows above the discount section)
+        const results5best = await Promise.allSettled([
+            (async () => {
+                const tab = SHEET5_BESTSELLERS_TAB;
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetBestSellers(html, tab.name);
+            })(),
+        ]);
+
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
             { results: results5disc, order: 0 }, // Discount Items (pinned top)
-            { results: results2,    order: 1 }, // Budget Finds (legacy sheet)
-            { results: results5bud, order: 1 }, // Budget Finds (new sheet, same pill)
-            { results: results4,    order: 2 }, // Special Finds
-            { results: results5cat, order: 3 }, // Clothes categories
+            { results: results5best, order: 1 }, // Best Sellers (showcase)
+            { results: results2,    order: 2 }, // Budget Finds (legacy sheet)
+            { results: results5bud, order: 2 }, // Budget Finds (new sheet, same pill)
+            { results: results4,    order: 3 }, // Special Finds
+            { results: results5cat, order: 4 }, // Clothes categories
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -1155,7 +1255,7 @@ function buildCategoryTabs() {
     const categories = [...new Set(allProducts.map(p => p.category))];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Budget Finds', 'Special Finds'];
+    const frontPinned = ['Discount Items', 'Best Sellers', 'Budget Finds', 'Special Finds'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -1185,6 +1285,7 @@ function catTranslationKey(value) {
     if (value === 'Special Finds') return 'cat_special';
     if (value === 'Budget Finds') return 'cat_budget';
     if (value === 'Discount Items') return 'cat_discount';
+    if (value === 'Best Sellers') return 'cat_bestsellers';
     return '';
 }
 
@@ -1271,6 +1372,7 @@ function buildCard(p, i) {
     let extraClass = '';
     if (p.category === 'Special Finds') extraClass = ' pinned';
     else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
+    else if (p.category === 'Best Sellers') extraClass = ' bestseller';
     else if (p.category === 'Budget Finds') extraClass = ' budget';
     card.className = 'product-card' + extraClass;
     card.dataset.index = i;
