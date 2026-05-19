@@ -755,7 +755,10 @@ gridEl.addEventListener('click', (e) => {
 // HTML PARSING — scrape the htmlview to get images + affiliate links
 // =============================================================
 function buildHtmlUrl(sheetId, gid) {
-    return `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview/sheet?gid=${gid}`;
+    // _ts cache-buster: ensure each fetch returns FRESH docsubipk tokens.
+    // Google's htmlview sets no-cache headers but some intermediaries
+    // and service workers ignore them. Stale HTML → stale tokens → 404.
+    return `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview/sheet?gid=${gid}&_ts=${Date.now()}`;
 }
 
 // =============================================================
@@ -937,12 +940,12 @@ function parseHtmlSheetCategory(html, categoryName) {
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
         let photo = img.getAttribute('src') || '';
-        // Use docsubipk URLs again: Weidian's getItemSkuInfo JSONP fallback
-        // was permanently blocked (HTTP/2 PROTOCOL_ERROR / scrape protection),
-        // so the previously-doomed proxy attempts are now our only source.
-        // Fresh tokens served via wsrv.nl return real JPEGs; stale/failed
-        // tokens fall through to the placeholder via img.onerror.
-        if (photo) {
+        // Use docsubipk URLs as-is. Earlier we upgraded =s136-w130-h136
+        // → =s800 for higher-res, but Google may bind tokens to specific
+        // size variants in the session — keep whatever Google gave us so
+        // the token matches. Still upgrade the legacy =wN-hN form which
+        // belongs to the older non-docsubipk image path.
+        if (photo && !/\/docsubipk\//.test(photo)) {
             photo = photo
                 .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
                 .replace(/=w\d+-h\d+$/, '=w800-h800');
@@ -1031,9 +1034,10 @@ function parseHtmlSheetDiscount(html, categoryName) {
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
         let photo = img.getAttribute('src') || '';
-        // Google serves these inline at =s136-w130-h136 (tiny thumb).
-        // Upgrade to =s800 so cards render at a usable resolution.
-        if (photo) photo = photo
+        // Keep docsubipk URLs at their original size — Google may bind
+        // the token to the requested variant. Only upgrade the older
+        // size-suffix patterns (non-docsubipk).
+        if (photo && !/\/docsubipk\//.test(photo)) photo = photo
             .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
             .replace(/=w\d+-h\d+$/, '=w800-h800');
 
