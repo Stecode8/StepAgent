@@ -1113,16 +1113,19 @@ function parseHtmlSheetBestSellers(html, categoryName) {
         const linkCell  = cells[4];
         const qcCell    = cells[cells.length - 1];
 
-        const img = picCell.querySelector('img');
-        if (!img) continue;
-
         const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
         if (!name) continue;
+        // Skip the column-header row if we somehow re-encounter it.
+        if (/^item names$/i.test(name)) continue;
 
         const price = (priceCell.textContent || '').trim();
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
-        let photo = img.getAttribute('src') || '';
+        // Image is optional for Best Sellers — some items (e.g. the
+        // 3DAP Watch Prototype) genuinely have no thumbnail in the
+        // sheet but should still surface. We still require a link.
+        const img = picCell.querySelector('img');
+        let photo = img ? (img.getAttribute('src') || '') : '';
         if (photo && !/\/docsubipk\//.test(photo)) photo = photo
             .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
             .replace(/=w\d+-h\d+$/, '=w800-h800');
