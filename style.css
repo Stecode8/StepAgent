@@ -47,6 +47,15 @@ body {
 }
 
 /* ===== Header ===== */
+/* Banner: non-sticky top section — scrolls away naturally and only
+   reappears when the user scrolls all the way back to the top. */
+.header-banner {
+    background: var(--header-bg);
+    padding: 12px 16px 0;
+}
+
+/* Sticky controls: only search-bar + category tabs.
+   Hide on scroll-down, slide back in on scroll-up. */
 header {
     position: sticky;
     top: 0;
@@ -180,14 +189,52 @@ header.header-hidden {
     object-fit: contain;
 }
 
-.youtube-link {
-    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    color: #fff;
-    box-shadow: 0 2px 12px rgba(255, 0, 0, 0.25);
+/* ===== Social Stack (Telegram / Discord / YouTube) ===== */
+.social-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
 }
 
-.youtube-link:active {
-    box-shadow: 0 1px 6px rgba(255, 0, 0, 0.2);
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.social-link:active {
+    transform: scale(0.97);
+}
+
+.social-logo {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.youtube-link {
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.25);
+}
+
+.discord-link {
+    background: linear-gradient(135deg, #5865F2 0%, #4752c4 100%);
+    box-shadow: 0 2px 8px rgba(88, 101, 242, 0.25);
+}
+
+.telegram-link {
+    background: linear-gradient(135deg, #2AABEE 0%, #229ED9 100%);
+    box-shadow: 0 2px 8px rgba(42, 171, 238, 0.25);
 }
 
 /* ===== Search ===== */
@@ -757,119 +804,6 @@ main {
 .product-modal-qc:active {
     transform: scale(0.97);
     background: rgba(245, 197, 24, 0.12);
-}
-
-/* ===== Discord Invite Toast (bottom-right) ===== */
-.discord-popup {
-    position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    right: calc(20px + env(safe-area-inset-right, 0px));
-    z-index: 10001;
-    max-width: 320px;
-    width: calc(100% - 40px);
-    animation: discord-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.discord-popup.hidden {
-    display: none;
-}
-
-@keyframes discord-slide-in {
-    from { transform: translateY(20px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
-}
-
-.discord-popup-card {
-    position: relative;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg, 12px);
-    padding: 16px 16px 16px 76px;
-    color: var(--text);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.discord-popup-close {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 26px;
-    height: 26px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 1.3rem;
-    line-height: 1;
-    cursor: pointer;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-}
-
-.discord-popup-close:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text);
-}
-
-.discord-popup-icon {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 48px;
-    height: 48px;
-    background: #5865F2;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
-}
-
-.discord-popup-icon svg {
-    width: 28px;
-    height: 28px;
-}
-
-.discord-popup-card h2 {
-    margin: 0 24px 4px 0;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-}
-
-.discord-popup-card p {
-    font-size: 0.82rem;
-    line-height: 1.4;
-    color: var(--text-secondary);
-    margin: 0 0 10px 0;
-}
-
-.discord-popup-btn {
-    display: inline-block;
-    background: #5865F2;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    padding: 7px 16px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    transition: background 0.15s;
-}
-
-.discord-popup-btn:hover {
-    background: #4752c4;
-}
-
-@media (max-width: 480px) {
-    .discord-popup {
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        right: calc(12px + env(safe-area-inset-right, 0px));
-        left: calc(12px + env(safe-area-inset-left, 0px));
-        width: auto;
-        max-width: none;
-    }
 }
 
 /* ===== In-app Browser Overlay ===== */

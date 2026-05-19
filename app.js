@@ -5,7 +5,7 @@ const TRANSLATIONS = {
     en: {
         intro: 'Welcome to my spreadsheet!',
         signup: 'Sign up to LitBuy!',
-        youtube: 'My YouTube Channel',
+        youtube: 'YouTube for more content!',
         search_placeholder: 'brand search',
         sort_default: 'Sort by',
         sort_low: 'Price: Low to High',
@@ -21,16 +21,15 @@ const TRANSLATIONS = {
         inapp_title: 'Open in Browser',
         inapp_body: 'For the best experience, tap the <strong>three dots</strong> menu (<strong>&#8942;</strong>) at the top right and select <strong>"Open in browser"</strong>.',
         inapp_ok: 'OK',
-        discord_title: 'Join our Discord!',
-        discord_body: 'Get exclusive drops & chat with the community.',
-        discord_btn: 'Join Server',
+        discord: 'Discord to join the community!',
+        telegram: 'Telegram for more finds!',
         buy: 'Buy on LitBuy',
         qc: 'View QC Photos',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
         signup: 'Inscrivez-vous sur LitBuy !',
-        youtube: 'Ma chaîne YouTube',
+        youtube: 'YouTube pour plus de contenu !',
         search_placeholder: 'rechercher une marque',
         sort_default: 'Trier par',
         sort_low: 'Prix : croissant',
@@ -46,16 +45,15 @@ const TRANSLATIONS = {
         inapp_title: 'Ouvrir dans le navigateur',
         inapp_body: 'Pour une meilleure expérience, appuyez sur le menu <strong>trois points</strong> (<strong>&#8942;</strong>) en haut à droite et sélectionnez <strong>« Ouvrir dans le navigateur »</strong>.',
         inapp_ok: 'OK',
-        discord_title: 'Rejoignez notre Discord !',
-        discord_body: 'Drops exclusifs et chat avec la communauté.',
-        discord_btn: 'Rejoindre',
+        discord: 'Discord pour rejoindre la communauté !',
+        telegram: 'Telegram pour plus de trouvailles !',
         buy: 'Acheter sur LitBuy',
         qc: 'Voir les photos QC',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
         signup: 'Bei LitBuy anmelden!',
-        youtube: 'Mein YouTube-Kanal',
+        youtube: 'YouTube für mehr Inhalte!',
         search_placeholder: 'Marke suchen',
         sort_default: 'Sortieren nach',
         sort_low: 'Preis: aufsteigend',
@@ -71,16 +69,15 @@ const TRANSLATIONS = {
         inapp_title: 'Im Browser öffnen',
         inapp_body: 'Für ein besseres Erlebnis tippe auf das <strong>Drei-Punkte</strong>-Menü (<strong>&#8942;</strong>) oben rechts und wähle <strong>„Im Browser öffnen"</strong>.',
         inapp_ok: 'OK',
-        discord_title: 'Tritt unserem Discord bei!',
-        discord_body: 'Exklusive Drops & Community-Chat.',
-        discord_btn: 'Beitreten',
+        discord: 'Discord, um der Community beizutreten!',
+        telegram: 'Telegram für mehr Funde!',
         buy: 'Bei LitBuy kaufen',
         qc: 'QC-Fotos ansehen',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
         signup: '¡Regístrate en LitBuy!',
-        youtube: 'Mi canal de YouTube',
+        youtube: '¡YouTube para más contenido!',
         search_placeholder: 'buscar marca',
         sort_default: 'Ordenar por',
         sort_low: 'Precio: menor a mayor',
@@ -96,16 +93,15 @@ const TRANSLATIONS = {
         inapp_title: 'Abrir en el navegador',
         inapp_body: 'Para una mejor experiencia, toca el menú de <strong>tres puntos</strong> (<strong>&#8942;</strong>) arriba a la derecha y selecciona <strong>«Abrir en el navegador»</strong>.',
         inapp_ok: 'OK',
-        discord_title: '¡Únete a nuestro Discord!',
-        discord_body: 'Drops exclusivos y chat con la comunidad.',
-        discord_btn: 'Unirse',
+        discord: '¡Discord para unirte a la comunidad!',
+        telegram: '¡Telegram para más hallazgos!',
         buy: 'Comprar en LitBuy',
         qc: 'Ver fotos QC',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
         signup: 'Iscriviti a LitBuy!',
-        youtube: 'Il mio canale YouTube',
+        youtube: 'YouTube per altri contenuti!',
         search_placeholder: 'cerca un marchio',
         sort_default: 'Ordina per',
         sort_low: 'Prezzo: crescente',
@@ -121,9 +117,8 @@ const TRANSLATIONS = {
         inapp_title: 'Apri nel browser',
         inapp_body: 'Per una migliore esperienza, tocca il menu a <strong>tre puntini</strong> (<strong>&#8942;</strong>) in alto a destra e seleziona <strong>«Apri nel browser»</strong>.',
         inapp_ok: 'OK',
-        discord_title: 'Unisciti al nostro Discord!',
-        discord_body: 'Drop esclusivi e chat con la community.',
-        discord_btn: 'Entra',
+        discord: 'Discord per entrare nella community!',
+        telegram: 'Telegram per altre trovate!',
         buy: 'Acquista su LitBuy',
         qc: 'Vedi foto QC',
     },
@@ -1408,6 +1403,14 @@ let lastScrollY = 0;
 let scrollTicking = false;
 let searchFocused = false;
 const header = document.querySelector('header');
+const headerBanner = document.querySelector('.header-banner');
+
+// The sticky header only contains search + category tabs. It should
+// only hide once the user has scrolled past the (non-sticky) banner —
+// otherwise the bar appears to jump while the banner is still on-screen.
+function getStickyThreshold() {
+    return (headerBanner ? headerBanner.offsetHeight : 0) + 20;
+}
 
 // Pin the header to its full visible state while the search is focused.
 // Mobile keyboards shrink the viewport and auto-scroll the focused input,
@@ -1442,7 +1445,7 @@ window.addEventListener('scroll', () => {
             }
             if (currentY <= 5) {
                 header.classList.remove('header-hidden');
-            } else if (delta > 0 && currentY > 80) {
+            } else if (delta > 0 && currentY > getStickyThreshold()) {
                 header.classList.add('header-hidden');
             } else if (delta < 0) {
                 header.classList.remove('header-hidden');
