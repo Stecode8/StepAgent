@@ -1456,6 +1456,11 @@ function weidianImage(itemId) {
 
         const s = document.createElement('script');
         s.id = 's_' + cb;
+        // Weidian's API rejects requests with our github.io referer
+        // ("Referer Not Allowed", error code 15) and silently doesn't
+        // invoke our callback, causing every JSONP call to time out.
+        // Strip the referer header to bypass that check.
+        s.referrerPolicy = 'no-referrer';
         s.src = 'https://thor.weidian.com/detail/getItemSkuInfo/1.0?callback=' + cb +
                 '&param=' + encodeURIComponent(JSON.stringify({itemId: itemId}));
         s.onerror = () => done('');
