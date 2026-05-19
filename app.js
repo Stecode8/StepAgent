@@ -1346,6 +1346,12 @@ function escapeAttr(str) {
 // =============================================================
 // HEADER HIDE/SHOW ON SCROLL
 // =============================================================
+// Disable the browser's automatic scroll-restoration on back/forward
+// nav and refresh. Otherwise reloading at mid-page leaves the banner
+// half-scrolled-off, which looks like "the top is cut by the sticky bar."
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 let lastScrollY = 0;
 let scrollTicking = false;
 let searchFocused = false;
