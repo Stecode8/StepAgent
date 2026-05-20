@@ -854,6 +854,51 @@ function fixLink(link) {
     return link;
 }
 
+// Keyword → clothes-category mapping for Special Finds routing. Each
+// Special Find item's name is scanned (most-specific patterns first) to
+// derive a pinCategory, so e.g. "Bape Tee" surfaces in the T-Shirts pill
+// at the top, "Adidas Pants" in Pants, etc. Items that don't match any
+// keyword stay in the Special Finds pill only. Strings must match the
+// SHEET5_TABS names character-for-character (emoji + label).
+//
+// Word-boundary anchored to avoid "set" matching "Sunset" or "shirt"
+// matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
+// to come before 'shirt' if it were a target keyword).
+const SPECIAL_PIN_KEYWORDS = [
+    // [keyword, target category]
+    ['jeans',      '👖 Pants'],
+    ['trousers',   '👖 Pants'],
+    ['pants',      '👖 Pants'],
+    ['shorts',     '🩳 Shorts'],
+    ['short',      '🩳 Shorts'],
+    ['hoodie',     '🧥 Hoodies'],
+    ['sweater',    '🧶 Sweaters'],
+    ['knit',       '🧶 Sweaters'],
+    ['tracksuit',  '🏃 Tracksuits'],
+    ['set',        '🏃 Tracksuits'],
+    ['polo',       '👕 T-Shirts'],
+    ['t-shirt',    '👕 T-Shirts'],
+    ['tshirt',     '👕 T-Shirts'],
+    ['tee',        '👕 T-Shirts'],
+    ['shirt',      '👕 T-Shirts'],
+    ['jacket',     '🦺 Jackets & Vests'],
+    ['vest',       '🦺 Jackets & Vests'],
+    ['perfume',    '🌸 Perfume'],
+    ['cologne',    '🌸 Perfume'],
+    ['fragrance',  '🌸 Perfume'],
+    ['sneaker',    '👟 Shoes'],
+    ['shoe',       '👟 Shoes'],
+];
+
+function derivePinCategory(name) {
+    const lower = (name || '').toLowerCase();
+    for (const [kw, target] of SPECIAL_PIN_KEYWORDS) {
+        const re = new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        if (re.test(lower)) return target;
+    }
+    return '';
+}
+
 // =============================================================
 // HTML PARSING — Special Finds sheet (A=name, B=image, C=price, D=link)
 // Price cell contains USD and EUR separated by <br>, e.g. "15.18$" / "13.88€"
@@ -911,7 +956,8 @@ function parseHtmlSheetSpecial(html, categoryName) {
             photo,
             link,
             category: categoryName,
-            weidianId
+            weidianId,
+            pinCategory: derivePinCategory(name),
         });
     }
 
@@ -1347,33 +1393,19 @@ priceSortEl.addEventListener('change', (e) => {
 // =============================================================
 // RENDER
 // =============================================================
-// Categories that should pin Special Finds to the top when active.
-// "Special Finds" itself and the other featured pills (Discount Items,
-// Best Sellers, Budget Finds) are excluded — they already show their
-// own curated lists. Drop entries from this set to take a category
-// out of the pin behavior. Add 'Discount Items' here later if you
-// want discount rows surfaced at the top of every clothes pill.
-const PIN_SPECIAL_TO_CATEGORIES = (cat) =>
-    cat !== 'all' &&
-    cat !== 'Special Finds' &&
-    cat !== 'Discount Items' &&
-    cat !== 'Best Sellers' &&
-    cat !== 'Budget Finds';
-
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
-        if (PIN_SPECIAL_TO_CATEGORIES(activeCategory)) {
-            // Include Special Finds alongside the active category. The
-            // existing sourceOrder sort (Special=3, clothes=4) places
-            // them above the category's own items.
-            filtered = filtered.filter(
-                p => p.category === activeCategory || p.category === 'Special Finds'
-            );
-        } else {
-            filtered = filtered.filter(p => p.category === activeCategory);
-        }
+        // Route Special Finds into the matching clothes category by name
+        // keyword (set on p.pinCategory at parse time). A "Bape Tee"
+        // surfaces in T-Shirts, "Adidas Pants" in Pants, etc. They keep
+        // their Special Finds category too — the Special Finds pill is
+        // unchanged. sourceOrder=3 vs clothes=4 floats them to the top.
+        filtered = filtered.filter(
+            p => p.category === activeCategory ||
+                 (p.category === 'Special Finds' && p.pinCategory === activeCategory)
+        );
     }
 
     if (searchQuery) {
