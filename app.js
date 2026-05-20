@@ -1347,11 +1347,33 @@ priceSortEl.addEventListener('change', (e) => {
 // =============================================================
 // RENDER
 // =============================================================
+// Categories that should pin Special Finds to the top when active.
+// "Special Finds" itself and the other featured pills (Discount Items,
+// Best Sellers, Budget Finds) are excluded — they already show their
+// own curated lists. Drop entries from this set to take a category
+// out of the pin behavior. Add 'Discount Items' here later if you
+// want discount rows surfaced at the top of every clothes pill.
+const PIN_SPECIAL_TO_CATEGORIES = (cat) =>
+    cat !== 'all' &&
+    cat !== 'Special Finds' &&
+    cat !== 'Discount Items' &&
+    cat !== 'Best Sellers' &&
+    cat !== 'Budget Finds';
+
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === activeCategory);
+        if (PIN_SPECIAL_TO_CATEGORIES(activeCategory)) {
+            // Include Special Finds alongside the active category. The
+            // existing sourceOrder sort (Special=3, clothes=4) places
+            // them above the category's own items.
+            filtered = filtered.filter(
+                p => p.category === activeCategory || p.category === 'Special Finds'
+            );
+        } else {
+            filtered = filtered.filter(p => p.category === activeCategory);
+        }
     }
 
     if (searchQuery) {
