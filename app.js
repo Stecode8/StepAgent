@@ -865,29 +865,84 @@ function fixLink(link) {
 // matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
 // to come before 'shirt' if it were a target keyword).
 const SPECIAL_PIN_KEYWORDS = [
-    // [keyword, target category]
-    ['jeans',      '👖 Pants'],
-    ['trousers',   '👖 Pants'],
-    ['pants',      '👖 Pants'],
-    ['shorts',     '🩳 Shorts'],
-    ['short',      '🩳 Shorts'],
-    ['hoodie',     '🧥 Hoodies'],
-    ['sweater',    '🧶 Sweaters'],
-    ['knit',       '🧶 Sweaters'],
-    ['tracksuit',  '🏃 Tracksuits'],
-    ['set',        '🏃 Tracksuits'],
-    ['polo',       '👕 T-Shirts'],
-    ['t-shirt',    '👕 T-Shirts'],
-    ['tshirt',     '👕 T-Shirts'],
-    ['tee',        '👕 T-Shirts'],
-    ['shirt',      '👕 T-Shirts'],
-    ['jacket',     '🦺 Jackets & Vests'],
-    ['vest',       '🦺 Jackets & Vests'],
-    ['perfume',    '🌸 Perfume'],
-    ['cologne',    '🌸 Perfume'],
-    ['fragrance',  '🌸 Perfume'],
-    ['sneaker',    '👟 Shoes'],
-    ['shoe',       '👟 Shoes'],
+    // Order matters: most specific first. The first \b-anchored match
+    // against the lowercased product name decides the target. So
+    // 'sweater' beats 'tee' for "Sweater Tee", 'hoodie' beats 'air max'
+    // for a hypothetical "Air Max Hoodie", etc.
+    //
+    // Football / soccer kits get their own pill — check before the
+    // generic 'jersey' / 'uniform' / 'set' rules below, otherwise
+    // "Real Madrid Football Jersey" would land in T-Shirts.
+    ['football',       '⚽ Football'],
+    ['soccer',         '⚽ Football'],
+    ['real madrid',    '⚽ Football'],
+    ['psg',            '⚽ Football'],
+    ['national team',  '⚽ Football'],
+    // Apparel keywords (checked first so "Nike Hoodie" beats 'nike').
+    ['jeans',          '👖 Pants'],
+    ['trousers',       '👖 Pants'],
+    ['pants',          '👖 Pants'],
+    ['shorts',         '🩳 Shorts'],
+    ['short',          '🩳 Shorts'],
+    ['hoodie',         '🧥 Hoodies'],
+    ['sweater',        '🧶 Sweaters'],
+    ['knit',           '🧶 Sweaters'],
+    ['tracksuit',      '🏃 Tracksuits'],
+    ['set',            '🏃 Tracksuits'],
+    ['kit',            '🏃 Tracksuits'],
+    ['uniform',        '🏃 Tracksuits'],
+    ['polo',           '👕 T-Shirts'],
+    ['t-shirt',        '👕 T-Shirts'],
+    ['tshirt',         '👕 T-Shirts'],
+    ['tee',            '👕 T-Shirts'],
+    ['jersey',         '👕 T-Shirts'],
+    ['shirt',          '👕 T-Shirts'],
+    ['jacket',         '🦺 Jackets & Vests'],
+    ['vest',           '🦺 Jackets & Vests'],
+    ['perfume',        '🌸 Perfume'],
+    ['cologne',        '🌸 Perfume'],
+    ['fragrance',      '🌸 Perfume'],
+    // Footwear — generic words first, then shoe-dedicated brands and
+    // recognisable shoe model names. The "Shoes" suffix on most items
+    // is caught by 'shoes', but plenty of names ("Nike Air", "Jordan",
+    // "Asics Gel 1130", "Adidas Forum 84", "Puma LX Court") only have
+    // brand/model identifiers.
+    ['shoes',          '👟 Shoes'],
+    ['shoe',           '👟 Shoes'],
+    ['sneakers',       '👟 Shoes'],
+    ['sneaker',        '👟 Shoes'],
+    ['trainers',       '👟 Shoes'],
+    ['boots',          '👟 Shoes'],
+    ['boot',           '👟 Shoes'],
+    ['sandals',        '👟 Shoes'],
+    ['sandal',         '👟 Shoes'],
+    ['loafers',        '👟 Shoes'],
+    ['loafer',         '👟 Shoes'],
+    ['heels',          '👟 Shoes'],
+    ['slippers',       '👟 Shoes'],
+    ['slipper',        '👟 Shoes'],
+    ['slides',         '👟 Shoes'],
+    ['slide',          '👟 Shoes'],
+    ['jordan',         '👟 Shoes'],
+    ['asics',          '👟 Shoes'],
+    ['new balance',    '👟 Shoes'],
+    ['air max',        '👟 Shoes'],
+    ['air force',      '👟 Shoes'],
+    ['air jordan',     '👟 Shoes'],
+    ['nike air',       '👟 Shoes'],
+    ['dunk',           '👟 Shoes'],
+    ['forum',          '👟 Shoes'],
+    ['samba',          '👟 Shoes'],
+    ['gazelle',        '👟 Shoes'],
+    ['yeezy',          '👟 Shoes'],
+    ['stan smith',     '👟 Shoes'],
+    ['superstar',      '👟 Shoes'],
+    ['cortez',         '👟 Shoes'],
+    ['b22',            '👟 Shoes'],
+    ['gel',            '👟 Shoes'],   // Asics Gel-* line
+    ['lx court',       '👟 Shoes'],
+    ['mr993',          '👟 Shoes'],
+    ['u574',           '👟 Shoes'],
 ];
 
 function derivePinCategory(name) {
@@ -1271,11 +1326,11 @@ async function fetchProducts() {
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results5disc, order: 0 }, // Discount Items (pinned top)
-            { results: results5best, order: 1 }, // Best Sellers (showcase)
-            { results: results2,    order: 2 }, // Budget Finds (legacy sheet)
-            { results: results5bud, order: 2 }, // Budget Finds (new sheet, same pill)
-            { results: results4,    order: 3 }, // Special Finds
+            { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
+            { results: results5disc, order: 1 }, // Discount Items
+            { results: results5best, order: 2 }, // Best Sellers (showcase)
+            { results: results2,    order: 3 }, // Budget Finds (legacy sheet)
+            { results: results5bud, order: 3 }, // Budget Finds (new sheet, same pill)
             { results: results5cat, order: 4 }, // Clothes categories
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
