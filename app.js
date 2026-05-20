@@ -1262,12 +1262,18 @@ async function fetchProducts() {
     noResultsEl.classList.add('hidden');
 
     try {
+        // Budget Finds is currently being folded into Discount Items — both
+        // the legacy SHEET2 budget sheet and the SHEET5 Budget tab below
+        // are retagged at parse time so the items show under the Discount
+        // Items pill with the discount badge. The 'Budget Finds' pill
+        // disappears (no products carry that category anymore). Revert
+        // by passing back tab.name / 'Budget Finds'.
         const results2 = await Promise.allSettled(
             SHEET2_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
-                return parseHtmlSheetBudget(html, tab.name);
+                return parseHtmlSheetBudget(html, 'Discount Items');
             })
         );
 
@@ -1290,14 +1296,15 @@ async function fetchProducts() {
             })
         );
 
-        // Main sheet — Budget Products tab, tagged as Budget Finds
+        // Main sheet — Budget Products tab, also retagged as Discount Items
+        // (see comment above results2).
         const results5bud = await Promise.allSettled([
             (async () => {
                 const tab = SHEET5_BUDGET_TAB;
                 const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
-                return parseHtmlSheetCategory(html, tab.name);
+                return parseHtmlSheetCategory(html, 'Discount Items');
             })(),
         ]);
 
@@ -1327,10 +1334,10 @@ async function fetchProducts() {
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
             { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
-            { results: results5disc, order: 1 }, // Discount Items
+            { results: results5disc, order: 1 }, // Discount Items (real discount section, currently empty in sheet)
+            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
+            { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
             { results: results5best, order: 2 }, // Best Sellers (showcase)
-            { results: results2,    order: 3 }, // Budget Finds (legacy sheet)
-            { results: results5bud, order: 3 }, // Budget Finds (new sheet, same pill)
             { results: results5cat, order: 4 }, // Clothes categories
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
