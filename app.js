@@ -950,12 +950,13 @@ function parseHtmlSheetCategory(html, categoryName) {
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
 
         let photo = img.getAttribute('src') || '';
-        // Use docsubipk URLs as-is. Earlier we upgraded =s136-w130-h136
-        // → =s800 for higher-res, but Google may bind tokens to specific
-        // size variants in the session — keep whatever Google gave us so
-        // the token matches. Still upgrade the legacy =wN-hN form which
-        // belongs to the older non-docsubipk image path.
-        if (photo && !/\/docsubipk\//.test(photo)) {
+        // Upgrade the size suffix to =s800 for sharp cards. Some tabs
+        // (e.g. New Links) embed images at =s100-w100-h20 — a 20-px-tall
+        // thumbnail strip that looks terrible at card size. Others come
+        // at =s179-w130-h179. Both docsubipk and the legacy non-docsubipk
+        // path accept arbitrary size suffixes — the earlier worry about
+        // session-bound tokens turned out not to apply.
+        if (photo) {
             photo = photo
                 .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
                 .replace(/=w\d+-h\d+$/, '=w800-h800');
