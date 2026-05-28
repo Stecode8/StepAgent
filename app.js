@@ -4,7 +4,7 @@
 const TRANSLATIONS = {
     en: {
         intro: 'Welcome to my spreadsheet!',
-        signup: 'Sign up to LitBuy!',
+        signup: 'Sign up to GTBuy!',
         youtube: 'YouTube for more content!',
         search_placeholder: 'brand search',
         sort_default: 'Sort by',
@@ -24,12 +24,12 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord to join the community!',
         telegram: 'Telegram for more finds!',
-        buy: 'Buy on LitBuy',
+        buy: 'Buy on GTBuy',
         qc: 'View QC Photos',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
-        signup: 'Inscrivez-vous sur LitBuy !',
+        signup: 'Inscrivez-vous sur GTBuy !',
         youtube: 'YouTube pour plus de contenu !',
         search_placeholder: 'rechercher une marque',
         sort_default: 'Trier par',
@@ -49,12 +49,12 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord pour rejoindre la communauté !',
         telegram: 'Telegram pour plus de trouvailles !',
-        buy: 'Acheter sur LitBuy',
+        buy: 'Acheter sur GTBuy',
         qc: 'Voir les photos QC',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
-        signup: 'Bei LitBuy anmelden!',
+        signup: 'Bei GTBuy anmelden!',
         youtube: 'YouTube für mehr Inhalte!',
         search_placeholder: 'Marke suchen',
         sort_default: 'Sortieren nach',
@@ -74,12 +74,12 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord, um der Community beizutreten!',
         telegram: 'Telegram für mehr Funde!',
-        buy: 'Bei LitBuy kaufen',
+        buy: 'Bei GTBuy kaufen',
         qc: 'QC-Fotos ansehen',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
-        signup: '¡Regístrate en LitBuy!',
+        signup: '¡Regístrate en GTBuy!',
         youtube: '¡YouTube para más contenido!',
         search_placeholder: 'buscar marca',
         sort_default: 'Ordenar por',
@@ -99,12 +99,12 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: '¡Discord para unirte a la comunidad!',
         telegram: '¡Telegram para más hallazgos!',
-        buy: 'Comprar en LitBuy',
+        buy: 'Comprar en GTBuy',
         qc: 'Ver fotos QC',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
-        signup: 'Iscriviti a LitBuy!',
+        signup: 'Iscriviti a GTBuy!',
         youtube: 'YouTube per altri contenuti!',
         search_placeholder: 'cerca un marchio',
         sort_default: 'Ordina per',
@@ -124,7 +124,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord per entrare nella community!',
         telegram: 'Telegram per altre trovate!',
-        buy: 'Acquista su LitBuy',
+        buy: 'Acquista su GTBuy',
         qc: 'Vedi foto QC',
     },
 };
@@ -276,14 +276,11 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
+// SHEET2 — temporarily hidden. Restore by removing the `false &&` guard
+// at the results2 fetch below.
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
 const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
-];
-
-const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
-const SHEET4_TABS = [
-    { name: 'Special Finds', gid: '0' },
 ];
 
 // Main multi-tab sheet — per-category clothes tabs, a Budget tab that
@@ -818,7 +815,7 @@ function parseHtmlSheetBudget(html, categoryName) {
         if (!link) continue;
 
         let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
@@ -998,7 +995,7 @@ function parseHtmlSheetSpecial(html, categoryName) {
         if (!link) continue;
 
         let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
@@ -1070,7 +1067,7 @@ function parseHtmlSheetCategory(html, categoryName) {
         let qcLink = qcCell ? extractLink(qcCell) : '';
 
         let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
@@ -1160,7 +1157,7 @@ function parseHtmlSheetDiscount(html, categoryName) {
         const qcLink = qcCell ? extractLink(qcCell) : '';
 
         let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current LitBuy URLs).
+        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
@@ -1268,23 +1265,15 @@ async function fetchProducts() {
         // Items pill with the discount badge. The 'Budget Finds' pill
         // disappears (no products carry that category anymore). Revert
         // by passing back tab.name / 'Budget Finds'.
-        const results2 = await Promise.allSettled(
+        // SHEET2 temporarily hidden — flip `false` to `true` to restore.
+        const results2 = false ? await Promise.allSettled(
             SHEET2_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
                 return parseHtmlSheetBudget(html, 'Discount Items');
             })
-        );
-
-        const results4 = await Promise.allSettled(
-            SHEET4_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetSpecial(html, tab.name);
-            })
-        );
+        ) : [];
 
         // Main sheet — per-category clothes tabs
         const results5cat = await Promise.allSettled(
@@ -1333,9 +1322,8 @@ async function fetchProducts() {
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
             { results: results5disc, order: 1 }, // Discount Items (real discount section, currently empty in sheet)
-            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
+            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items (currently hidden)
             { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
             { results: results5best, order: 2 }, // Best Sellers (showcase)
             { results: results5cat, order: 4 }, // Clothes categories

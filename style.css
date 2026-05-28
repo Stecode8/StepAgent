@@ -15,17 +15,17 @@ html {
     --card-bg-hover: #1f1f1f;
     --text: #f5f5f7;
     --text-secondary: #86868b;
-    --accent: #f5c518;
-    --accent-glow: rgba(245, 197, 24, 0.15);
-    --accent-gradient: linear-gradient(135deg, #f5c518 0%, #f0a000 100%);
+    --accent: #e85d10;
+    --accent-glow: rgba(232, 93, 16, 0.18);
+    --accent-gradient: linear-gradient(135deg, #ff7426 0%, #c94a00 100%);
     --border: rgba(255, 255, 255, 0.08);
     --border-light: rgba(255, 255, 255, 0.12);
     --header-bg: rgba(14, 14, 14, 0.8);
     --pill-bg: rgba(255, 255, 255, 0.06);
     --pill-hover: rgba(255, 255, 255, 0.1);
     --pill-active-bg: var(--accent);
-    --pill-active-text: #000;
-    --price-color: #f5c518;
+    --pill-active-text: #fff;
+    --price-color: #e85d10;
     --eur-color: #86868b;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
@@ -104,7 +104,7 @@ header.header-hidden {
 
 .lang-select:hover,
 .lang-select:focus {
-    border-color: var(--accent, #f5c518);
+    border-color: var(--accent, #e85d10);
     outline: none;
 }
 
@@ -176,12 +176,12 @@ header.header-hidden {
     font-weight: 700;
     letter-spacing: -0.2px;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 2px 12px rgba(245, 197, 24, 0.25);
+    box-shadow: 0 2px 12px rgba(232, 93, 16, 0.25);
 }
 
 .signup-link:active {
     transform: scale(0.97);
-    box-shadow: 0 1px 6px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 1px 6px rgba(232, 93, 16, 0.2);
 }
 
 .signup-logo {
@@ -352,20 +352,20 @@ header.header-hidden {
     color: var(--pill-active-text);
     border-color: var(--accent);
     font-weight: 600;
-    box-shadow: 0 2px 10px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 2px 10px rgba(232, 93, 16, 0.2);
 }
 
 .category-pill:active {
     transform: scale(0.93);
 }
 
-/* Special Finds pill — gold star + highlight */
+/* Special Finds pill — accent star + highlight */
 .category-pill[data-category="Special Finds"] {
-    background: linear-gradient(135deg, rgba(245, 197, 24, 0.18) 0%, rgba(245, 197, 24, 0.08) 100%);
+    background: linear-gradient(135deg, rgba(232, 93, 16, 0.18) 0%, rgba(232, 93, 16, 0.08) 100%);
     border-color: var(--accent);
     color: var(--accent);
     font-weight: 700;
-    box-shadow: 0 2px 10px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 2px 10px rgba(232, 93, 16, 0.2);
 }
 
 .category-pill[data-category="Special Finds"]::before {
@@ -470,20 +470,20 @@ main {
 
 @media (hover: hover) {
     .product-card:hover {
-        border-color: rgba(245, 197, 24, 0.3);
-        box-shadow: 0 4px 20px rgba(245, 197, 24, 0.08);
+        border-color: rgba(232, 93, 16, 0.3);
+        box-shadow: 0 4px 20px rgba(232, 93, 16, 0.08);
         background: var(--card-bg-hover);
     }
 }
 
-/* Pinned product cards (Special Finds) — yellow ring, gradient star badge */
+/* Pinned product cards (Special Finds) — accent ring, gradient star badge */
 .product-card.pinned {
     position: relative;
     border: 1.5px solid var(--accent);
     box-shadow:
-        0 0 0 1px rgba(245, 197, 24, 0.25),
-        0 4px 20px rgba(245, 197, 24, 0.18);
-    background: linear-gradient(180deg, rgba(245, 197, 24, 0.06) 0%, var(--card-bg) 60%);
+        0 0 0 1px rgba(232, 93, 16, 0.25),
+        0 4px 20px rgba(232, 93, 16, 0.18);
+    background: linear-gradient(180deg, rgba(232, 93, 16, 0.06) 0%, var(--card-bg) 60%);
 }
 
 .product-card.pinned::before {
@@ -513,8 +513,8 @@ main {
     .product-card.pinned:hover {
         border-color: var(--accent);
         box-shadow:
-            0 0 0 1px rgba(245, 197, 24, 0.45),
-            0 6px 26px rgba(245, 197, 24, 0.28);
+            0 0 0 1px rgba(232, 93, 16, 0.45),
+            0 6px 26px rgba(232, 93, 16, 0.28);
     }
 }
 
@@ -724,7 +724,7 @@ main {
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 2px 10px rgba(232, 93, 16, 0.2);
 }
 
 /* ===== No Results ===== */
@@ -888,13 +888,13 @@ main {
     text-decoration: none;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 2px 12px rgba(245, 197, 24, 0.25);
+    box-shadow: 0 2px 12px rgba(232, 93, 16, 0.25);
     letter-spacing: -0.2px;
 }
 
 .product-modal-buy:active {
     transform: scale(0.97);
-    box-shadow: 0 1px 6px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 1px 6px rgba(232, 93, 16, 0.2);
 }
 
 .modal-buy-logo {
@@ -909,12 +909,12 @@ main {
     justify-content: center;
     margin: 0 18px 18px;
     padding: 12px;
-    background: rgba(245, 197, 24, 0.08);
+    background: rgba(232, 93, 16, 0.08);
     color: var(--accent);
     font-size: 14px;
     font-weight: 600;
     border-radius: var(--radius-md);
-    border: 1.5px solid rgba(245, 197, 24, 0.25);
+    border: 1.5px solid rgba(232, 93, 16, 0.25);
     text-decoration: none;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -923,7 +923,7 @@ main {
 
 .product-modal-qc:active {
     transform: scale(0.97);
-    background: rgba(245, 197, 24, 0.12);
+    background: rgba(232, 93, 16, 0.12);
 }
 
 /* ===== In-app Browser Overlay ===== */
@@ -982,5 +982,5 @@ main {
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(245, 197, 24, 0.2);
+    box-shadow: 0 2px 10px rgba(232, 93, 16, 0.2);
 }

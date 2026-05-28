@@ -1,4 +1,4 @@
-# Creator LitBuy Affiliate Page — Template Brief
+# Creator GTBuy Affiliate Page — Template Brief
 
 This file is meta-instructions for Claude. If you (Claude) are reading
 this in a fresh project copy, read it before touching any code.
@@ -10,7 +10,7 @@ this in a fresh project copy, read it before touching any code.
 A single-page static affiliate landing page for a content creator.
 It pulls curated products from public Google Sheets at runtime, shows
 them in a filterable grid, and routes "Buy" clicks through the
-creator's LitBuy affiliate code. Pure HTML / CSS / vanilla JS — no
+creator's GTBuy affiliate code. Pure HTML / CSS / vanilla JS — no
 build step, no backend. Hosted on GitHub Pages (or any static host).
 
 Three files do all the work:
@@ -41,12 +41,12 @@ five? Update **both** of these in `app.js`:
 in `index.html` can be reordered to put the default first, but doing
 so is cosmetic.)
 
-### 2. LitBuy affiliate invite code
+### 2. GTBuy affiliate invite code
 
 The code that goes in `?inviteCode=XXX`. Used in **three** places in
 the code — all must match:
 
-- `index.html` — the main "Sign up to LitBuy!" CTA `href`
+- `index.html` — the main "Sign up to GTBuy!" CTA `href`
 - `app.js` — two places that rewrite product Buy links to inject the
   invite code (search for `inviteCode=` and replace both instances of
   the hard-coded code)
@@ -87,7 +87,7 @@ fetches the published HTML rendering, not the API.
 
 - Brand name (goes in `<title>`, `<h1 class="logo">`, and may appear
   in translation strings like "Welcome to my spreadsheet!").
-- Logo PNG to swap in for `litbuy-logo.png` references? (The LitBuy
+- Logo PNG to swap in for `litbuy-logo.png` references? (The GTBuy
   logo on the signup button stays as-is — that's the partner brand,
   not the creator.) Favicon at `intro-img.png`.
 
@@ -102,7 +102,7 @@ the user.
 
 The header has **two** parts in `index.html`:
 
-- `.header-banner` — logo, language picker, intro text, LitBuy signup
+- `.header-banner` — logo, language picker, intro text, GTBuy signup
   CTA, social stack. **Non-sticky.** It scrolls away with the page
   and only comes back when the user scrolls all the way to the top.
 - `<header>` — search bar, price-sort dropdown, category tabs.
