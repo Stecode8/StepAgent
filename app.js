@@ -14,6 +14,7 @@ const TRANSLATIONS = {
         cat_special: 'Special Finds',
         cat_discount: '🔥 Discount Items',
         cat_bestsellers: '🌟 Best Sellers',
+        cat_accessories: '🎁 Accessories',
         cat_budget: 'Budget Finds',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
@@ -39,6 +40,7 @@ const TRANSLATIONS = {
         cat_special: 'Trouvailles Spéciales',
         cat_discount: '🔥 Promotions',
         cat_bestsellers: '🌟 Meilleures Ventes',
+        cat_accessories: '🎁 Accessoires',
         cat_budget: 'Petits Prix',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
@@ -64,6 +66,7 @@ const TRANSLATIONS = {
         cat_special: 'Besondere Funde',
         cat_discount: '🔥 Rabatte',
         cat_bestsellers: '🌟 Bestseller',
+        cat_accessories: '🎁 Accessoires',
         cat_budget: 'Schnäppchen',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
@@ -89,6 +92,7 @@ const TRANSLATIONS = {
         cat_special: 'Hallazgos Especiales',
         cat_discount: '🔥 Descuentos',
         cat_bestsellers: '🌟 Más Vendidos',
+        cat_accessories: '🎁 Accesorios',
         cat_budget: 'Ofertas',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
@@ -114,6 +118,7 @@ const TRANSLATIONS = {
         cat_special: 'Trovate Speciali',
         cat_discount: '🔥 Sconti',
         cat_bestsellers: '🌟 Più Venduti',
+        cat_accessories: '🎁 Accessori',
         cat_budget: 'Offerte',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
@@ -821,7 +826,7 @@ function parseHtmlSheetBudget(html, categoryName) {
 
         if (!photo && !weidianId) continue;
 
-        products.push({ name, price, photo, link, category: categoryName, weidianId });
+        products.push({ name, price, photo, link, category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
     }
 
     return products;
@@ -873,32 +878,180 @@ const SPECIAL_PIN_KEYWORDS = [
     ['football',       '⚽ Football'],
     ['soccer',         '⚽ Football'],
     ['real madrid',    '⚽ Football'],
+    ['barcelona',      '⚽ Football'],
+    ['liverpool',      '⚽ Football'],
+    ['manchester',     '⚽ Football'],
+    ['man city',       '⚽ Football'],
+    ['arsenal',        '⚽ Football'],
+    ['chelsea',        '⚽ Football'],
+    ['juventus',       '⚽ Football'],
+    ['bayern',         '⚽ Football'],
+    ['ac milan',       '⚽ Football'],
+    ['inter milan',    '⚽ Football'],
+    ['dortmund',       '⚽ Football'],
     ['psg',            '⚽ Football'],
     ['national team',  '⚽ Football'],
     // Apparel keywords (checked first so "Nike Hoodie" beats 'nike').
+    // Plurals listed alongside singulars — \b boundary doesn't cross
+    // word-char transitions so 'jacket' alone won't match "jackets".
     ['jeans',          '👖 Pants'],
     ['trousers',       '👖 Pants'],
     ['pants',          '👖 Pants'],
     ['shorts',         '🩳 Shorts'],
     ['short',          '🩳 Shorts'],
+    ['hoodies',        '🧥 Hoodies'],
     ['hoodie',         '🧥 Hoodies'],
+    ['cardigan',       '🧶 Sweaters'],
+    ['cardigans',      '🧶 Sweaters'],
+    ['sweaters',       '🧶 Sweaters'],
     ['sweater',        '🧶 Sweaters'],
     ['knit',           '🧶 Sweaters'],
+    ['tracksuits',     '🏃 Tracksuits'],
     ['tracksuit',      '🏃 Tracksuits'],
-    ['set',            '🏃 Tracksuits'],
-    ['kit',            '🏃 Tracksuits'],
-    ['uniform',        '🏃 Tracksuits'],
+    // T-shirts / tops / jackets — moved BEFORE shoe specifics so a
+    // "Lebron Jersey" routes to T-Shirts (via 'jersey') instead of
+    // Shoes (via 'lebron'). "Nike Lebron" sneakers still route to
+    // Shoes since they don't contain any apparel keyword first.
     ['polo',           '👕 T-Shirts'],
+    ['t-shirts',       '👕 T-Shirts'],
     ['t-shirt',        '👕 T-Shirts'],
+    ['tshirts',        '👕 T-Shirts'],
     ['tshirt',         '👕 T-Shirts'],
+    ['tees',           '👕 T-Shirts'],
     ['tee',            '👕 T-Shirts'],
+    ['jerseys',        '👕 T-Shirts'],
     ['jersey',         '👕 T-Shirts'],
+    ['shirts',         '👕 T-Shirts'],
     ['shirt',          '👕 T-Shirts'],
+    ['jackets',        '🦺 Jackets & Vests'],
     ['jacket',         '🦺 Jackets & Vests'],
+    ['vests',          '🦺 Jackets & Vests'],
     ['vest',           '🦺 Jackets & Vests'],
     ['perfume',        '🌸 Perfume'],
     ['cologne',        '🌸 Perfume'],
     ['fragrance',      '🌸 Perfume'],
+    // Specific shoe-model names that would otherwise be hijacked by
+    // accessory generic words (e.g. Versace "Chain Reaction" hitting
+    // 'chain', Balenciaga "Track" being fine here vs "Track Pants"
+    // landing in Pants). Listed before accessories.
+    ['chain reaction',     '👟 Shoes'],
+    ['vapormax',           '👟 Shoes'],
+    ['airmax',             '👟 Shoes'],   // no-space variant of 'air max'
+    ['airforce',           '👟 Shoes'],   // no-space variant of 'air force'
+    ['shox',               '👟 Shoes'],
+    ['triple s',           '👟 Shoes'],
+    ['speed trainer',      '👟 Shoes'],
+    ['speed runner',       '👟 Shoes'],
+    ['runners',            '👟 Shoes'],
+    ['nocta',              '👟 Shoes'],
+    ['lebron',             '👟 Shoes'],
+    ['kobe',               '👟 Shoes'],
+    ['mihara',             '👟 Shoes'],
+    ['golden goose',       '👟 Shoes'],
+    ['ggdb',               '👟 Shoes'],
+    ['birkenstock',        '👟 Shoes'],
+    ['odsy',               '👟 Shoes'],
+    ['be right back',      '👟 Shoes'],
+    ['out of office',      '👟 Shoes'],
+    ['louboutin',          '👟 Shoes'],
+    ['loubutin',           '👟 Shoes'],   // sheet typo
+    ['salomon',            '👟 Shoes'],
+    ['hoka',               '👟 Shoes'],
+    ['on cloud',           '👟 Shoes'],
+    ['timberland',         '👟 Shoes'],
+    ['timbs',              '👟 Shoes'],
+    ['ugg',                '👟 Shoes'],
+    ['skate',              '👟 Shoes'],   // Louis Vuitton Skate / similar shoe lines
+    ['mcqueen',            '👟 Shoes'],   // Alexander McQueen shoe line
+    ['converses',          '👟 Shoes'],
+    ['converse',           '👟 Shoes'],
+    ['b9',                 '👟 Shoes'],   // Dior B-series
+    ['b22',                '👟 Shoes'],
+    ['b30',                '👟 Shoes'],
+    ['b33',                '👟 Shoes'],
+    ['b57',                '👟 Shoes'],
+    // Accessory keywords are checked BEFORE the 'set'/'kit'/'uniform'
+    // tracksuit-fallback block so that e.g. "Cartier Love Bracelet Set"
+    // routes to Accessories instead of Tracksuits. Specific bag model
+    // names sit above generic 'bag' so "LV Neverfull" doesn't get
+    // mis-routed if generic falls through to something else later.
+    ['birkin',         '🎁 Accessories'],
+    ['kelly bag',      '🎁 Accessories'],
+    ['neverfull',      '🎁 Accessories'],
+    ['speedy',         '🎁 Accessories'],
+    ['fanny pack',     '🎁 Accessories'],
+    ['belt bag',       '🎁 Accessories'],
+    ['waist bag',      '🎁 Accessories'],
+    ['bucket hat',     '🎁 Accessories'],
+    ['belt',           '🎁 Accessories'],
+    ['belts',          '🎁 Accessories'],
+    ['handbag',        '🎁 Accessories'],
+    ['purse',          '🎁 Accessories'],
+    ['tote',           '🎁 Accessories'],
+    ['crossbody',      '🎁 Accessories'],
+    ['shoulder bag',   '🎁 Accessories'],
+    ['sling',          '🎁 Accessories'],
+    ['messenger',      '🎁 Accessories'],
+    ['backpack',       '🎁 Accessories'],
+    ['duffel',         '🎁 Accessories'],
+    ['duffle',         '🎁 Accessories'],
+    ['weekender',      '🎁 Accessories'],
+    ['clutch',         '🎁 Accessories'],
+    ['bag',            '🎁 Accessories'],
+    ['bags',           '🎁 Accessories'],
+    ['wallet',         '🎁 Accessories'],
+    ['wallets',        '🎁 Accessories'],
+    ['cardholder',     '🎁 Accessories'],
+    ['card holder',    '🎁 Accessories'],
+    ['bifold',         '🎁 Accessories'],
+    ['hat',            '🎁 Accessories'],
+    ['hats',           '🎁 Accessories'],
+    ['cap',            '🎁 Accessories'],
+    ['caps',           '🎁 Accessories'],
+    ['beanie',         '🎁 Accessories'],
+    ['beanies',        '🎁 Accessories'],
+    ['snapback',       '🎁 Accessories'],
+    ['scarf',          '🎁 Accessories'],
+    ['scarves',        '🎁 Accessories'],
+    ['gloves',         '🎁 Accessories'],
+    ['mittens',        '🎁 Accessories'],
+    ['necktie',        '🎁 Accessories'],
+    ['bowtie',         '🎁 Accessories'],
+    ['sunglasses',     '🎁 Accessories'],
+    ['shades',         '🎁 Accessories'],
+    ['eyewear',        '🎁 Accessories'],
+    ['watch',          '🎁 Accessories'],
+    ['watches',        '🎁 Accessories'],
+    ['wristwatch',     '🎁 Accessories'],
+    ['rolex',          '🎁 Accessories'],
+    ['submariner',     '🎁 Accessories'],
+    ['daytona',        '🎁 Accessories'],
+    ['datejust',       '🎁 Accessories'],
+    ['royal oak',      '🎁 Accessories'],
+    ['nautilus',       '🎁 Accessories'],
+    ['patek',          '🎁 Accessories'],
+    ['bracelet',       '🎁 Accessories'],
+    ['bracelets',      '🎁 Accessories'],
+    ['bangle',         '🎁 Accessories'],
+    ['necklace',       '🎁 Accessories'],
+    ['necklaces',      '🎁 Accessories'],
+    ['pendant',        '🎁 Accessories'],
+    ['chain',          '🎁 Accessories'],
+    ['chains',         '🎁 Accessories'],
+    ['earring',        '🎁 Accessories'],
+    ['earrings',       '🎁 Accessories'],
+    ['hoops',          '🎁 Accessories'],
+    ['brooch',         '🎁 Accessories'],
+    ['keychain',       '🎁 Accessories'],
+    ['lanyard',        '🎁 Accessories'],
+    ['socks',          '🎁 Accessories'],
+    ['audemars',       '🎁 Accessories'],
+    ['piguet',         '🎁 Accessories'],
+    ['airpods',        '🎁 Accessories'],
+    ['beannies',       '🎁 Accessories'],   // sheet typo of 'beanies'
+    ['set',            '🏃 Tracksuits'],
+    ['kit',            '🏃 Tracksuits'],
+    ['uniform',        '🏃 Tracksuits'],
     // Footwear — generic words first, then shoe-dedicated brands and
     // recognisable shoe model names. The "Shoes" suffix on most items
     // is caught by 'shoes', but plenty of names ("Nike Air", "Jordan",
@@ -1071,7 +1224,7 @@ function parseHtmlSheetCategory(html, categoryName) {
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
-        products.push({ name, price, photo, link, qcLink: qcLink || '', category: categoryName, weidianId });
+        products.push({ name, price, photo, link, qcLink: qcLink || '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
     }
 
     return products;
@@ -1161,7 +1314,7 @@ function parseHtmlSheetDiscount(html, categoryName) {
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
-        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, isDiscount: true });
+        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, isDiscount: true, pinCategory: derivePinCategory(name) });
     }
 
     return products;
@@ -1243,7 +1396,7 @@ function parseHtmlSheetBestSellers(html, categoryName) {
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
 
-        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId });
+        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
     }
 
     return products;
@@ -1373,10 +1526,16 @@ async function fetchProducts() {
 // CATEGORY TABS
 // =============================================================
 function buildCategoryTabs() {
-    const categories = [...new Set(allProducts.map(p => p.category))];
+    // Union of primary categories AND pinCategory targets, so derived
+    // pills like '🎁 Accessories' (no items carry that as p.category)
+    // still surface in the tab list as long as at least one item has
+    // pinCategory='🎁 Accessories'.
+    const categories = [...new Set(
+        allProducts.flatMap(p => [p.category, p.pinCategory].filter(Boolean))
+    )];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', 'Budget Finds', 'Special Finds'];
+    const frontPinned = ['Discount Items', 'Best Sellers', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -1407,6 +1566,7 @@ function catTranslationKey(value) {
     if (value === 'Budget Finds') return 'cat_budget';
     if (value === 'Discount Items') return 'cat_discount';
     if (value === 'Best Sellers') return 'cat_bestsellers';
+    if (value === '🎁 Accessories') return 'cat_accessories';
     return '';
 }
 
@@ -1447,14 +1607,15 @@ function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
     if (activeCategory !== 'all') {
-        // Route Special Finds into the matching clothes category by name
-        // keyword (set on p.pinCategory at parse time). A "Bape Tee"
-        // surfaces in T-Shirts, "Adidas Pants" in Pants, etc. They keep
-        // their Special Finds category too — the Special Finds pill is
-        // unchanged. sourceOrder=3 vs clothes=4 floats them to the top.
+        // Items show up in their primary category (p.category from the
+        // tab they were parsed from) AND in any pinCategory derived from
+        // their name. So a "Louis Vuitton Belt" parsed from the Perfume
+        // tab appears in Perfume + Accessories. An Air Jordan in Best
+        // Sellers appears in Best Sellers + Shoes. Same item never
+        // double-renders within a single pill because the filter is OR.
         filtered = filtered.filter(
             p => p.category === activeCategory ||
-                 (p.category === 'Special Finds' && p.pinCategory === activeCategory)
+                 p.pinCategory === activeCategory
         );
     }
 
