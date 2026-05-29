@@ -281,11 +281,16 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
-// SHEET2 — temporarily hidden. Restore by removing the `false &&` guard
-// at the results2 fetch below.
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
 const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
+];
+
+// Special Finds — "pinned links" spreadsheet. Items surface at the top
+// of the All view and are pinned into their matching clothes category.
+const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
+const SHEET4_TABS = [
+    { name: 'Special Finds', gid: '0' },
 ];
 
 // Main multi-tab sheet — per-category clothes tabs, a Budget tab that
@@ -1418,15 +1423,24 @@ async function fetchProducts() {
         // Items pill with the discount badge. The 'Budget Finds' pill
         // disappears (no products carry that category anymore). Revert
         // by passing back tab.name / 'Budget Finds'.
-        // SHEET2 temporarily hidden — flip `false` to `true` to restore.
-        const results2 = false ? await Promise.allSettled(
+        const results2 = await Promise.allSettled(
             SHEET2_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
                 return parseHtmlSheetBudget(html, 'Discount Items');
             })
-        ) : [];
+        );
+
+        // Special Finds — pinned links spreadsheet (SHEET4)
+        const results4 = await Promise.allSettled(
+            SHEET4_TABS.map(async (tab) => {
+                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetSpecial(html, tab.name);
+            })
+        );
 
         // Main sheet — per-category clothes tabs
         const results5cat = await Promise.allSettled(
@@ -1475,8 +1489,9 @@ async function fetchProducts() {
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
+            { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
             { results: results5disc, order: 1 }, // Discount Items (real discount section, currently empty in sheet)
-            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items (currently hidden)
+            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
             { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
             { results: results5best, order: 2 }, // Best Sellers (showcase)
             { results: results5cat, order: 4 }, // Clothes categories
