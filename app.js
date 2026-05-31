@@ -1180,7 +1180,27 @@ function parseHtmlSheetSpecial(html, categoryName) {
 // First few rows are category title / back-link / column header; skipped
 // by requiring the PIC cell to contain an <img>.
 // =============================================================
-function parseHtmlSheetCategory(html, categoryName) {
+// Build an id→name map from the MAIN tab (gid 525974875). Used to recover
+// names for tabs that leave the name column blank (e.g. Shoes). Layout there:
+// [img] | PIC | ITEM NAMES | PRICE | LINK | _ | _ | QC  (name=col 2, link=col 4)
+function buildMainNameMap(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const map = new Map();
+    for (const row of doc.querySelectorAll('tr')) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 5) continue;
+        const name = (cells[2].textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name || name === 'ITEM NAMES') continue;
+        const link = fixLink(extractLink(cells[4]));
+        if (!link) continue;
+        const m = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (m && !map.has(m[1])) map.set(m[1], name);
+    }
+    return map;
+}
+
+function parseHtmlSheetCategory(html, categoryName, nameMap) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const rows = Array.from(doc.querySelectorAll('tr'));
@@ -1199,8 +1219,11 @@ function parseHtmlSheetCategory(html, categoryName) {
         const img = picCell.querySelector('img');
         if (!img) continue; // header rows have no image
 
-        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || name === 'ITEM NAMES') continue;
+        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        if (name === 'ITEM NAMES') continue; // header row
+        // Empty-name rows are NOT skipped yet: some tabs (e.g. Shoes) leave
+        // the name column blank, and we recover the name from the main-tab
+        // id→name map below once the product id is known.
 
         const price = (priceCell.textContent || '').trim();
         if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
@@ -1228,6 +1251,14 @@ function parseHtmlSheetCategory(html, categoryName) {
         // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
         const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
         if (idMatch) weidianId = idMatch[1];
+
+        // Recover a blank name from the main catalogue tab (keyed by product
+        // id). The Shoes tab ships with no names; the main tab lists the same
+        // products WITH names, so we look them up here. Rows still nameless
+        // after this (e.g. fansbuy/cnfans links absent from the main tab) are
+        // skipped, matching the original behaviour.
+        if (!name && nameMap && weidianId) name = nameMap.get(weidianId) || '';
+        if (!name) continue;
 
         products.push({ name, price, photo, link, qcLink: qcLink || '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
     }
@@ -1442,13 +1473,24 @@ async function fetchProducts() {
             })
         );
 
+        // Main tab id→name map — lets blank-name tabs (Shoes) recover names
+        // from the main catalogue. Best-effort: on failure the map stays empty
+        // and nameless rows are skipped, exactly as before.
+        let mainNameMap = new Map();
+        try {
+            const resp = await fetch(buildHtmlUrl(SHEET5_ID, SHEET5_BESTSELLERS_TAB.gid));
+            if (resp.ok) mainNameMap = buildMainNameMap(await resp.text());
+        } catch (e) {
+            console.error('Main name-map fetch failed:', e);
+        }
+
         // Main sheet — per-category clothes tabs
         const results5cat = await Promise.allSettled(
             SHEET5_TABS.map(async (tab) => {
                 const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
                 if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
                 const html = await resp.text();
-                return parseHtmlSheetCategory(html, tab.name);
+                return parseHtmlSheetCategory(html, tab.name, mainNameMap);
             })
         );
 
