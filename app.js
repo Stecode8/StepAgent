@@ -15,6 +15,7 @@ const TRANSLATIONS = {
         cat_discount: '🔥 Discount Items',
         cat_bestsellers: '🌟 Best Sellers',
         cat_accessories: '🎁 Accessories',
+        cat_video: '📹 Video Finds',
         cat_budget: 'Budget Finds',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
@@ -41,6 +42,7 @@ const TRANSLATIONS = {
         cat_discount: '🔥 Promotions',
         cat_bestsellers: '🌟 Meilleures Ventes',
         cat_accessories: '🎁 Accessoires',
+        cat_video: '📹 Trouvailles Vidéo',
         cat_budget: 'Petits Prix',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
@@ -67,6 +69,7 @@ const TRANSLATIONS = {
         cat_discount: '🔥 Rabatte',
         cat_bestsellers: '🌟 Bestseller',
         cat_accessories: '🎁 Accessoires',
+        cat_video: '📹 Video-Funde',
         cat_budget: 'Schnäppchen',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
@@ -93,6 +96,7 @@ const TRANSLATIONS = {
         cat_discount: '🔥 Descuentos',
         cat_bestsellers: '🌟 Más Vendidos',
         cat_accessories: '🎁 Accesorios',
+        cat_video: '📹 Hallazgos en Video',
         cat_budget: 'Ofertas',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
@@ -119,6 +123,7 @@ const TRANSLATIONS = {
         cat_discount: '🔥 Sconti',
         cat_bestsellers: '🌟 Più Venduti',
         cat_accessories: '🎁 Accessori',
+        cat_video: '📹 Trovate Video',
         cat_budget: 'Offerte',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
@@ -322,6 +327,9 @@ const SHEET5_DISCOUNT_TAB = { name: 'Discount Items', gid: '525974875' };
 // the discount section header (the curated featured products at the top
 // of the MAIN tab).
 const SHEET5_BESTSELLERS_TAB = { name: 'Best Sellers', gid: '525974875' };
+// Video Finds tab — products featured in videos. Gets its own pill and
+// is cross-pinned into matching clothes categories by name.
+const SHEET5_VIDEO_TAB = { name: '📹 Video Finds', gid: '1323089782' };
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
@@ -1439,6 +1447,81 @@ function parseHtmlSheetBestSellers(html, categoryName) {
 }
 
 // =============================================================
+// HTML PARSING — Video Finds tab of the MAIN spreadsheet.
+// Layout differs from the clothes tabs: the name is column index 2
+// (ITEM NAMES) and the price + link are trailing cells whose index
+// shifts row-to-row (some rows have 5 cells, some 6, depending on
+// whether the price gets its own column) — so we find the price as the
+// first trailing $ cell and the link as the last cell with an anchor.
+//
+// The PRODUCT PHOTOS are FLOATING (over-cell) images: Google emits them
+// as absolutely-positioned `.waffle-embedded-object-overlay` divs AFTER
+// the table, NOT inside the cells. The <img> actually inside each row is
+// a single shared spacer placeholder (identical on every row), so we
+// must ignore it. The overlays line up 1:1 with the data rows in
+// document order, so we zip them by index.
+// =============================================================
+function parseHtmlSheetVideo(html, categoryName) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Floating product photos, in document (top-to-bottom row) order.
+    const overlayImgs = Array.from(
+        doc.querySelectorAll('.waffle-embedded-object-overlay img')
+    ).map(im => im.getAttribute('src') || '');
+
+    const rows = doc.querySelectorAll('tr');
+    const products = [];
+    let photoIdx = -1; // advances once per data row, to index overlayImgs
+
+    for (const row of rows) {
+        const cells = Array.from(row.querySelectorAll('td'));
+        if (cells.length < 4) continue;
+
+        // Name lives in the ITEM NAMES column (index 2) on every data row.
+        const name = (cells[2].textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name || /^item names$/i.test(name)) continue;
+
+        // Each data row carries exactly one floating photo; consume it in
+        // order (advance even if the row is later rejected, so subsequent
+        // rows stay aligned with their overlay).
+        photoIdx++;
+        let photo = overlayImgs[photoIdx] || '';
+        // Downscale the =s2048 high-res original to a card-sized variant.
+        if (photo) photo = photo
+            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+            .replace(/=w\d+-h\d+$/, '=w800-h800');
+
+        // Price: first trailing cell (after the name) holding a $ amount.
+        // Formats vary: "$40.00", "$27.00-$98.00", "20.00$", "8$", "-$50.00".
+        let price = '';
+        for (let i = 3; i < cells.length; i++) {
+            const t = (cells[i].textContent || '').trim().replace(/\s+/g, ' ');
+            if (t.includes('$') && /\d/.test(t)) { price = t; break; }
+        }
+        if (!price || /sold\s*out/i.test(price)) continue;
+
+        // Link: last cell with an anchor.
+        let link = '';
+        for (let i = cells.length - 1; i >= 3; i--) {
+            if (cells[i].querySelector('a')) { link = extractLink(cells[i]); break; }
+        }
+        link = fixLink(link);
+        if (!link) continue;
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        if (!photo && !weidianId) continue;
+
+        products.push({ name, price, photo, link, qcLink: '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
+    }
+
+    return products;
+}
+
+// =============================================================
 // FETCH PRODUCTS
 // =============================================================
 async function fetchProducts() {
@@ -1528,6 +1611,17 @@ async function fetchProducts() {
             })(),
         ]);
 
+        // Main sheet — Video Finds tab
+        const results5video = await Promise.allSettled([
+            (async () => {
+                const tab = SHEET5_VIDEO_TAB;
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
+                const html = await resp.text();
+                return parseHtmlSheetVideo(html, tab.name);
+            })(),
+        ]);
+
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
@@ -1536,6 +1630,7 @@ async function fetchProducts() {
             { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
             { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
             { results: results5best, order: 2 }, // Best Sellers (showcase)
+            { results: results5video, order: 3 }, // Video Finds (own pill + cross-pinned to clothes)
             { results: results5cat, order: 4 }, // Clothes categories
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
@@ -1592,7 +1687,7 @@ function buildCategoryTabs() {
     )];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
+    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -1624,6 +1719,7 @@ function catTranslationKey(value) {
     if (value === 'Discount Items') return 'cat_discount';
     if (value === 'Best Sellers') return 'cat_bestsellers';
     if (value === '🎁 Accessories') return 'cat_accessories';
+    if (value === '📹 Video Finds') return 'cat_video';
     return '';
 }
 
