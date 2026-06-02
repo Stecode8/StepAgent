@@ -1498,6 +1498,24 @@ function parseHtmlSheetVideo(html, categoryName) {
     const rows = doc.querySelectorAll('tr');
     const products = [];
 
+    // Detect the shared SPACER image. Older rows keep their real photo in a
+    // floating overlay and put one identical placeholder <img> in the PIC
+    // cell; newer rows were instead added with "image in cell" — the PIC
+    // <img> IS the real photo and there's no overlay. The spacer repeats
+    // across many rows while real in-cell photos are unique, so the most
+    // frequent in-cell src is the spacer (token changes per fetch, so we
+    // can't hardcode it).
+    const imgFreq = {};
+    for (const r of rows) {
+        const im = r.querySelector('td img');
+        const s = im ? (im.getAttribute('src') || '') : '';
+        if (s) imgFreq[s] = (imgFreq[s] || 0) + 1;
+    }
+    let spacerSrc = '';
+    for (const s in imgFreq) {
+        if (imgFreq[s] > 1 && imgFreq[s] > (imgFreq[spacerSrc] || 0)) spacerSrc = s;
+    }
+
     for (const row of rows) {
         const cells = Array.from(row.querySelectorAll('td'));
         if (cells.length < 4) continue;
@@ -1511,6 +1529,13 @@ function parseHtmlSheetVideo(html, categoryName) {
         // number minus 1 (gutter 2 = first product = ROW 1).
         const gutter = parseInt((row.querySelector('th')?.textContent || '').trim(), 10);
         let photo = (!isNaN(gutter) && photoByRow[gutter - 1]) || '';
+        // No floating overlay? Fall back to a unique in-cell PIC image
+        // (newer "image in cell" rows), ignoring the shared spacer.
+        if (!photo) {
+            const im = row.querySelector('td img');
+            const src = im ? (im.getAttribute('src') || '') : '';
+            if (src && src !== spacerSrc) photo = src;
+        }
         // Downscale the =s2048 high-res original to a card-sized variant.
         if (photo) photo = photo
             .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
