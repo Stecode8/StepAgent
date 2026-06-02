@@ -1458,21 +1458,45 @@ function parseHtmlSheetBestSellers(html, categoryName) {
 // as absolutely-positioned `.waffle-embedded-object-overlay` divs AFTER
 // the table, NOT inside the cells. The <img> actually inside each row is
 // a single shared spacer placeholder (identical on every row), so we
-// must ignore it. The overlays line up 1:1 with the data rows in
-// document order, so we zip them by index.
+// must ignore it.
+//
+// The overlays are NOT in row order in the DOM — Google scrambles them.
+// Instead, a `posObj('gid','embed_id', ROW, col, offX, offY)` script call
+// is emitted per image giving the cell it anchors to. ROW counts grid
+// rows with the header at 0, so the first product is ROW 1 — that equals
+// (row-gutter number − 1), the gutter being Google's 1-based row label.
+// offY is the image's pixel offset inside
+// that cell: when it's roughly a full row-height (~130px) the image
+// actually renders in the row BELOW its anchor cell, so we bump ROW by 1.
+// With that adjustment the images map 1:1 onto the data rows (some rows
+// carry two photos, some none — the offset is what disentangles them).
 // =============================================================
 function parseHtmlSheetVideo(html, categoryName) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Floating product photos, in document (top-to-bottom row) order.
-    const overlayImgs = Array.from(
-        doc.querySelectorAll('.waffle-embedded-object-overlay img')
-    ).map(im => im.getAttribute('src') || '');
+    // embed_id → photo src, in document order.
+    const srcByEmbed = {};
+    for (const ov of doc.querySelectorAll('.waffle-embedded-object-overlay')) {
+        const img = ov.querySelector('img');
+        if (ov.id && img) srcByEmbed[ov.id] = img.getAttribute('src') || '';
+    }
+
+    // posObj(...) anchors → photo keyed by grid ROW (after spill
+    // adjustment). First image wins if two ever resolve to the same row.
+    const photoByRow = {};
+    const ROW_SPILL_PX = 60; // offY past this → image belongs to the next row
+    const posRe = /posObj\('[^']*',\s*'(embed_\d+)',\s*(-?\d+),\s*-?\d+,\s*-?\d+,\s*(-?\d+)\)/g;
+    let pm;
+    while ((pm = posRe.exec(html))) {
+        const src = srcByEmbed[pm[1]];
+        if (!src) continue;
+        const row = parseInt(pm[2], 10) + (parseInt(pm[3], 10) >= ROW_SPILL_PX ? 1 : 0);
+        if (!(row in photoByRow)) photoByRow[row] = src;
+    }
 
     const rows = doc.querySelectorAll('tr');
     const products = [];
-    let photoIdx = -1; // advances once per data row, to index overlayImgs
 
     for (const row of rows) {
         const cells = Array.from(row.querySelectorAll('td'));
@@ -1482,11 +1506,11 @@ function parseHtmlSheetVideo(html, categoryName) {
         const name = (cells[2].textContent || '').trim().replace(/\s+/g, ' ');
         if (!name || /^item names$/i.test(name)) continue;
 
-        // Each data row carries exactly one floating photo; consume it in
-        // order (advance even if the row is later rejected, so subsequent
-        // rows stay aligned with their overlay).
-        photoIdx++;
-        let photo = overlayImgs[photoIdx] || '';
+        // Look up this row's photo by its grid position. The row-gutter <th>
+        // holds Google's 1-based row number; the posObj ROW key is that
+        // number minus 1 (gutter 2 = first product = ROW 1).
+        const gutter = parseInt((row.querySelector('th')?.textContent || '').trim(), 10);
+        let photo = (!isNaN(gutter) && photoByRow[gutter - 1]) || '';
         // Downscale the =s2048 high-res original to a card-sized variant.
         if (photo) photo = photo
             .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
