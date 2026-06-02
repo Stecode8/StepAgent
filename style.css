@@ -674,6 +674,47 @@ main {
     }
 }
 
+/* Video Finds cards — green ring + green "Community" sticker */
+.product-card.video {
+    position: relative;
+    border: 1.5px solid #30d158;
+    box-shadow:
+        0 0 0 1px rgba(48, 209, 88, 0.25),
+        0 4px 20px rgba(48, 209, 88, 0.18);
+    background: linear-gradient(180deg, rgba(48, 209, 88, 0.07) 0%, var(--card-bg) 60%);
+}
+
+.community-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    padding: 3px 9px;
+    background: linear-gradient(135deg, #30d158 0%, #28a745 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(48, 209, 88, 0.55);
+    transform: rotate(-4deg);
+    pointer-events: none;
+}
+
+.product-card.video .product-price {
+    color: #30d158;
+}
+
+@media (hover: hover) {
+    .product-card.video:hover {
+        border-color: #30d158;
+        box-shadow:
+            0 0 0 1px rgba(48, 209, 88, 0.45),
+            0 6px 26px rgba(48, 209, 88, 0.28);
+    }
+}
+
 .product-card img {
     width: 100%;
     aspect-ratio: 1;

@@ -1550,10 +1550,17 @@ function parseHtmlSheetVideo(html, categoryName) {
         }
         if (!price || /sold\s*out/i.test(price)) continue;
 
-        // Link: last cell with an anchor.
+        // Link: last cell with a real product anchor. Rows carry a trailing
+        // "up" cell linking to an in-sheet anchor (href="#gid=…&range=…");
+        // skip any anchor whose URL isn't an external http(s) link so that
+        // navigation link doesn't shadow the actual LINK cell.
         let link = '';
         for (let i = cells.length - 1; i >= 3; i--) {
-            if (cells[i].querySelector('a')) { link = extractLink(cells[i]); break; }
+            if (!cells[i].querySelector('a')) continue;
+            const candidate = extractLink(cells[i]);
+            if (!/^https?:\/\//i.test(candidate)) continue;
+            link = candidate;
+            break;
         }
         link = fixLink(link);
         if (!link) continue;
@@ -1866,6 +1873,7 @@ function buildCard(p, i) {
     else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
     else if (p.category === 'Best Sellers') extraClass = ' bestseller';
     else if (p.category === 'Budget Finds') extraClass = ' budget';
+    else if (p.category === '📹 Video Finds') extraClass = ' video';
     card.className = 'product-card' + extraClass;
     card.dataset.index = i;
 
@@ -1908,6 +1916,12 @@ function buildCard(p, i) {
         const badge = document.createElement('div');
         badge.className = 'discount-badge';
         badge.textContent = 'Discount!';
+        card.appendChild(badge);
+    }
+    if (p.category === '📹 Video Finds') {
+        const badge = document.createElement('div');
+        badge.className = 'community-badge';
+        badge.textContent = 'Community';
         card.appendChild(badge);
     }
     card.appendChild(info);
