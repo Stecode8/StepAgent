@@ -552,7 +552,9 @@ const SYNONYM_GROUPS = [
     // ===== Bottoms =====
     ['pants', 'trousers', 'slacks'],
     ['jeans', 'denim', 'denims'],
-    ['joggers', 'sweatpants', 'track pants', 'trackpants', 'jogger'],
+    // 'pants' bridges joggers↔pants: titles say "Nike Tech Pants", never
+    // "joggers", so a jogger search must also reach pant-type items.
+    ['joggers', 'sweatpants', 'track pants', 'trackpants', 'jogger', 'pants'],
     ['shorts', 'short', 'sweatshorts'],
     ['cargo', 'cargos', 'cargo pants', 'cargo shorts'],
     ['skirt', 'skirts'],
@@ -641,7 +643,50 @@ const SYNONYM_GROUPS = [
     ['lego', 'legos'],
     ['football jersey', 'soccer jersey', 'jersey'],
     ['fifa', 'world cup'],
+
+    // ===== Colours (also drives smart colour ranking, see COLOR_WORDS) =====
+    ['black', 'noir'],
+    ['white', 'blanc', 'off white', 'off-white', 'cream', 'ivory'],
+    ['grey', 'gray', 'charcoal'],
+    ['red', 'crimson', 'burgundy', 'maroon', 'wine'],
+    ['blue', 'navy', 'royal blue', 'sky blue', 'teal'],
+    ['green', 'olive', 'khaki', 'mint', 'lime'],
+    ['yellow', 'gold'],
+    ['orange'],
+    ['pink', 'rose', 'fuchsia'],
+    ['purple', 'violet', 'lilac'],
+    ['brown', 'tan', 'beige', 'chocolate', 'coffee'],
+    ['silver', 'metallic'],
+    ['multicolor', 'multicolour', 'rainbow'],
+
+    // ===== Materials / patterns =====
+    ['leather'],
+    ['suede'],
+    ['cotton'],
+    ['wool', 'cashmere', 'merino'],
+    ['nylon'],
+    ['camo', 'camouflage'],
+    ['plaid', 'check', 'checkered', 'gingham'],
+    ['stripe', 'striped', 'stripes'],
+    ['floral', 'flower'],
 ];
+
+// Colour words used for SMART COLOUR RANKING. Because <5% of product titles
+// contain a colour, a colour term must NOT hard-exclude results — instead it
+// boosts ranking: items whose title names the colour rank first, then items
+// that come in many colourways (likely available in it), then the rest. See
+// searchScore / renderProducts. Keep these lowercased; multi-word colours are
+// matched via the alias table above.
+const COLOR_WORDS = new Set([
+    'black', 'white', 'grey', 'gray', 'red', 'blue', 'navy', 'green', 'olive',
+    'khaki', 'yellow', 'gold', 'orange', 'pink', 'purple', 'violet', 'brown',
+    'tan', 'beige', 'cream', 'ivory', 'silver', 'charcoal', 'burgundy',
+    'maroon', 'teal', 'mint', 'rose', 'multicolor', 'multicolour',
+]);
+
+// A title hints "available in many colours" → a colour search counts it as a
+// soft match (ranked below a literal colour hit). e.g. "Asics Shoes (+16 Colourways)".
+const COLORWAY_RE = /colou?rway|colou?rs\b|\bstyles?\b|multi.?colou?r/i;
 
 // Build the lookup dict from groups. For each term, list all other terms in
 // the same group(s). A term can appear in multiple groups (e.g. 'tee' and
@@ -675,20 +720,135 @@ function tokenMatcher(token) {
     return (_tokenMatcherCache[token] = new RegExp('\\b(?:' + parts.join('|') + ')', 'i'));
 }
 
-function matchesSearch(name, query) {
+// Optimal String Alignment distance (Damerau-Levenshtein restricted to
+// adjacent transpositions), capped early for speed. Counts a swapped pair of
+// letters as ONE edit so common typos like "shrit"→"shirt" match within a
+// budget of 1. Used for typo tolerance.
+function editDistance(a, b, max) {
+    const la = a.length, lb = b.length;
+    if (Math.abs(la - lb) > max) return max + 1;
+    let prevPrev = null;
+    let prev = new Array(lb + 1);
+    for (let j = 0; j <= lb; j++) prev[j] = j;
+    for (let i = 1; i <= la; i++) {
+        const cur = new Array(lb + 1);
+        cur[0] = i;
+        let rowMin = i;
+        const ca = a.charCodeAt(i - 1);
+        for (let j = 1; j <= lb; j++) {
+            const cb = b.charCodeAt(j - 1);
+            const cost = ca === cb ? 0 : 1;
+            let v = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+            if (i > 1 && j > 1 && ca === b.charCodeAt(j - 2) && a.charCodeAt(i - 2) === cb) {
+                v = Math.min(v, prevPrev[j - 2] + 1); // adjacent transposition
+            }
+            cur[j] = v;
+            if (v < rowMin) rowMin = v;
+        }
+        if (rowMin > max) return max + 1; // whole row exceeds budget → bail
+        prevPrev = prev;
+        prev = cur;
+    }
+    return prev[lb];
+}
+
+// Allowed typo budget for a token: none for very short tokens (too risky),
+// 1 for medium, 2 for long. Short tokens lean on the exact/alias path.
+function fuzzyBudget(token) {
+    if (token.length <= 3) return 0;
+    if (token.length <= 6) return 1;
+    return 2;
+}
+
+// Does a query token match this name — exactly/alias-wise, OR within a small
+// edit distance of some word in the name (typo tolerance)? `nameWords` is the
+// pre-split lowercase word list (passed in so we split each name once).
+function tokenMatchesName(token, name, nameWords) {
+    if (tokenMatcher(token).test(name)) return true;
+    const budget = fuzzyBudget(token);
+    if (!budget) return false;
+    for (const w of nameWords) {
+        if (Math.abs(w.length - token.length) > budget) continue;
+        if (editDistance(token, w, budget) <= budget) return true;
+    }
+    return false;
+}
+
+// Score a product name against the query. Returns
+//   { matched, full, score }
+// where `matched` = belongs in the result set, `full` = matched every core
+// (non-colour) term, and `score` ranks results (higher = better).
+//
+// Three ideas combine here:
+//  • Core (non-colour) terms are REQUIRED — at least one to appear, all of
+//    them for the "full match" tier. Alias- and typo-tolerant.
+//  • Colour terms are SOFT (smart colour ranking): titles rarely name a
+//    colour, so a colour never excludes an item — it only boosts ranking.
+//    Literal colour hit > "comes in many colourways" > no colour info.
+//  • A whole-query phrase hit adds a small bonus so exact phrases sort first.
+function searchScore(name, query) {
     query = (query || '').trim();
-    if (!query) return true;
+    if (!query) return { matched: true, full: true, score: 0 };
     name = name.toLowerCase();
+    const nameWords = name.split(/[^a-z0-9]+/).filter(Boolean);
 
-    // Whole-query match (with aliases). Uses the same word-boundary regex so
-    // "air jordan 1" doesn't accidentally match "Air Jordan 11".
-    if (tokenMatcher(query).test(name)) return true;
-
-    // Per-token AND: each token (or any of its aliases) must match somewhere
-    // in the name. This handles "nike hoodie" → "Nike Tech Fleece Hoodie".
     const tokens = query.split(/\s+/).filter(Boolean);
-    if (tokens.length <= 1) return false;
-    return tokens.every(t => tokenMatcher(t).test(name));
+    const colorTokens = tokens.filter(t => COLOR_WORDS.has(t));
+    const coreTokens = tokens.filter(t => !COLOR_WORDS.has(t));
+
+    // Colour contribution (ranking only): best signal across colour terms.
+    let colorBonus = 0;
+    for (const c of colorTokens) {
+        if (tokenMatcher(c).test(name)) { colorBonus = Math.max(colorBonus, 3); }      // literal colour in title
+        else if (COLORWAY_RE.test(name)) { colorBonus = Math.max(colorBonus, 1); }     // available in many colours
+    }
+
+    // Core term matching (required).
+    let coreMatched = 0;
+    for (const t of coreTokens) {
+        if (tokenMatchesName(t, name, nameWords)) coreMatched++;
+    }
+    const phrase = tokens.length > 1 && tokenMatcher(query).test(name);
+    if (phrase) coreMatched = coreTokens.length; // phrase implies all core terms present
+
+    let matched, full;
+    if (coreTokens.length > 0) {
+        matched = coreMatched >= 1;
+        full = coreMatched >= coreTokens.length;
+    } else {
+        // Colour-only (or empty-core) query: the colour is the requirement.
+        matched = colorBonus > 0;
+        full = colorBonus >= 3; // literal colour hit
+    }
+
+    const score = coreMatched * 10 + colorBonus + (phrase ? 2 : 0);
+    return { matched, full, score };
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+// Wrap query terms (and their aliases) found in `text` with <mark> for the
+// result cards. Operates on HTML-escaped text so it's injection-safe. Exact /
+// alias hits only — fuzzy typo matches aren't highlighted (best-effort).
+function highlightMatches(text, query) {
+    const safe = escapeHtml(text);
+    query = (query || '').trim();
+    if (!query) return safe;
+    const parts = [];
+    for (const t of query.split(/\s+/).filter(Boolean)) {
+        for (const e of [t, ...(SEARCH_ALIASES[t] || [])]) {
+            const esc = e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            parts.push(/\d$/.test(e) ? esc + '(?!\\d)' : esc);
+        }
+    }
+    if (!parts.length) return safe;
+    parts.sort((a, b) => b.length - a.length); // prefer longest (multi-word) alias
+    let re;
+    try { re = new RegExp('\\b(?:' + parts.join('|') + ')', 'gi'); }
+    catch (e) { return safe; }
+    return safe.replace(re, m => '<mark>' + m + '</mark>');
 }
 
 // =============================================================
@@ -1447,6 +1607,113 @@ function parseHtmlSheetBestSellers(html, categoryName) {
 }
 
 // =============================================================
+// HTML PARSING — extra category sections of the MAIN tab.
+// The MAIN SPREADSHEET tab (gid 525974875) is one wide grid split into
+// vertical sections, each introduced by a header row whose category name
+// sits in column 0 (e.g. "Electronics", "Others", "Watches") and is
+// preceded by a "Back to top" row. The clothes categories have their own
+// dedicated tabs (parsed elsewhere); the sections below have NO dedicated
+// tab, so we walk the MAIN tab and emit their products tagged with a pill
+// label. Row layout matches the clothes tabs:
+//   [emoji] | PIC(img) | NAME | PRICE | LINK | _ | _ | QC
+// =============================================================
+// Normalized col-0 header text → pill label. Only sections listed here are
+// emitted; any other header (a dedicated-tab section like Hoodies, or a
+// showcase area like CHEAP FINDS / Best Sellers) resets currentCategory to
+// null so its rows are skipped — that prevents duplicating dedicated tabs.
+const SECTION_CATEGORIES = new Map([
+    ['bags & backpacs',  '👜 Bags & Backpacks'],
+    ['bags & backpacks', '👜 Bags & Backpacks'],
+    ['underwear',        '🩲 Underwear'],
+    ['wallets',          '👛 Wallets'],
+    ['cap & hat',        '🧢 Cap & Hat'],
+    ['jewelry',          '💍 Jewelry'],
+    ['sunglasses',       '🕶️ Sunglasses'],
+    ['electronics',      '🎧 Electronics'],
+    ['others',           '📦 Others'],
+    ['watches',          '⌚ Watches'],
+    ['belt',             '🟫 Belt'],
+]);
+
+function parseHtmlSheetSections(html) {
+    // The MAIN tab is ~3.7 MB; DOMParser on the full document locks the main
+    // thread on phones. Every wanted section sits below the "Bags & Backpacs"
+    // header, so slice from that header down to "UPDATE NEW LINKS" (the final
+    // section) before parsing — same micro-optimisation as
+    // parseHtmlSheetDiscount / parseHtmlSheetBestSellers.
+    //
+    // Anchor on the section-HEADER form `…Backpac…</td>` (a colspan'd title
+    // cell), NOT the table-of-contents jump link `…Backpacks</a>` near the top
+    // of the sheet. `&` is HTML-encoded as `&amp;` in the raw markup.
+    const firstHeaderRe = /bags\s*&(?:amp;)?\s*backpac\w*<\/td>/i;
+    const startIdx = html.search(firstHeaderRe);
+    if (startIdx < 0) return [];
+    const trStart = html.lastIndexOf('<tr', startIdx);
+    const sliceStart = trStart >= 0 ? trStart : startIdx;
+    const endRel = html.slice(sliceStart).search(/update new links/i);
+    const sliceEnd = endRel > 0 ? sliceStart + endRel : html.length;
+    const chunk = html.slice(sliceStart, sliceEnd);
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
+    const rows = Array.from(doc.querySelectorAll('tr'));
+    const products = [];
+
+    let currentCategory = null;
+    for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length === 0) continue;
+
+        // Section dividers (category titles, "Back to top") are single
+        // colspan'd cells, so they have far fewer <td>s than the 8-column
+        // product rows. Detect them BEFORE the product-row guard.
+        if (cells.length < 5) {
+            const header = (cells[0].textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
+            if (SECTION_CATEGORIES.has(header)) currentCategory = SECTION_CATEGORIES.get(header);
+            else if (header) currentCategory = null; // "Back to top" or a dedicated-tab section → stop emitting
+            continue;
+        }
+        if (!currentCategory) continue;
+
+        const picCell   = cells[1];
+        const nameCell  = cells[2];
+        const priceCell = cells[3];
+        const linkCell  = cells[4];
+        const qcCell    = cells[cells.length - 1];
+
+        const img = picCell.querySelector('img');
+        if (!img) continue; // spacer rows have no image
+
+        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        if (!name || name === 'ITEM NAMES') continue;
+
+        const price = (priceCell.textContent || '').trim();
+        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
+
+        let photo = img.getAttribute('src') || '';
+        if (photo) {
+            photo = photo
+                .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+                .replace(/=w\d+-h\d+$/, '=w800-h800');
+        }
+
+        let link = extractLink(linkCell);
+        link = fixLink(link);
+        if (!link) continue;
+
+        const qcLink = qcCell ? extractLink(qcCell) : '';
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        products.push({ name, price, photo, link, qcLink: qcLink || '', category: currentCategory, weidianId, pinCategory: derivePinCategory(name) });
+    }
+
+    return products;
+}
+
+// =============================================================
 // HTML PARSING — Video Finds tab of the MAIN spreadsheet.
 // Layout differs from the clothes tabs: the name is column index 2
 // (ITEM NAMES) and the price + link are trailing cells whose index
@@ -1678,6 +1945,18 @@ async function fetchProducts() {
             })(),
         ]);
 
+        // Main sheet — extra category sections (Electronics, Others/Lego,
+        // Watches, Bags, Wallets, Jewelry, etc.) that live only inside the
+        // MAIN tab and have no dedicated tab of their own.
+        const results5sections = await Promise.allSettled([
+            (async () => {
+                const resp = await fetch(buildHtmlUrl(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} for MAIN sections`);
+                const html = await resp.text();
+                return parseHtmlSheetSections(html);
+            })(),
+        ]);
+
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
@@ -1688,6 +1967,7 @@ async function fetchProducts() {
             { results: results5best, order: 2 }, // Best Sellers (showcase)
             { results: results5video, order: 3 }, // Video Finds (own pill + cross-pinned to clothes)
             { results: results5cat, order: 4 }, // Clothes categories
+            { results: results5sections, order: 5 }, // Extra MAIN-tab categories (Electronics, Others, Watches…)
         ];
         const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
         failed.forEach(r => console.error('Tab fetch failed:', r.reason));
@@ -1756,6 +2036,18 @@ function buildCategoryTabs() {
     for (const cat of categories) {
         addPill(cat, cat);
     }
+
+    // Feed the autocomplete: each category becomes a suggestion that switches
+    // the active pill (clicking it filters, rather than text-searching, since
+    // titles don't contain words like "Electronics").
+    categorySuggestions = categories.map(cat => {
+        const label = stripEmoji(cat);
+        return { display: label, value: cat, kind: 'category', terms: [label.toLowerCase(), ...label.toLowerCase().split(/\s+/)] };
+    });
+}
+
+function stripEmoji(s) {
+    return String(s).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}️‍]/gu, '').trim();
 }
 
 function addPill(label, value) {
@@ -1802,11 +2094,153 @@ searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     clearTimeout(searchDebounce);
     searchDebounce = setTimeout(() => renderProducts(true), 200);
+    updateSuggestions(e.target.value);
 });
 
 priceSortEl.addEventListener('change', (e) => {
     priceSort = e.target.value;
     renderProducts(true);
+});
+
+// =============================================================
+// SEARCH SUGGESTIONS (autocomplete)
+// =============================================================
+// Category suggestions are rebuilt each load (see buildCategoryTabs). Declared
+// with var so buildCategoryTabs, defined earlier, can assign it safely.
+var categorySuggestions = [];
+
+function titleCase(s) {
+    return s.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Static term suggestions derived from the alias table: one entry per concept,
+// displayed as its most descriptive term, matched against ALL its aliases (so
+// typing "lv" suggests "Louis Vuitton").
+const TERM_SUGGESTIONS = (() => {
+    const out = [];
+    const seen = new Set();
+    for (const group of SYNONYM_GROUPS) {
+        // Groups are authored base-term-first, so the first reasonably long
+        // term is the most recognisable label (e.g. "joggers", not "track
+        // pants"; "louis vuitton", not the "lv" abbreviation).
+        const display = group.find(t => t.length >= 4) || group[0];
+        const key = display.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({ display: titleCase(display), value: display, kind: 'term', terms: group.map(t => t.toLowerCase()) });
+    }
+    return out;
+})();
+
+const suggestionsEl = document.getElementById('search-suggestions');
+let suggActive = -1;       // keyboard-highlighted index
+let suggCurrent = [];      // currently shown suggestions
+
+function rankSuggestion(s, q) {
+    let best = 99;
+    for (const t of s.terms) {
+        if (t === q) best = Math.min(best, 0);
+        else if (t.startsWith(q)) best = Math.min(best, 1);
+        else if (t.includes(q)) best = Math.min(best, 2);
+        else if (q.length >= 4 && Math.abs(t.length - q.length) <= 1 && editDistance(q, t, 1) <= 1) best = Math.min(best, 3);
+    }
+    return best;
+}
+
+function updateSuggestions(raw) {
+    const q = (raw || '').toLowerCase().trim();
+    if (!q) { hideSuggestions(); return; }
+    const pool = categorySuggestions.concat(TERM_SUGGESTIONS);
+    const scored = [];
+    for (const s of pool) {
+        const r = rankSuggestion(s, q);
+        if (r < 99) scored.push({ s, r });
+    }
+    // Categories first within the same rank, then shorter labels (closer match).
+    scored.sort((a, b) => a.r - b.r ||
+        (a.s.kind === b.s.kind ? 0 : a.s.kind === 'category' ? -1 : 1) ||
+        a.s.display.length - b.s.display.length);
+    const list = [];
+    const seen = new Set();
+    for (const { s } of scored) {
+        const key = s.kind + ':' + s.display.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        list.push(s);
+        if (list.length >= 8) break;
+    }
+    renderSuggestions(list, q);
+}
+
+function renderSuggestions(list, q) {
+    suggCurrent = list;
+    suggActive = -1;
+    if (!list.length) { hideSuggestions(); return; }
+    suggestionsEl.innerHTML = '';
+    list.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option');
+        li.dataset.index = i;
+        const icon = document.createElement('span');
+        icon.className = 'sugg-icon';
+        icon.textContent = s.kind === 'category' ? '#' : '⌕';
+        const label = document.createElement('span');
+        label.className = 'sugg-label';
+        label.innerHTML = highlightMatches(s.display, q);
+        const kind = document.createElement('span');
+        kind.className = 'sugg-kind';
+        kind.textContent = s.kind === 'category' ? 'category' : 'search';
+        li.appendChild(icon);
+        li.appendChild(label);
+        li.appendChild(kind);
+        // mousedown (not click) so it fires before the input's blur handler.
+        li.addEventListener('mousedown', (e) => { e.preventDefault(); applySuggestion(s); });
+        suggestionsEl.appendChild(li);
+    });
+    suggestionsEl.classList.remove('hidden');
+    searchInput.setAttribute('aria-expanded', 'true');
+}
+
+function hideSuggestions() {
+    suggestionsEl.classList.add('hidden');
+    suggestionsEl.innerHTML = '';
+    suggCurrent = [];
+    suggActive = -1;
+    searchInput.setAttribute('aria-expanded', 'false');
+}
+
+function applySuggestion(s) {
+    if (s.kind === 'category') {
+        // Switch to that category and clear the text search.
+        searchInput.value = '';
+        searchQuery = '';
+        setCategory(s.value);
+    } else {
+        searchInput.value = s.value;
+        searchQuery = s.value.toLowerCase().trim();
+        renderProducts(true);
+    }
+    hideSuggestions();
+}
+
+function setSuggActive(i) {
+    const items = suggestionsEl.querySelectorAll('li');
+    if (!items.length) return;
+    suggActive = (i + items.length) % items.length;
+    items.forEach((li, idx) => li.classList.toggle('active', idx === suggActive));
+}
+
+searchInput.addEventListener('keydown', (e) => {
+    if (suggestionsEl.classList.contains('hidden') || !suggCurrent.length) {
+        if (e.key === 'Escape') hideSuggestions();
+        return;
+    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSuggActive(suggActive + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSuggActive(suggActive - 1); }
+    else if (e.key === 'Enter') {
+        if (suggActive >= 0 && suggCurrent[suggActive]) { e.preventDefault(); applySuggestion(suggCurrent[suggActive]); }
+        else hideSuggestions();
+    } else if (e.key === 'Escape') { hideSuggestions(); }
 });
 
 // =============================================================
@@ -1828,12 +2262,33 @@ function renderProducts(skipAnimation) {
         );
     }
 
+    let isSearching = false;
     if (searchQuery) {
-        filtered = filtered.filter(p => matchesSearch(p.name, searchQuery));
+        isSearching = true;
+
+        // Score every product; keep those that match (all core terms present
+        // for a "full" hit, at least one otherwise).
+        const scored = [];
+        for (const p of filtered) {
+            const r = searchScore(p.name, searchQuery);
+            if (r.matched) { p._searchScore = r.score; scored.push({ p, full: r.full }); }
+        }
+
+        // Prefer products matching EVERY (non-colour) term. Only when nothing
+        // matches all terms do we fall back to partial matches — so an
+        // over-specific query never shows an empty page. Colours rank within
+        // the chosen tier rather than filtering it (see searchScore).
+        const fullHits = scored.filter(x => x.full);
+        filtered = (fullHits.length ? fullHits : scored).map(x => x.p);
     }
 
-    // Sort: photos first, then sourceOrder tiebreak (Special Finds → Budget Finds).
+    // Sort: when searching, best match first (more terms matched). Then photos
+    // first, then sourceOrder tiebreak (Special Finds → Budget Finds).
     filtered.sort((a, b) => {
+        if (isSearching) {
+            const scoreCmp = (b._searchScore || 0) - (a._searchScore || 0);
+            if (scoreCmp !== 0) return scoreCmp;
+        }
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
@@ -1899,7 +2354,9 @@ function buildCard(p, i) {
 
     const nameDiv = document.createElement('div');
     nameDiv.className = 'product-name';
-    nameDiv.textContent = (window.i18n && window.i18n.dyn(p.name)) || p.name;
+    const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
+    if (searchQuery) nameDiv.innerHTML = highlightMatches(displayName, searchQuery);
+    else nameDiv.textContent = displayName;
 
     const priceDiv = document.createElement('div');
     priceDiv.className = 'product-price';
@@ -1988,9 +2445,12 @@ function getStickyThreshold() {
 searchInput.addEventListener('focus', () => {
     searchFocused = true;
     header.classList.remove('header-hidden');
+    if (searchInput.value.trim()) updateSuggestions(searchInput.value);
 });
 searchInput.addEventListener('blur', () => {
     searchFocused = false;
+    // Delay so a click on a suggestion (which blurs the input) still registers.
+    setTimeout(hideSuggestions, 150);
 });
 
 // Hide the header on scroll-down, show on scroll-up. Hysteresis is
