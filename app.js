@@ -11,7 +11,6 @@ const TRANSLATIONS = {
         sort_low: 'Price: Low to High',
         sort_high: 'Price: High to Low',
         cat_all: 'All',
-        cat_special: 'Special Finds',
         cat_discount: '🔥 Discount Items',
         cat_bestsellers: '🌟 Best Sellers',
         cat_accessories: '🎁 Accessories',
@@ -38,7 +37,6 @@ const TRANSLATIONS = {
         sort_low: 'Prix : croissant',
         sort_high: 'Prix : décroissant',
         cat_all: 'Tout',
-        cat_special: 'Trouvailles Spéciales',
         cat_discount: '🔥 Promotions',
         cat_bestsellers: '🌟 Meilleures Ventes',
         cat_accessories: '🎁 Accessoires',
@@ -65,7 +63,6 @@ const TRANSLATIONS = {
         sort_low: 'Preis: aufsteigend',
         sort_high: 'Preis: absteigend',
         cat_all: 'Alle',
-        cat_special: 'Besondere Funde',
         cat_discount: '🔥 Rabatte',
         cat_bestsellers: '🌟 Bestseller',
         cat_accessories: '🎁 Accessoires',
@@ -92,7 +89,6 @@ const TRANSLATIONS = {
         sort_low: 'Precio: menor a mayor',
         sort_high: 'Precio: mayor a menor',
         cat_all: 'Todo',
-        cat_special: 'Hallazgos Especiales',
         cat_discount: '🔥 Descuentos',
         cat_bestsellers: '🌟 Más Vendidos',
         cat_accessories: '🎁 Accesorios',
@@ -119,7 +115,6 @@ const TRANSLATIONS = {
         sort_low: 'Prezzo: crescente',
         sort_high: 'Prezzo: decrescente',
         cat_all: 'Tutto',
-        cat_special: 'Trovate Speciali',
         cat_discount: '🔥 Sconti',
         cat_bestsellers: '🌟 Più Venduti',
         cat_accessories: '🎁 Accessori',
@@ -289,13 +284,6 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
 const SHEET2_TABS = [
     { name: 'Budget Finds', gid: '0' },
-];
-
-// Special Finds — "pinned links" spreadsheet. Items surface at the top
-// of the All view and are pinned into their matching clothes category.
-const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
-const SHEET4_TABS = [
-    { name: 'Special Finds', gid: '0' },
 ];
 
 // Main multi-tab sheet — per-category clothes tabs, a Budget tab that
@@ -1029,12 +1017,12 @@ function fixLink(link) {
     return link;
 }
 
-// Keyword → clothes-category mapping for Special Finds routing. Each
-// Special Find item's name is scanned (most-specific patterns first) to
-// derive a pinCategory, so e.g. "Bape Tee" surfaces in the T-Shirts pill
-// at the top, "Adidas Pants" in Pants, etc. Items that don't match any
-// keyword stay in the Special Finds pill only. Strings must match the
-// SHEET5_TABS names character-for-character (emoji + label).
+// Keyword → clothes-category cross-pin mapping. Each product's name is
+// scanned (most-specific patterns first) to derive a pinCategory, so e.g.
+// "Bape Tee" also surfaces in the T-Shirts pill at the top, "Adidas Pants"
+// in Pants, etc. Items that don't match any keyword keep only their own
+// category. Strings must match the SHEET5_TABS names character-for-character
+// (emoji + label).
 //
 // Word-boundary anchored to avoid "set" matching "Sunset" or "shirt"
 // matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
@@ -1275,71 +1263,6 @@ function derivePinCategory(name) {
         if (re.test(lower)) return target;
     }
     return '';
-}
-
-// =============================================================
-// HTML PARSING — Special Finds sheet (A=name, B=image, C=price, D=link)
-// Price cell contains USD and EUR separated by <br>, e.g. "15.18$" / "13.88€"
-// =============================================================
-function parseHtmlSheetSpecial(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 4) continue;
-
-        const name = (cells[0].textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || name.toLowerCase() === 'product') continue;
-
-        // Price cell: read child text nodes/lines to separate USD and EUR.
-        // innerText respects <br>, fall back to textContent split heuristics.
-        const priceCell = cells[2];
-        const priceText = (priceCell.innerText || priceCell.textContent || '').trim();
-        const usdMatch = priceText.match(/([\d.]+)\s*\$/);
-        const eurMatch = priceText.match(/([\d.]+)\s*€/);
-        const usdPrice = usdMatch ? ('$' + usdMatch[1]) : '';
-        const eurPrice = eurMatch ? (eurMatch[1] + '€') : '';
-        if (!usdPrice) continue;
-
-        // Image
-        const imgCell = cells[1];
-        let photo = '';
-        const img = imgCell.querySelector('img');
-        if (img) photo = img.getAttribute('src') || '';
-        if (!photo) {
-            const t = (imgCell.textContent || '').trim();
-            if (t.startsWith('http')) photo = t;
-        }
-        if (photo) photo = photo.replace(/=s\d+[-\w]*$/, '=s1600').replace(/=w\d+-h\d+$/, '=w1600-h1600');
-
-        // Affiliate link
-        let link = extractLink(cells[3]);
-        link = fixLink(link);
-        if (!link) continue;
-
-        let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        if (!photo && !weidianId) continue;
-
-        products.push({
-            name,
-            price: usdPrice,
-            eurPrice,
-            photo,
-            link,
-            category: categoryName,
-            weidianId,
-            pinCategory: derivePinCategory(name),
-        });
-    }
-
-    return products;
 }
 
 // =============================================================
@@ -1869,16 +1792,6 @@ async function fetchProducts() {
             })
         );
 
-        // Special Finds — pinned links spreadsheet (SHEET4)
-        const results4 = await Promise.allSettled(
-            SHEET4_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetSpecial(html, tab.name);
-            })
-        );
-
         // Main tab id→name map — lets blank-name tabs (Shoes) recover names
         // from the main catalogue. Best-effort: on failure the map stays empty
         // and nameless rows are skipped, exactly as before.
@@ -1960,7 +1873,6 @@ async function fetchProducts() {
         // Collect successful results, log failures.
         // sourceOrder controls render order within a category: lower goes first.
         const sources = [
-            { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
             { results: results5disc, order: 1 }, // Discount Items (real discount section, currently empty in sheet)
             { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
             { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
@@ -2023,7 +1935,7 @@ function buildCategoryTabs() {
     )];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
+    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', 'Budget Finds', '🎁 Accessories'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -2062,7 +1974,6 @@ function addPill(label, value) {
 
 function catTranslationKey(value) {
     if (value === 'all') return 'cat_all';
-    if (value === 'Special Finds') return 'cat_special';
     if (value === 'Budget Finds') return 'cat_budget';
     if (value === 'Discount Items') return 'cat_discount';
     if (value === 'Best Sellers') return 'cat_bestsellers';
@@ -2283,7 +2194,7 @@ function renderProducts(skipAnimation) {
     }
 
     // Sort: when searching, best match first (more terms matched). Then photos
-    // first, then sourceOrder tiebreak (Special Finds → Budget Finds).
+    // first, then sourceOrder tiebreak (Discount Items first).
     filtered.sort((a, b) => {
         if (isSearching) {
             const scoreCmp = (b._searchScore || 0) - (a._searchScore || 0);
@@ -2324,8 +2235,7 @@ function buildCard(p, i) {
 
     const card = document.createElement('div');
     let extraClass = '';
-    if (p.category === 'Special Finds') extraClass = ' pinned';
-    else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
+    if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
     else if (p.category === 'Best Sellers') extraClass = ' bestseller';
     else if (p.category === 'Budget Finds') extraClass = ' budget';
     else if (p.category === '📹 Video Finds') extraClass = ' video';
