@@ -861,6 +861,12 @@ let searchQuery = '';
 const BATCH_SIZE = 20;
 let renderedCount = 0;
 let loadingMore = false;
+// Identifies the currently displayed list (view + query + sort). When the
+// next renderProducts() call carries the same key AND the already-rendered
+// cards are still a prefix of the new sorted list, we append the newcomers
+// instead of wiping — this is what lets products stream in progressively
+// without flicker or scroll jumps. A changed key forces a full re-render.
+let lastRenderKey = null;
 
 // =============================================================
 // DOM REFERENCES
@@ -1847,166 +1853,110 @@ function parseHtmlSheetVideo(html, categoryName) {
 // =============================================================
 // FETCH PRODUCTS
 // =============================================================
+// Per-product overrides — for items whose spreadsheet cell has a missing
+// image or unclear name. `match` is a substring tested against p.name
+// (lowercased). First match wins. `src` → photo override, `name` →
+// display-name override.
+const PRODUCT_OVERRIDES = [
+    { match: '3dap',  src: 'img-3dap-watch.png', name: 'Swatch X AP' },
+];
+
+async function fetchHtml(sheetId, gid) {
+    const resp = await fetch(buildHtmlUrl(sheetId, gid));
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} for gid ${gid}`);
+    return resp.text();
+}
+
+// Fetch every tab of a sheet concurrently, parse each, and return the
+// products flattened. Individual tab failures are dropped, not fatal.
+async function fetchTabsFlat(sheetId, tabs, parseFn) {
+    const settled = await Promise.allSettled(
+        tabs.map(async (tab) => parseFn(await fetchHtml(sheetId, tab.gid), tab.name))
+    );
+    settled.filter(s => s.status === 'rejected')
+           .forEach(s => console.error('Tab fetch failed:', s.reason));
+    return settled.filter(s => s.status === 'fulfilled').flatMap(s => s.value);
+}
+
+// Merge one source's products into the catalogue and repaint. Each source
+// is rendered the moment it arrives, so the top-priority products appear
+// almost instantly while the rest stream in underneath. sourceOrder (lower
+// = higher up) keeps the final order identical to the old all-at-once load.
+function ingestSource(order, products) {
+    if (!products || !products.length) return;
+    for (const p of products) {
+        const lower = (p.name || '').toLowerCase();
+        for (const o of PRODUCT_OVERRIDES) {
+            if (!lower.includes(o.match)) continue;
+            if (o.src && !p.photo) p.photo = o.src;
+            if (o.name) p.name = o.name;
+            break;
+        }
+        p.sourceOrder = order;
+        allProducts.push(p);
+    }
+    buildCategoryTabs();
+    renderProducts();
+    loadingEl.classList.add('hidden');
+    if (window.i18n) window.i18n.translateDynamic();
+}
+
 async function fetchProducts() {
-    loadingEl.classList.remove('hidden');
     errorEl.classList.add('hidden');
-    gridEl.innerHTML = '';
     noResultsEl.classList.add('hidden');
+    loadingEl.classList.remove('hidden');
 
-    try {
-        // Budget Finds is currently being folded into Discount Items — both
-        // the legacy SHEET2 budget sheet and the SHEET5 Budget tab below
-        // are retagged at parse time so the items show under the Discount
-        // Items pill with the discount badge. The 'Budget Finds' pill
-        // disappears (no products carry that category anymore). Revert
-        // by passing back tab.name / 'Budget Finds'.
-        const results2 = await Promise.allSettled(
-            SHEET2_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET2_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetBudget(html, 'Discount Items');
-            })
-        );
+    // Start fresh. The grid is wiped lazily by the first ingestSource() →
+    // renderProducts() (the render key resets), so on an auto-refresh the
+    // old cards stay on screen until the first new wave is ready.
+    allProducts = [];
+    lastRenderKey = null;
 
-        // Special Finds — pinned links spreadsheet (SHEET4)
-        const results4 = await Promise.allSettled(
-            SHEET4_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET4_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetSpecial(html, tab.name);
-            })
-        );
+    // Kick every fetch off concurrently up front so the network downloads in
+    // parallel; we only consume the results in priority order below.
+    const mainHtmlP = fetchHtml(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid);
+    // The MAIN tab's id→name map lets blank-name category rows recover their
+    // names. Best-effort: on failure it degrades to an empty map (nameless
+    // rows are skipped, exactly as before).
+    const nameMapP = mainHtmlP.then(buildMainNameMap).catch(() => new Map());
 
-        // Main tab id→name map — lets blank-name tabs (Shoes) recover names
-        // from the main catalogue. Best-effort: on failure the map stays empty
-        // and nameless rows are skipped, exactly as before.
-        let mainNameMap = new Map();
+    // Budget Finds is folded into Discount Items — the legacy SHEET2 sheet and
+    // the SHEET5 Budget tab are retagged at parse time so they show under the
+    // Discount Items pill. Revert by passing back the real tab name.
+    //
+    // `plan` is consumed top-to-bottom; this order IS the on-screen order, so
+    // the showcase/discount/special items (the "top products") paint first.
+    const plan = [
+        ['Special Finds', 0, fetchTabsFlat(SHEET4_ID, SHEET4_TABS, parseHtmlSheetSpecial)],
+        ['Discount',      1, mainHtmlP.then(h => parseHtmlSheetDiscount(h, 'Discount Items'))],
+        ['Budget legacy', 1, fetchTabsFlat(SHEET2_ID, SHEET2_TABS, h => parseHtmlSheetBudget(h, 'Discount Items'))],
+        ['Budget new',    1, fetchHtml(SHEET5_ID, SHEET5_BUDGET_TAB.gid).then(h => parseHtmlSheetCategory(h, 'Discount Items'))],
+        ['Best Sellers',  2, mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers'))],
+        ['Video Finds',   3, fetchHtml(SHEET5_ID, SHEET5_VIDEO_TAB.gid).then(h => parseHtmlSheetVideo(h, '📹 Video Finds'))],
+    ];
+    // Per-category clothes tabs (need the name map to parse).
+    for (const tab of SHEET5_TABS) {
+        const htmlP = fetchHtml(SHEET5_ID, tab.gid);
+        plan.push([tab.name, 4, Promise.all([htmlP, nameMapP]).then(([h, m]) => parseHtmlSheetCategory(h, tab.name, m))]);
+    }
+    // Extra MAIN-tab categories (Electronics, Others/Lego, Watches, Bags…).
+    plan.push(['MAIN sections', 5, mainHtmlP.then(parseHtmlSheetSections)]);
+
+    let anyFailed = false;
+    for (const [label, order, promise] of plan) {
         try {
-            const resp = await fetch(buildHtmlUrl(SHEET5_ID, SHEET5_BESTSELLERS_TAB.gid));
-            if (resp.ok) mainNameMap = buildMainNameMap(await resp.text());
-        } catch (e) {
-            console.error('Main name-map fetch failed:', e);
+            ingestSource(order, await promise);
+        } catch (err) {
+            anyFailed = true;
+            console.error(`Source failed: ${label}`, err);
         }
+    }
 
-        // Main sheet — per-category clothes tabs
-        const results5cat = await Promise.allSettled(
-            SHEET5_TABS.map(async (tab) => {
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetCategory(html, tab.name, mainNameMap);
-            })
-        );
-
-        // Main sheet — Budget Products tab, also retagged as Discount Items
-        // (see comment above results2).
-        const results5bud = await Promise.allSettled([
-            (async () => {
-                const tab = SHEET5_BUDGET_TAB;
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetCategory(html, 'Discount Items');
-            })(),
-        ]);
-
-        // Main sheet — Discount section (extracted from the MAIN tab)
-        const results5disc = await Promise.allSettled([
-            (async () => {
-                const tab = SHEET5_DISCOUNT_TAB;
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetDiscount(html, tab.name);
-            })(),
-        ]);
-
-        // Main sheet — Best Sellers / showcase (rows above the discount section)
-        const results5best = await Promise.allSettled([
-            (async () => {
-                const tab = SHEET5_BESTSELLERS_TAB;
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetBestSellers(html, tab.name);
-            })(),
-        ]);
-
-        // Main sheet — Video Finds tab
-        const results5video = await Promise.allSettled([
-            (async () => {
-                const tab = SHEET5_VIDEO_TAB;
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, tab.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${tab.name}`);
-                const html = await resp.text();
-                return parseHtmlSheetVideo(html, tab.name);
-            })(),
-        ]);
-
-        // Main sheet — extra category sections (Electronics, Others/Lego,
-        // Watches, Bags, Wallets, Jewelry, etc.) that live only inside the
-        // MAIN tab and have no dedicated tab of their own.
-        const results5sections = await Promise.allSettled([
-            (async () => {
-                const resp = await fetch(buildHtmlUrl(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid));
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} for MAIN sections`);
-                const html = await resp.text();
-                return parseHtmlSheetSections(html);
-            })(),
-        ]);
-
-        // Collect successful results, log failures.
-        // sourceOrder controls render order within a category: lower goes first.
-        const sources = [
-            { results: results4,    order: 0 }, // Special Finds (top in All view + pinned to matching clothes pill)
-            { results: results5disc, order: 1 }, // Discount Items (real discount section, currently empty in sheet)
-            { results: results2,    order: 1 }, // Former Budget Finds (legacy sheet) — now folded into Discount Items
-            { results: results5bud, order: 1 }, // Former Budget Finds (new sheet) — now folded into Discount Items
-            { results: results5best, order: 2 }, // Best Sellers (showcase)
-            { results: results5video, order: 3 }, // Video Finds (own pill + cross-pinned to clothes)
-            { results: results5cat, order: 4 }, // Clothes categories
-            { results: results5sections, order: 5 }, // Extra MAIN-tab categories (Electronics, Others, Watches…)
-        ];
-        const failed = sources.flatMap(s => s.results).filter(r => r.status === 'rejected');
-        failed.forEach(r => console.error('Tab fetch failed:', r.reason));
-
-        allProducts = sources.flatMap(({ results, order }) =>
-            results
-                .filter(r => r.status === 'fulfilled')
-                .flatMap(r => r.value.map(p => ({ ...p, sourceOrder: order })))
-        );
-
-        // Per-product overrides — for items whose spreadsheet cell
-        // has a missing image or unclear name. `match` is a substring
-        // tested against p.name (lowercased). First match wins.
-        // `src` (optional) → photo override.
-        // `name` (optional) → display-name override.
-        const PRODUCT_OVERRIDES = [
-            { match: '3dap',  src: 'img-3dap-watch.png', name: 'Swatch X AP' },
-        ];
-        for (const p of allProducts) {
-            const lower = (p.name || '').toLowerCase();
-            for (const o of PRODUCT_OVERRIDES) {
-                if (!lower.includes(o.match)) continue;
-                if (o.src && !p.photo) p.photo = o.src;
-                if (o.name) p.name = o.name;
-                break;
-            }
-        }
-
-        if (allProducts.length === 0 && failed.length > 0) {
-            throw failed[0].reason;
-        }
-        buildCategoryTabs();
-        renderProducts();
-        loadingEl.classList.add('hidden');
-        if (window.i18n) window.i18n.translateDynamic();
-    } catch (err) {
-        console.error('Failed to fetch products:', err);
-        loadingEl.classList.add('hidden');
-        errorEl.classList.remove('hidden');
+    loadingEl.classList.add('hidden');
+    if (allProducts.length === 0) {
+        if (anyFailed) errorEl.classList.remove('hidden');
+    } else if (window.i18n) {
+        window.i18n.translateDynamic();
     }
 }
 
@@ -2307,15 +2257,49 @@ function renderProducts(skipAnimation) {
         gridEl.style.minHeight = '';
         gridEl.innerHTML = '';
         noResultsEl.classList.remove('hidden');
+        currentFiltered = [];
+        renderedCount = 0;
+        lastRenderKey = renderKey();
         return;
     }
 
     noResultsEl.classList.add('hidden');
-    currentFiltered = filtered;
-    renderedCount = 0;
 
-    gridEl.innerHTML = '';
-    appendBatch();
+    // Append when the view is unchanged AND the cards already on screen are
+    // still a prefix of the freshly sorted list — i.e. a progressive-load
+    // wave that only adds items below what's shown. Otherwise (search /
+    // category / price change, or a reordering newcomer) do a full re-render.
+    const key = renderKey();
+    const canAppend = key === lastRenderKey && prefixEqual(filtered, currentFiltered, renderedCount);
+    currentFiltered = filtered;
+
+    if (canAppend) {
+        // Top up to the first screen if waves are still arriving; beyond that,
+        // infinite scroll appends the newcomers as the user scrolls down.
+        while (renderedCount < BATCH_SIZE && renderedCount < currentFiltered.length) {
+            const before = renderedCount;
+            appendBatch();
+            if (renderedCount === before) break;
+        }
+    } else {
+        lastRenderKey = key;
+        renderedCount = 0;
+        gridEl.innerHTML = '';
+        appendBatch();
+    }
+}
+
+// View signature — a change here (active pill, search text, price sort)
+// means the displayed list is different and must be fully re-rendered.
+function renderKey() {
+    return activeCategory + ' ' + (searchQuery || '') + ' ' + (priceSort || '');
+}
+
+// True when the first n entries of a and b are the same object references.
+function prefixEqual(a, b, n) {
+    if (a.length < n || b.length < n) return false;
+    for (let i = 0; i < n; i++) if (a[i] !== b[i]) return false;
+    return true;
 }
 
 function buildCard(p, i) {
