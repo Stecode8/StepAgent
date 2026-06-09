@@ -1964,36 +1964,22 @@ async function fetchProducts() {
 // CATEGORY TABS
 // =============================================================
 function buildCategoryTabs() {
-    // Union of primary categories AND pinCategory targets, so derived
-    // pills like '🎁 Accessories' (no items carry that as p.category)
-    // still surface in the tab list as long as at least one item has
-    // pinCategory='🎁 Accessories'.
-    const categories = [...new Set(
-        allProducts.flatMap(p => [p.category, p.pinCategory].filter(Boolean))
-    )];
+    // Only three fixed pills:
+    //   All            — every product
+    //   Discount Items — the discounted items (p.category === 'Discount Items')
+    //   1.1            — everything that is NOT a discount item
+    // The per-brand/clothes category pills were retired; products still carry
+    // their original category/pinCategory tags (used by search), but they are
+    // no longer surfaced as tabs.
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
-    for (const name of [...frontPinned].reverse()) {
-        const idx = categories.indexOf(name);
-        if (idx > -1) {
-            categories.splice(idx, 1);
-            categories.unshift(name);
-        }
-    }
-
     addPill('All', 'all');
-    for (const cat of categories) {
-        addPill(cat, cat);
-    }
+    addPill('Discount Items', 'Discount Items');
+    addPill('1.1', '1.1');
 
-    // Feed the autocomplete: each category becomes a suggestion that switches
-    // the active pill (clicking it filters, rather than text-searching, since
-    // titles don't contain words like "Electronics").
-    categorySuggestions = categories.map(cat => {
-        const label = stripEmoji(cat);
-        return { display: label, value: cat, kind: 'category', terms: [label.toLowerCase(), ...label.toLowerCase().split(/\s+/)] };
-    });
+    // No category-based autocomplete suggestions now that the per-category
+    // pills are gone — search is purely text-driven.
+    categorySuggestions = [];
 }
 
 function stripEmoji(s) {
@@ -2199,18 +2185,15 @@ searchInput.addEventListener('keydown', (e) => {
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
-    if (activeCategory !== 'all') {
-        // Items show up in their primary category (p.category from the
-        // tab they were parsed from) AND in any pinCategory derived from
-        // their name. So a "Louis Vuitton Belt" parsed from the Perfume
-        // tab appears in Perfume + Accessories. An Air Jordan in Best
-        // Sellers appears in Best Sellers + Shoes. Same item never
-        // double-renders within a single pill because the filter is OR.
-        filtered = filtered.filter(
-            p => p.category === activeCategory ||
-                 p.pinCategory === activeCategory
-        );
+    if (activeCategory === 'Discount Items') {
+        // The discount pill: items parsed from the discount section (and the
+        // folded-in Budget tabs), all tagged category === 'Discount Items'.
+        filtered = filtered.filter(p => p.category === 'Discount Items');
+    } else if (activeCategory === '1.1') {
+        // Everything that is NOT a discount item.
+        filtered = filtered.filter(p => p.category !== 'Discount Items');
     }
+    // activeCategory === 'all' → no filter, show everything.
 
     let isSearching = false;
     if (searchQuery) {
@@ -2307,12 +2290,15 @@ function buildCard(p, i) {
     const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
+    // Pinned links (Special Finds) keep their gold treatment; discount items
+    // get the red treatment; everything else is a "1.1" item and gets the
+    // green highlight + "1.1" tag.
+    const is11 = p.category !== 'Special Finds' &&
+                 p.category !== 'Discount Items' && !p.isDiscount;
     let extraClass = '';
     if (p.category === 'Special Finds') extraClass = ' pinned';
     else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
-    else if (p.category === 'Best Sellers') extraClass = ' bestseller';
-    else if (p.category === 'Budget Finds') extraClass = ' budget';
-    else if (p.category === '📹 Video Finds') extraClass = ' video';
+    else extraClass = ' onepointone';
     card.className = 'product-card' + extraClass;
     card.dataset.index = i;
 
@@ -2363,6 +2349,12 @@ function buildCard(p, i) {
         const badge = document.createElement('div');
         badge.className = 'community-badge';
         badge.textContent = 'Community';
+        card.appendChild(badge);
+    }
+    if (is11) {
+        const badge = document.createElement('div');
+        badge.className = 'onepointone-badge';
+        badge.textContent = '1.1';
         card.appendChild(badge);
     }
     card.appendChild(info);
