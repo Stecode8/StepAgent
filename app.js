@@ -855,6 +855,11 @@ function highlightMatches(text, query) {
 // APP STATE
 // =============================================================
 let allProducts = [];
+// Keys of products already ingested this load, used to drop pixel-for-pixel
+// duplicate cards (same link + name + price + photo). Listings that differ in
+// ANY of those fields — different price, photo, or link under the same name —
+// are kept. Reset alongside allProducts at the start of each fetch.
+let seenProductKeys = new Set();
 let currentFiltered = [];
 let activeCategory = 'all';
 let searchQuery = '';
@@ -1885,6 +1890,13 @@ async function fetchTabsFlat(sheetId, tabs, parseFn) {
 function ingestSource(order, products) {
     if (!products || !products.length) return;
     for (const p of products) {
+        // Drop exact-duplicate cards: a listing is redundant only when its
+        // link, name, price AND photo all match one already shown. Any
+        // difference (price/photo/link) keeps both — see seenProductKeys.
+        const dupKey = `${p.link} ${p.name} ${p.price} ${p.photo}`;
+        if (seenProductKeys.has(dupKey)) continue;
+        seenProductKeys.add(dupKey);
+
         const lower = (p.name || '').toLowerCase();
         for (const o of PRODUCT_OVERRIDES) {
             if (!lower.includes(o.match)) continue;
@@ -1910,6 +1922,7 @@ async function fetchProducts() {
     // renderProducts() (the render key resets), so on an auto-refresh the
     // old cards stay on screen until the first new wave is ready.
     allProducts = [];
+    seenProductKeys = new Set();
     lastRenderKey = null;
 
     // Kick every fetch off concurrently up front so the network downloads in
