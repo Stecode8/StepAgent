@@ -17,6 +17,11 @@ const TRANSLATIONS = {
         cat_accessories: '🎁 Accessories',
         cat_video: '📹 Video Finds',
         cat_budget: 'Budget Finds',
+        cat_tops: 'Tops',
+        cat_bottoms: 'Bottoms',
+        cat_hats: 'Hats',
+        cat_shoes: 'Shoes',
+        cat_others: 'Others',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
         retry: 'Retry',
@@ -44,6 +49,11 @@ const TRANSLATIONS = {
         cat_accessories: '🎁 Accessoires',
         cat_video: '📹 Trouvailles Vidéo',
         cat_budget: 'Petits Prix',
+        cat_tops: 'Hauts',
+        cat_bottoms: 'Bas',
+        cat_hats: 'Chapeaux',
+        cat_shoes: 'Chaussures',
+        cat_others: 'Autres',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
         retry: 'Réessayer',
@@ -71,6 +81,11 @@ const TRANSLATIONS = {
         cat_accessories: '🎁 Accessoires',
         cat_video: '📹 Video-Funde',
         cat_budget: 'Schnäppchen',
+        cat_tops: 'Oberteile',
+        cat_bottoms: 'Unterteile',
+        cat_hats: 'Hüte',
+        cat_shoes: 'Schuhe',
+        cat_others: 'Sonstiges',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
         retry: 'Erneut versuchen',
@@ -98,6 +113,11 @@ const TRANSLATIONS = {
         cat_accessories: '🎁 Accesorios',
         cat_video: '📹 Hallazgos en Video',
         cat_budget: 'Ofertas',
+        cat_tops: 'Partes de arriba',
+        cat_bottoms: 'Partes de abajo',
+        cat_hats: 'Gorras',
+        cat_shoes: 'Zapatos',
+        cat_others: 'Otros',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
         retry: 'Reintentar',
@@ -125,6 +145,11 @@ const TRANSLATIONS = {
         cat_accessories: '🎁 Accessori',
         cat_video: '📹 Trovate Video',
         cat_budget: 'Offerte',
+        cat_tops: 'Top',
+        cat_bottoms: 'Pantaloni',
+        cat_hats: 'Cappelli',
+        cat_shoes: 'Scarpe',
+        cat_others: 'Altro',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
         retry: 'Riprova',
@@ -1289,6 +1314,49 @@ function derivePinCategory(name) {
 }
 
 // =============================================================
+// SIMPLE CATEGORIES — the five user-facing pills.
+// The spreadsheet/parsers tag every product with a fine-grained
+// pinCategory (and source category) like "👕 T-Shirts" or "👖 Pants".
+// We fold those into just five buckets: Tops, Bottoms, Hats, Shoes,
+// Others. Hats live inside "🎁 Accessories" upstream, so they're
+// detected straight from the product name before anything else.
+// =============================================================
+const SIMPLE_CATEGORIES = ['Tops', 'Bottoms', 'Hats', 'Shoes', 'Others'];
+
+// Fine category (pinCategory or source tab) → simple bucket.
+const FINE_TO_SIMPLE = new Map([
+    ['👟 Shoes',           'Shoes'],
+    ['👕 T-Shirts',        'Tops'],
+    ['🧥 Hoodies',         'Tops'],
+    ['🧶 Sweaters',        'Tops'],
+    ['🦺 Jackets & Vests', 'Tops'],
+    ['🏃 Tracksuits',      'Tops'],
+    ['⚽ Football',        'Tops'],
+    ['👖 Pants',           'Bottoms'],
+    ['🩳 Shorts',          'Bottoms'],
+]);
+
+// Headwear keywords — checked first so caps/beanies/bucket hats land in
+// Hats rather than the Others (accessories) bucket they'd otherwise map to.
+const HAT_RE = /\b(hats?|caps?|beanies?|beannies?|snapbacks?|bucket hat|trucker hat|fitted hat|fedora|visor|skull cap)\b/i;
+
+function deriveSimpleCategory(p) {
+    const name = (p.name || '').toLowerCase();
+    if (HAT_RE.test(name)) return 'Hats';
+    const fine = FINE_TO_SIMPLE.get(p.pinCategory) || FINE_TO_SIMPLE.get(p.category);
+    if (fine) return fine;
+    // Blank-name rows from the dedicated Shoes tab carry it in `category`.
+    if ((p.category || '').includes('Shoes')) return 'Shoes';
+    return 'Others';
+}
+
+// Memoised per-product lookup (products are rebuilt on each refresh).
+function simpleCategory(p) {
+    if (p._simpleCategory === undefined) p._simpleCategory = deriveSimpleCategory(p);
+    return p._simpleCategory;
+}
+
+// =============================================================
 // HTML PARSING — Special Finds sheet (A=name, B=image, C=price, D=link)
 // Price cell contains USD and EUR separated by <br>, e.g. "15.18$" / "13.88€"
 // =============================================================
@@ -1977,21 +2045,24 @@ async function fetchProducts() {
 // CATEGORY TABS
 // =============================================================
 function buildCategoryTabs() {
-    // Only three fixed pills:
+    // The three original pills, then five simple product-type pills:
     //   All            — every product
-    //   Discount Items — the discounted items (p.category === 'Discount Items')
+    //   Discount Items — discounted items (p.category === 'Discount Items')
     //   1.1            — everything that is NOT a discount item
-    // The per-brand/clothes category pills were retired; products still carry
-    // their original category/pinCategory tags (used by search), but they are
-    // no longer surfaced as tabs.
+    //   Tops/Bottoms/Hats/Shoes/Others — folded by simpleCategory()
     categoryTabsEl.innerHTML = '';
 
     addPill('All', 'all');
     addPill('Discount Items', 'Discount Items');
     addPill('1.1', '1.1');
+    addPill('Tops', 'Tops');
+    addPill('Bottoms', 'Bottoms');
+    addPill('Hats', 'Hats');
+    addPill('Shoes', 'Shoes');
+    addPill('Others', 'Others');
 
-    // No category-based autocomplete suggestions now that the per-category
-    // pills are gone — search is purely text-driven.
+    // No category-based autocomplete suggestions — search is purely
+    // text-driven; the pills handle category browsing.
     categorySuggestions = [];
 }
 
@@ -2017,6 +2088,11 @@ function catTranslationKey(value) {
     if (value === 'Best Sellers') return 'cat_bestsellers';
     if (value === '🎁 Accessories') return 'cat_accessories';
     if (value === '📹 Video Finds') return 'cat_video';
+    if (value === 'Tops') return 'cat_tops';
+    if (value === 'Bottoms') return 'cat_bottoms';
+    if (value === 'Hats') return 'cat_hats';
+    if (value === 'Shoes') return 'cat_shoes';
+    if (value === 'Others') return 'cat_others';
     return '';
 }
 
@@ -2205,6 +2281,9 @@ function renderProducts(skipAnimation) {
     } else if (activeCategory === '1.1') {
         // Everything that is NOT a discount item.
         filtered = filtered.filter(p => p.category !== 'Discount Items');
+    } else if (SIMPLE_CATEGORIES.includes(activeCategory)) {
+        // A simple product-type pill (Tops / Bottoms / Hats / Shoes / Others).
+        filtered = filtered.filter(p => simpleCategory(p) === activeCategory);
     }
     // activeCategory === 'all' → no filter, show everything.
 
