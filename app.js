@@ -286,20 +286,8 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
-const SHEET2_ID = '1VZpaxdbRCmt8jY_aVcu36bQLfIqMRtzUmTZeRGUr4gU';
-const SHEET2_TABS = [
-    { name: 'Budget Finds', gid: '0' },
-];
-
-// Special Finds — "pinned links" spreadsheet. Items surface at the top
-// of the All view and are pinned into their matching clothes category.
-const SHEET4_ID = '1orDi4pSgrnhMe6cgd1EX3uRC46zMfDgrYSssKxJtxO8';
-const SHEET4_TABS = [
-    { name: 'Special Finds', gid: '0' },
-];
-
 // Main multi-tab sheet — per-category clothes tabs, a Budget tab that
-// merges into Budget Finds, and the MAIN tab's "New Year Limited-Time
+// merges into Discount Items, and the MAIN tab's "New Year Limited-Time
 // Offers" section which is extracted as the Discount Items pill.
 const SHEET5_ID = '1qDDvfzOS6ILnVKil-V4dOZAEFbyYhSyk9S-lHzaJjnY';
 const SHEET5_TABS = [
@@ -317,8 +305,8 @@ const SHEET5_TABS = [
     { name: '🌸 Perfume',         gid: '1778849992' },
     { name: '🆕 New Links',       gid: '1800079464' },
 ];
-// Budget Products tab — products tagged 'Budget Finds' so they merge
-// into the existing Budget Finds pill.
+// Budget Products tab in the main sheet — retagged 'Discount Items' at
+// parse time so its products merge into the Discount Items pill.
 const SHEET5_BUDGET_TAB = { name: 'Budget Finds', gid: '800817013' };
 // Discount tab — same gid as MAIN SPREADSHEET; parser extracts only the
 // "New Year Limited-Time Offers" section.
@@ -958,65 +946,6 @@ function buildHtmlUrl(sheetId, gid) {
 }
 
 // =============================================================
-// HTML PARSING — Budget Finds sheet (A=name, B=price, C=photo, D=link)
-// Price format: "CNY X ≈ USD Y" — extract USD value
-// Photo is an anchor href (image URL inside Google redirect), not an <img> tag
-// =============================================================
-function parseHtmlSheetBudget(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 4) continue;
-
-        const name = (cells[0].textContent || '').trim().replace(/\s+/g, ' ');
-        const priceRaw = (cells[1].textContent || '').trim();
-
-        if (!name || name.toLowerCase() === 'item name') continue;
-
-        // Extract USD value from "CNY 68.31≈ USD 9.28" → "$9.28"
-        const usdMatch = priceRaw.match(/USD\s*([\d.]+)/i);
-        if (!usdMatch) continue;
-        const price = '$' + usdMatch[1];
-
-        // Photo: try <img> first, then anchor href, then text URL
-        const photoCell = cells[2];
-        let photo = '';
-        const img = photoCell.querySelector('img');
-        if (img) {
-            photo = img.getAttribute('src') || '';
-        }
-        if (!photo) {
-            const photoLink = extractLink(photoCell);
-            if (photoLink && photoLink.startsWith('http')) photo = photoLink;
-        }
-        if (!photo) {
-            const t = (photoCell.textContent || '').trim();
-            if (t.startsWith('http')) photo = t;
-        }
-
-        // Affiliate link
-        let link = extractLink(cells[3]);
-        link = fixLink(link);
-        if (!link) continue;
-
-        let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        if (!photo && !weidianId) continue;
-
-        products.push({ name, price, photo, link, category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
-    }
-
-    return products;
-}
-
-// =============================================================
 // SHARED HELPERS — link extraction & invite code
 // =============================================================
 function extractLink(cell) {
@@ -1040,12 +969,12 @@ function fixLink(link) {
     return link;
 }
 
-// Keyword → clothes-category mapping for Special Finds routing. Each
-// Special Find item's name is scanned (most-specific patterns first) to
-// derive a pinCategory, so e.g. "Bape Tee" surfaces in the T-Shirts pill
-// at the top, "Adidas Pants" in Pants, etc. Items that don't match any
-// keyword stay in the Special Finds pill only. Strings must match the
-// SHEET5_TABS names character-for-character (emoji + label).
+// Keyword → clothes-category mapping. Every product's name is scanned
+// (most-specific patterns first) to derive a pinCategory, so e.g. a
+// "Bape Tee" cross-lists into the T-Shirts pill, "Adidas Pants" into
+// Pants, etc. Items that don't match any keyword keep only their source
+// category. Strings must match the SHEET5_TABS names character-for-
+// character (emoji + label).
 //
 // Word-boundary anchored to avoid "set" matching "Sunset" or "shirt"
 // matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
@@ -1299,71 +1228,6 @@ function derivePinCategory(name) {
         if (re.test(lower)) return target;
     }
     return '';
-}
-
-// =============================================================
-// HTML PARSING — Special Finds sheet (A=name, B=image, C=price, D=link)
-// Price cell contains USD and EUR separated by <br>, e.g. "15.18$" / "13.88€"
-// =============================================================
-function parseHtmlSheetSpecial(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 4) continue;
-
-        const name = (cells[0].textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || name.toLowerCase() === 'product') continue;
-
-        // Price cell: read child text nodes/lines to separate USD and EUR.
-        // innerText respects <br>, fall back to textContent split heuristics.
-        const priceCell = cells[2];
-        const priceText = (priceCell.innerText || priceCell.textContent || '').trim();
-        const usdMatch = priceText.match(/([\d.]+)\s*\$/);
-        const eurMatch = priceText.match(/([\d.]+)\s*€/);
-        const usdPrice = usdMatch ? ('$' + usdMatch[1]) : '';
-        const eurPrice = eurMatch ? (eurMatch[1] + '€') : '';
-        if (!usdPrice) continue;
-
-        // Image
-        const imgCell = cells[1];
-        let photo = '';
-        const img = imgCell.querySelector('img');
-        if (img) photo = img.getAttribute('src') || '';
-        if (!photo) {
-            const t = (imgCell.textContent || '').trim();
-            if (t.startsWith('http')) photo = t;
-        }
-        if (photo) photo = photo.replace(/=s\d+[-\w]*$/, '=s1600').replace(/=w\d+-h\d+$/, '=w1600-h1600');
-
-        // Affiliate link
-        let link = extractLink(cells[3]);
-        link = fixLink(link);
-        if (!link) continue;
-
-        let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        if (!photo && !weidianId) continue;
-
-        products.push({
-            name,
-            price: usdPrice,
-            eurPrice,
-            photo,
-            link,
-            category: categoryName,
-            weidianId,
-            pinCategory: derivePinCategory(name),
-        });
-    }
-
-    return products;
 }
 
 // =============================================================
@@ -1885,17 +1749,6 @@ async function fetchHtml(sheetId, gid) {
     return resp.text();
 }
 
-// Fetch every tab of a sheet concurrently, parse each, and return the
-// products flattened. Individual tab failures are dropped, not fatal.
-async function fetchTabsFlat(sheetId, tabs, parseFn) {
-    const settled = await Promise.allSettled(
-        tabs.map(async (tab) => parseFn(await fetchHtml(sheetId, tab.gid), tab.name))
-    );
-    settled.filter(s => s.status === 'rejected')
-           .forEach(s => console.error('Tab fetch failed:', s.reason));
-    return settled.filter(s => s.status === 'fulfilled').flatMap(s => s.value);
-}
-
 // Merge one source's products into the catalogue and repaint. Each source
 // is rendered the moment it arrives, so the top-priority products appear
 // almost instantly while the rest stream in underneath. sourceOrder (lower
@@ -1946,16 +1799,14 @@ async function fetchProducts() {
     // rows are skipped, exactly as before).
     const nameMapP = mainHtmlP.then(buildMainNameMap).catch(() => new Map());
 
-    // Budget Finds is folded into Discount Items — the legacy SHEET2 sheet and
-    // the SHEET5 Budget tab are retagged at parse time so they show under the
-    // Discount Items pill. Revert by passing back the real tab name.
+    // The Budget tab in the main sheet is folded into Discount Items —
+    // retagged at parse time so it shows under the Discount Items pill.
+    // Revert by passing back the real tab name.
     //
     // `plan` is consumed top-to-bottom; this order IS the on-screen order, so
-    // the showcase/discount/special items (the "top products") paint first.
+    // the showcase/discount items (the "top products") paint first.
     const plan = [
-        ['Special Finds', 0, fetchTabsFlat(SHEET4_ID, SHEET4_TABS, parseHtmlSheetSpecial)],
         ['Discount',      1, mainHtmlP.then(h => parseHtmlSheetDiscount(h, 'Discount Items'))],
-        ['Budget legacy', 1, fetchTabsFlat(SHEET2_ID, SHEET2_TABS, h => parseHtmlSheetBudget(h, 'Discount Items'))],
         ['Budget new',    1, fetchHtml(SHEET5_ID, SHEET5_BUDGET_TAB.gid).then(h => parseHtmlSheetCategory(h, 'Discount Items'))],
         ['Best Sellers',  2, mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers'))],
         ['Video Finds',   3, fetchHtml(SHEET5_ID, SHEET5_VIDEO_TAB.gid).then(h => parseHtmlSheetVideo(h, '📹 Video Finds'))],
@@ -1999,7 +1850,7 @@ function buildCategoryTabs() {
     )];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', 'Budget Finds', 'Special Finds', '🎁 Accessories'];
+    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', '🎁 Accessories'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
