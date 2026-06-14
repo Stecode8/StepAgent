@@ -1079,8 +1079,21 @@ const SPECIAL_PIN_KEYWORDS = [
     // Plurals listed alongside singulars — \b boundary doesn't cross
     // word-char transitions so 'jacket' alone won't match "jackets".
     ['jeans',          '👖 Pants'],
+    ['jean',           '👖 Pants'],
     ['trousers',       '👖 Pants'],
+    ['trouser',        '👖 Pants'],
     ['pants',          '👖 Pants'],
+    // Singular 'pant' — without it, "Polo Ralph Lauren track pant" fell
+    // through to the 'polo' rule below and showed up under T-Shirts.
+    ['pant',           '👖 Pants'],
+    ['joggers',        '👖 Pants'],
+    ['jogger',         '👖 Pants'],
+    ['sweatpants',     '👖 Pants'],
+    ['sweatpant',      '👖 Pants'],
+    ['leggings',       '👖 Pants'],
+    ['legging',        '👖 Pants'],
+    ['chinos',         '👖 Pants'],
+    ['chino',          '👖 Pants'],
     ['shorts',         '🩳 Shorts'],
     ['short',          '🩳 Shorts'],
     ['hoodies',        '🧥 Hoodies'],
