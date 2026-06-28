@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Strip Referer on all outgoing requests. Weidian's JSONP API
+         rejects requests from our github.io referer ("Referer Not
+         Allowed"); per-script referrerPolicy works on desktop but is
+         unreliable in older mobile browsers. A document-level policy
+         is honored everywhere. -->
+    <meta name="referrer" content="no-referrer">
+    <title>Browse Products – Top China Finds</title>
+    <link rel="icon" type="image/png" href="gtbuy-logo.png">
+    <link rel="stylesheet" href="style.css?v=2026-06-28-showcase">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Slim top bar: brand returns home, plus the language selector. -->
+    <div class="products-topbar">
+        <a href="index.html" class="topbar-home" aria-label="Home">
+            <svg class="topbar-back" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            <span class="topbar-logo">Top China Finds</span>
+        </a>
+        <select id="lang-select" class="lang-select" aria-label="Language">
+            <option value="en">🇬🇧 EN</option>
+            <option value="fr">🇫🇷 FR</option>
+            <option value="de">🇩🇪 DE</option>
+            <option value="es">🇪🇸 ES</option>
+            <option value="it">🇮🇹 IT</option>
+        </select>
+    </div>
+
+    <header>
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" data-i18n-attr="placeholder:search_placeholder" placeholder="brand search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-suggestions">
+                <ul id="search-suggestions" class="search-suggestions hidden" role="listbox"></ul>
+            </div>
+            <select id="price-sort">
+                <option value="default" data-i18n="sort_default">Sort by</option>
+                <option value="low" data-i18n="sort_low">Price: Low to High</option>
+                <option value="high" data-i18n="sort_high">Price: High to Low</option>
+            </select>
+        </div>
+        <nav id="category-tabs" class="category-tabs">
+            <button class="category-pill active" data-category="all">All</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p data-i18n="loading">Loading products...</p>
+        </div>
+
+        <div id="error" class="error hidden">
+            <p data-i18n="error_load">Could not load products. Please check your connection and try again.</p>
+            <button onclick="fetchProducts()" data-i18n="retry">Retry</button>
+        </div>
+
+        <div id="product-grid" class="product-grid"></div>
+
+        <div id="no-results" class="no-results hidden">
+            <p data-i18n="no_results">No products found.</p>
+        </div>
+    </main>
+
+    <!-- Product detail modal -->
+    <div id="product-modal" class="product-modal hidden">
+        <div class="product-modal-backdrop"></div>
+        <div class="product-modal-content">
+            <button class="product-modal-close">&times;</button>
+            <img id="modal-img" src="" alt="" class="product-modal-img" referrerpolicy="no-referrer">
+            <div class="product-modal-info">
+                <div id="modal-name" class="product-modal-name"></div>
+                <div id="modal-price" class="product-modal-price"></div>
+            </div>
+            <a id="modal-buy-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-buy">
+                <img src="gtbuy-logo.png" alt="GTBuy" class="modal-buy-logo">
+                <span data-i18n="buy">Buy on GTBuy</span>
+            </a>
+            <a id="modal-qc-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-qc hidden" data-i18n="qc">
+                View QC Photos
+            </a>
+        </div>
+    </div>
+
+    <!-- In-app browser overlay -->
+    <div id="inapp-overlay" class="inapp-overlay hidden">
+        <div class="inapp-card">
+            <h2 data-i18n="inapp_title">Open in Browser</h2>
+            <p data-i18n-html="inapp_body">For the best experience, tap the <strong>three dots</strong> menu (<strong>&#8942;</strong>) at the top right and select <strong>"Open in browser"</strong>.</p>
+            <button id="inapp-ok" class="inapp-ok-btn" data-i18n="inapp_ok">OK</button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        try {
+            var ua = navigator.userAgent || '';
+            if (/Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(ua)) {
+                var overlay = document.getElementById('inapp-overlay');
+                if (overlay) overlay.classList.remove('hidden');
+            }
+            var okBtn = document.getElementById('inapp-ok');
+            if (okBtn) okBtn.addEventListener('click', function() {
+                var o = document.getElementById('inapp-overlay');
+                if (o) o.classList.add('hidden');
+            });
+        } catch (e) {}
+
+    })();
+    </script>
+
+    <script src="app.js?v=2026-06-28-featured"></script>
+</body>
+</html>

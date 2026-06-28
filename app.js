@@ -4,7 +4,7 @@
 const TRANSLATIONS = {
     en: {
         intro: 'Welcome to my spreadsheet!',
-        signup: 'Sign up to GTBuy!',
+        signup: '40% shipping coupon and 2x 30% shipping coupons on GTBuy',
         youtube: 'YouTube for more content!',
         search_placeholder: 'brand search',
         sort_default: 'Sort by',
@@ -28,10 +28,18 @@ const TRANSLATIONS = {
         telegram: 'Telegram for more finds!',
         buy: 'Buy on GTBuy',
         qc: 'View QC Photos',
+        browse: 'Browse Products',
+        home: 'Home',
+        tagline: "The only website you'll need to find great products from China",
+        featured: 'Featured Items',
+        all_products: 'All Products',
+        agent_q: 'Looking for the best agent to ship goods from China?',
+        need_help: 'Need Help?',
+        help_sub: 'Join the community for 24/7 support',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
-        signup: 'Inscrivez-vous sur GTBuy !',
+        signup: 'Coupon de livraison -40 % et 2 coupons -30 % sur GTBuy',
         youtube: 'YouTube pour plus de contenu !',
         search_placeholder: 'rechercher une marque',
         sort_default: 'Trier par',
@@ -55,10 +63,18 @@ const TRANSLATIONS = {
         telegram: 'Telegram pour plus de trouvailles !',
         buy: 'Acheter sur GTBuy',
         qc: 'Voir les photos QC',
+        browse: 'Voir les produits',
+        home: 'Accueil',
+        tagline: 'Le seul site dont vous aurez besoin pour trouver de superbes produits de Chine',
+        featured: 'Produits en vedette',
+        all_products: 'Tous les produits',
+        agent_q: 'Vous cherchez le meilleur agent pour expédier vos achats depuis la Chine ?',
+        need_help: 'Besoin d\'aide ?',
+        help_sub: 'Rejoignez la communauté pour une assistance 24/7',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
-        signup: 'Bei GTBuy anmelden!',
+        signup: '40%-Versandgutschein und 2x 30%-Versandgutscheine auf GTBuy',
         youtube: 'YouTube für mehr Inhalte!',
         search_placeholder: 'Marke suchen',
         sort_default: 'Sortieren nach',
@@ -82,10 +98,18 @@ const TRANSLATIONS = {
         telegram: 'Telegram für mehr Funde!',
         buy: 'Bei GTBuy kaufen',
         qc: 'QC-Fotos ansehen',
+        browse: 'Produkte ansehen',
+        home: 'Startseite',
+        tagline: 'Die einzige Website, die du brauchst, um großartige Produkte aus China zu finden',
+        featured: 'Empfohlene Artikel',
+        all_products: 'Alle Produkte',
+        agent_q: 'Suchst du den besten Agenten, um Waren aus China zu versenden?',
+        need_help: 'Brauchst du Hilfe?',
+        help_sub: 'Tritt der Community bei für 24/7-Support',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
-        signup: '¡Regístrate en GTBuy!',
+        signup: 'Cupón de envío del 40% y 2 cupones del 30% en GTBuy',
         youtube: '¡YouTube para más contenido!',
         search_placeholder: 'buscar marca',
         sort_default: 'Ordenar por',
@@ -109,10 +133,18 @@ const TRANSLATIONS = {
         telegram: '¡Telegram para más hallazgos!',
         buy: 'Comprar en GTBuy',
         qc: 'Ver fotos QC',
+        browse: 'Ver productos',
+        home: 'Inicio',
+        tagline: 'El único sitio que necesitarás para encontrar grandes productos de China',
+        featured: 'Productos destacados',
+        all_products: 'Todos los productos',
+        agent_q: '¿Buscas el mejor agente para enviar productos desde China?',
+        need_help: '¿Necesitas ayuda?',
+        help_sub: 'Únete a la comunidad para soporte 24/7',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
-        signup: 'Iscriviti a GTBuy!',
+        signup: 'Coupon di spedizione del 40% e 2 coupon del 30% su GTBuy',
         youtube: 'YouTube per altri contenuti!',
         search_placeholder: 'cerca un marchio',
         sort_default: 'Ordina per',
@@ -136,6 +168,14 @@ const TRANSLATIONS = {
         telegram: 'Telegram per altre trovate!',
         buy: 'Acquista su GTBuy',
         qc: 'Vedi foto QC',
+        browse: 'Sfoglia i prodotti',
+        home: 'Home',
+        tagline: "L'unico sito di cui avrai bisogno per trovare ottimi prodotti dalla Cina",
+        featured: 'In evidenza',
+        all_products: 'Tutti i prodotti',
+        agent_q: 'Cerchi il miglior agente per spedire prodotti dalla Cina?',
+        need_help: 'Hai bisogno di aiuto?',
+        help_sub: 'Unisciti alla community per supporto 24/7',
     },
 };
 
@@ -890,8 +930,9 @@ function photoUrl(src, w, h) {
     return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=${w}&h=${h}&fit=cover`;
 }
 
-// Delegated click handler for product cards (one listener, not one per card)
-gridEl.addEventListener('click', (e) => {
+// Delegated click handler for product cards (one listener, not one per card).
+// Guarded: the grid only exists on the product page, not the home page.
+if (gridEl) gridEl.addEventListener('click', (e) => {
     const card = e.target.closest('.product-card');
     if (!card) return;
     const idx = parseInt(card.dataset.index);
@@ -1919,14 +1960,14 @@ function setCategory(cat) {
 // SEARCH
 // =============================================================
 let searchDebounce = null;
-searchInput.addEventListener('input', (e) => {
+if (searchInput) searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     clearTimeout(searchDebounce);
     searchDebounce = setTimeout(() => renderProducts(true), 200);
     updateSuggestions(e.target.value);
 });
 
-priceSortEl.addEventListener('change', (e) => {
+if (priceSortEl) priceSortEl.addEventListener('change', (e) => {
     priceSort = e.target.value;
     renderProducts(true);
 });
@@ -2059,7 +2100,7 @@ function setSuggActive(i) {
     items.forEach((li, idx) => li.classList.toggle('active', idx === suggActive));
 }
 
-searchInput.addEventListener('keydown', (e) => {
+if (searchInput) searchInput.addEventListener('keydown', (e) => {
     if (suggestionsEl.classList.contains('hidden') || !suggCurrent.length) {
         if (e.key === 'Escape') hideSuggestions();
         return;
@@ -2318,12 +2359,12 @@ function getStickyThreshold() {
 // Pin the header to its full visible state while the search is focused.
 // Mobile keyboards shrink the viewport and auto-scroll the focused input,
 // which can yank a sticky header (and the input inside it) off-screen.
-searchInput.addEventListener('focus', () => {
+if (searchInput) searchInput.addEventListener('focus', () => {
     searchFocused = true;
-    header.classList.remove('header-hidden');
+    if (header) header.classList.remove('header-hidden');
     if (searchInput.value.trim()) updateSuggestions(searchInput.value);
 });
-searchInput.addEventListener('blur', () => {
+if (searchInput) searchInput.addEventListener('blur', () => {
     searchFocused = false;
     // Delay so a click on a suggestion (which blurs the input) still registers.
     setTimeout(hideSuggestions, 150);
@@ -2334,7 +2375,7 @@ searchInput.addEventListener('blur', () => {
 // immediately, so the user never feels like it's "stuck hidden".
 // Only transform is animated, so the height never shifts.
 const SCROLL_DELTA = 8;
-window.addEventListener('scroll', () => {
+if (header) window.addEventListener('scroll', () => {
     if (scrollTicking) return;
     scrollTicking = true;
     requestAnimationFrame(() => {
@@ -2364,7 +2405,7 @@ window.addEventListener('scroll', () => {
 // Infinite scroll — load more cards when near bottom.
 // Synchronous append + try/finally so loadingMore can't get stuck true
 // if rAF is throttled or appendBatch throws.
-window.addEventListener('scroll', () => {
+if (gridEl) window.addEventListener('scroll', () => {
     if (loadingMore || renderedCount >= currentFiltered.length) return;
     const scrollBottom = window.innerHeight + window.scrollY;
     if (scrollBottom >= document.body.offsetHeight - 800) {
@@ -2503,21 +2544,181 @@ function closeProductModal() {
     }, 250);
 }
 
-document.querySelector('.product-modal-close').addEventListener('click', closeProductModal);
-document.querySelector('.product-modal-backdrop').addEventListener('click', closeProductModal);
+// Modal close handlers — only present on the product page.
+const modalCloseBtn = document.querySelector('.product-modal-close');
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeProductModal);
+const modalBackdrop = document.querySelector('.product-modal-backdrop');
+if (modalBackdrop) modalBackdrop.addEventListener('click', closeProductModal);
+
+// =============================================================
+// HOME SHOWCASE — decorative animated product wall (landing page only)
+// =============================================================
+// Reuses the same fetch + parse primitives as the catalog but renders its
+// own scrolling columns. Self-contained: never touches the grid/modal, and
+// fails silently (it's purely decorative) so it can't break the home page.
+const homeShowcaseEl = document.getElementById('home-showcase');
+if (homeShowcaseEl) buildHomeShowcase(homeShowcaseEl);
+
+// Featured Items carousel (home page) — horizontal marquee of Best Sellers,
+// rendered synchronously from the pre-baked window.FEATURED_ITEMS.
+const featuredCarouselEl = document.getElementById('featured-carousel');
+if (featuredCarouselEl) buildFeaturedCarousel(featuredCarouselEl);
+
+const SHOWCASE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23181818' width='1' height='1'/%3E%3C/svg%3E";
+
+async function buildHomeShowcase(root) {
+    // Fast path: render the pre-baked, locally-hosted set synchronously so the
+    // wall paints instantly with zero network/loading time and no broken images.
+    if (window.SHOWCASE_ITEMS && window.SHOWCASE_ITEMS.length) {
+        renderHomeShowcase(root, window.SHOWCASE_ITEMS);
+        return;
+    }
+    // Fallback (no baked data): pull live from the sheets.
+    try {
+        // Featured + a few image-rich category tabs (these carry stable
+        // googleusercontent / CDN photos, unlike docsubipk discount previews).
+        const mainHtmlP = fetchHtml(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid);
+        const nameMap = await mainHtmlP.then(buildMainNameMap).catch(() => new Map());
+        const wanted = ['👟 Shoes', '🧥 Hoodies', '🦺 Jackets & Vests', '👕 T-Shirts'];
+        const tabs = SHEET5_TABS.filter(t => wanted.includes(t.name));
+        const jobs = [
+            mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers')),
+            ...tabs.map(t => fetchHtml(SHEET5_ID, t.gid).then(h => parseHtmlSheetCategory(h, t.name, nameMap))),
+        ];
+        const settled = await Promise.allSettled(jobs);
+        let items = [];
+        for (const r of settled) {
+            if (r.status === 'fulfilled' && Array.isArray(r.value)) items = items.concat(r.value);
+        }
+        // Keep only entries with a usable, non-docsubipk photo + a buy link.
+        items = items.filter(p => p && p.photo && p.link && !/\/docsubipk\//.test(p.photo));
+        const seen = new Set();
+        const uniq = [];
+        for (const p of items) {
+            const k = p.link + '|' + p.photo;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            uniq.push(p);
+        }
+        if (uniq.length < 6) { root.classList.add('showcase-empty'); return; }
+        renderHomeShowcase(root, uniq);
+    } catch (e) {
+        root.classList.add('showcase-empty');
+    }
+}
+
+function renderHomeShowcase(root, products) {
+    const COLS = 3;
+    const PER_COL = 8;
+    const durations = ['38s', '30s', '46s'];
+    const cols = Array.from({ length: COLS }, () => []);
+    products.slice(0, COLS * PER_COL).forEach((p, i) => cols[i % COLS].push(p));
+
+    const makeCard = (p) => {
+        const a = document.createElement('a');
+        a.className = 'showcase-card';
+        a.href = p.link;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.tabIndex = -1; // decorative duplicate links stay out of the tab order
+        const img = document.createElement('img');
+        // Eager: the wall is a small, mostly off-screen marquee — lazy-loading
+        // would leave cards blank until (if ever) the transform brings them in.
+        img.loading = 'eager';
+        img.referrerPolicy = 'no-referrer';
+        img.alt = '';
+        img.onerror = function() { this.onerror = null; this.src = SHOWCASE_PLACEHOLDER; };
+        // Baked items ship a local `img` path; live fallback uses photoUrl().
+        img.src = p.img || photoUrl(p.photo, 320, 320);
+        a.appendChild(img);
+        if (p.price) {
+            const meta = document.createElement('div');
+            meta.className = 'showcase-meta';
+            const price = document.createElement('span');
+            price.className = 'showcase-price';
+            price.textContent = p.price;
+            meta.appendChild(price);
+            a.appendChild(meta);
+        }
+        return a;
+    };
+
+    root.innerHTML = '';
+    cols.forEach((list, ci) => {
+        if (!list.length) return;
+        const col = document.createElement('div');
+        col.className = 'showcase-col' + (ci % 2 ? ' showcase-col--down' : ' showcase-col--up');
+        const track = document.createElement('div');
+        track.className = 'showcase-track';
+        track.style.setProperty('--dur', durations[ci % durations.length]);
+        // Two identical copies so the vertical scroll loops seamlessly.
+        list.forEach(p => track.appendChild(makeCard(p)));
+        list.forEach(p => track.appendChild(makeCard(p)));
+        col.appendChild(track);
+        root.appendChild(col);
+    });
+}
+
+function buildFeaturedCarousel(root) {
+    const items = window.FEATURED_ITEMS;
+    if (!items || !items.length) {
+        const sec = root.closest('.featured');
+        if (sec) sec.style.display = 'none';
+        return;
+    }
+    const make = (p) => {
+        const a = document.createElement('a');
+        a.className = 'featured-card';
+        a.href = p.link;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.tabIndex = -1;
+        const img = document.createElement('img');
+        img.loading = 'eager';
+        img.referrerPolicy = 'no-referrer';
+        img.alt = '';
+        img.onerror = function() { this.onerror = null; this.src = SHOWCASE_PLACEHOLDER; };
+        img.src = p.img || photoUrl(p.photo, 360, 360);
+        const info = document.createElement('div');
+        info.className = 'featured-info';
+        const nm = document.createElement('div');
+        nm.className = 'featured-name';
+        nm.textContent = (window.i18n && window.i18n.dyn(p.name)) || p.name || '';
+        const pr = document.createElement('div');
+        pr.className = 'featured-price';
+        pr.textContent = p.price || '';
+        info.appendChild(nm);
+        info.appendChild(pr);
+        a.appendChild(img);
+        a.appendChild(info);
+        return a;
+    };
+    const track = document.createElement('div');
+    track.className = 'featured-marquee';
+    track.style.setProperty('--fdur', Math.max(40, items.length * 4.5) + 's');
+    // Two identical copies so the horizontal scroll loops seamlessly.
+    items.forEach(p => track.appendChild(make(p)));
+    items.forEach(p => track.appendChild(make(p)));
+    root.innerHTML = '';
+    root.appendChild(track);
+}
 
 // =============================================================
 // INIT
 // =============================================================
-fetchProducts();
-
-// Auto-refresh only when the tab is hidden, so the user is never
-// interrupted mid-scroll by a grid wipe + re-render. When they come
-// back to the tab they get fresh data without seeing the reset.
-let lastRefresh = Date.now();
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
-    if (Date.now() - lastRefresh < REFRESH_INTERVAL) return;
-    lastRefresh = Date.now();
+// Only bootstrap the catalog on the product page (where the grid exists).
+// On the home page app.js loads solely for i18n / language switching.
+if (gridEl) {
     fetchProducts();
-});
+
+    // Auto-refresh only when the tab is hidden, so the user is never
+    // interrupted mid-scroll by a grid wipe + re-render. When they come
+    // back to the tab they get fresh data without seeing the reset.
+    let lastRefresh = Date.now();
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) return;
+        if (Date.now() - lastRefresh < REFRESH_INTERVAL) return;
+        lastRefresh = Date.now();
+        fetchProducts();
+    });
+}
