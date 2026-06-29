@@ -11,7 +11,7 @@
     <meta name="referrer" content="no-referrer">
     <title>Browse Products – Top China Finds</title>
     <link rel="icon" type="image/png" href="gtbuy-logo.png">
-    <link rel="stylesheet" href="style.css?v=2026-06-28-showcase">
+    <link rel="stylesheet" href="style.css?v=2026-06-29-styles">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -83,6 +83,15 @@
                 <div id="modal-name" class="product-modal-name"></div>
                 <div id="modal-price" class="product-modal-price"></div>
             </div>
+            <!-- Different styles/colorways of this item, pulled on demand from
+                 the Weidian SKU endpoint. Hidden until at least one resolves. -->
+            <div id="modal-styles" class="product-modal-styles hidden">
+                <div class="product-modal-styles-head">
+                    <span data-i18n="styles">Styles</span>
+                    <span id="modal-styles-count" class="product-modal-styles-count"></span>
+                </div>
+                <div id="modal-styles-track" class="product-modal-styles-track" role="list"></div>
+            </div>
             <a id="modal-buy-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-buy">
                 <img src="gtbuy-logo.png" alt="GTBuy" class="modal-buy-logo">
                 <span data-i18n="buy">Buy on GTBuy</span>
@@ -120,6 +129,6 @@
     })();
     </script>
 
-    <script src="app.js?v=2026-06-28-featured"></script>
+    <script src="app.js?v=2026-06-29-styles"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@ const TRANSLATIONS = {
         telegram: 'Telegram for more finds!',
         buy: 'Buy on GTBuy',
         qc: 'View QC Photos',
+        styles: 'Styles',
         browse: 'Browse Products',
         home: 'Home',
         tagline: "The only website you'll need to find great products from China",
@@ -63,6 +64,7 @@ const TRANSLATIONS = {
         telegram: 'Telegram pour plus de trouvailles !',
         buy: 'Acheter sur GTBuy',
         qc: 'Voir les photos QC',
+        styles: 'Coloris',
         browse: 'Voir les produits',
         home: 'Accueil',
         tagline: 'Le seul site dont vous aurez besoin pour trouver de superbes produits de Chine',
@@ -98,6 +100,7 @@ const TRANSLATIONS = {
         telegram: 'Telegram für mehr Funde!',
         buy: 'Bei GTBuy kaufen',
         qc: 'QC-Fotos ansehen',
+        styles: 'Varianten',
         browse: 'Produkte ansehen',
         home: 'Startseite',
         tagline: 'Die einzige Website, die du brauchst, um großartige Produkte aus China zu finden',
@@ -133,6 +136,7 @@ const TRANSLATIONS = {
         telegram: '¡Telegram para más hallazgos!',
         buy: 'Comprar en GTBuy',
         qc: 'Ver fotos QC',
+        styles: 'Estilos',
         browse: 'Ver productos',
         home: 'Inicio',
         tagline: 'El único sitio que necesitarás para encontrar grandes productos de China',
@@ -168,6 +172,7 @@ const TRANSLATIONS = {
         telegram: 'Telegram per altre trovate!',
         buy: 'Acquista su GTBuy',
         qc: 'Vedi foto QC',
+        styles: 'Varianti',
         browse: 'Sfoglia i prodotti',
         home: 'Home',
         tagline: "L'unico sito di cui avrai bisogno per trovare ottimi prodotti dalla Cina",
@@ -971,8 +976,11 @@ if (gridEl) gridEl.addEventListener('click', (e) => {
     } else {
         qcBtn.classList.add('hidden');
     }
+    // Load this item's different styles/colorways (one SKU call, cached).
+    renderModalStyles(p);
     const modal = document.getElementById('product-modal');
     modal.classList.remove('hidden', 'modal-closing');
+    modal.querySelector('.product-modal-content').scrollTop = 0;
     document.body.style.overflow = 'hidden';
 });
 
@@ -2471,6 +2479,124 @@ function weidianImage(itemId) {
     return pendingWeidian[itemId];
 }
 
+// =============================================================
+// PRODUCT STYLES — colorways shown in the modal, on demand
+// =============================================================
+// Returns the list of style/colorway variants ({img, name}) for an item
+// from the Weidian SKU endpoint. Mirrors weidianImage's JSONP approach but
+// keeps its own cache and parses the full colour attribute (the attr whose
+// values carry images — sizes etc. come back without `img`). Exactly ONE
+// call fires per modal open, so it doesn't reproduce the HTTP/2 burst
+// failures that forced the bulk image loader to be disabled.
+const styleCache = {};      // itemId -> array (caches successes AND failures [])
+const pendingStyles = {};   // itemId -> Promise — dedupes concurrent fetches
+
+function weidianStyles(itemId) {
+    if (itemId in styleCache) return Promise.resolve(styleCache[itemId]);
+    if (pendingStyles[itemId]) return pendingStyles[itemId];
+
+    pendingStyles[itemId] = new Promise(resolve => {
+        const cb = '_ws' + Math.random().toString(36).slice(2);
+        const timeout = setTimeout(() => { done([]); }, 10000);
+
+        function done(list) {
+            clearTimeout(timeout);
+            delete window[cb];
+            delete pendingStyles[itemId];
+            const el = document.getElementById('s_' + cb);
+            if (el) el.remove();
+            styleCache[itemId] = list || [];
+            resolve(styleCache[itemId]);
+        }
+
+        window[cb] = function(data) {
+            let list = [];
+            try {
+                const attrs = data?.result?.attrList || [];
+                // Pick the attribute with the most image-bearing values — that's
+                // the colourway/style axis; size axes have no images.
+                let best = null;
+                for (const a of attrs) {
+                    const withImg = (a.attrValues || []).filter(v => v && v.img);
+                    if (withImg.length && (!best || withImg.length > best.length)) best = withImg;
+                }
+                if (best) list = best.map(v => ({ img: v.img, name: v.attrValue || '' }));
+            } catch (e) {}
+            done(list);
+        };
+
+        const s = document.createElement('script');
+        s.id = 's_' + cb;
+        // Same referer-stripping rationale as weidianImage: the endpoint
+        // rejects our github.io referer ("Referer Not Allowed").
+        s.referrerPolicy = 'no-referrer';
+        s.src = 'https://thor.weidian.com/detail/getItemSkuInfo/1.0?callback=' + cb +
+                '&param=' + encodeURIComponent(JSON.stringify({ itemId: itemId }));
+        s.onerror = () => done([]);
+        document.body.appendChild(s);
+    });
+    return pendingStyles[itemId];
+}
+
+// Bumped on every modal open/close so a late-resolving fetch from a
+// previously-opened product can't repaint the current (or closed) modal.
+let modalStyleToken = 0;
+
+function renderModalStyles(p) {
+    const wrap = document.getElementById('modal-styles');
+    const track = document.getElementById('modal-styles-track');
+    const countEl = document.getElementById('modal-styles-count');
+    if (!wrap || !track) return;
+
+    const token = ++modalStyleToken;
+    track.innerHTML = '';
+    if (countEl) countEl.textContent = '';
+    wrap.classList.add('hidden');
+    wrap.classList.remove('styles-loading');
+    if (!p.weidianId) return;
+
+    // Show the section with a loading shimmer while the single call resolves.
+    wrap.classList.remove('hidden');
+    wrap.classList.add('styles-loading');
+
+    weidianStyles(p.weidianId).then(styles => {
+        if (token !== modalStyleToken) return; // a newer modal opened — bail
+        wrap.classList.remove('styles-loading');
+        // 0–1 variants isn't a gallery worth showing.
+        if (!styles || styles.length < 2) {
+            wrap.classList.add('hidden');
+            return;
+        }
+        if (countEl) countEl.textContent = styles.length;
+        const modalImg = document.getElementById('modal-img');
+        const frag = document.createDocumentFragment();
+        styles.forEach((st, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'modal-style' + (i === 0 ? ' active' : '');
+            b.setAttribute('role', 'listitem');
+            const im = document.createElement('img');
+            im.loading = 'lazy';
+            im.referrerPolicy = 'no-referrer';
+            im.alt = st.name || ('Style ' + (i + 1));
+            im.src = photoUrl(st.img, 160, 160);
+            b.appendChild(im);
+            b.addEventListener('click', () => {
+                if (modalImg) {
+                    modalImg.onerror = null;
+                    modalImg.src = photoUrl(st.img, 800, 800);
+                }
+                track.querySelectorAll('.modal-style.active').forEach(el => el.classList.remove('active'));
+                b.classList.add('active');
+            });
+            frag.appendChild(b);
+        });
+        track.appendChild(frag);
+        track.scrollLeft = 0;
+        wrap.classList.remove('hidden');
+    });
+}
+
 // Worker-pool fallback loader. Runs up to FALLBACK_CONCURRENCY weidian
 // fetches in parallel, with no inter-request throttle — the JSONP endpoint
 // handles bursts fine and serial waiting was making ~60-card discount
@@ -2535,6 +2661,8 @@ async function loadMissingImages() {
 // PRODUCT MODAL CLOSE
 // =============================================================
 function closeProductModal() {
+    // Cancel any in-flight styles render so a late resolve can't repaint.
+    modalStyleToken++;
     const modal = document.getElementById('product-modal');
     modal.classList.add('modal-closing');
     setTimeout(() => {

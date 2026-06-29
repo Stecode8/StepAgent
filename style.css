@@ -1173,6 +1173,107 @@ main {
     }
 }
 
+/* ===== Product Styles / Colorways ===== */
+.product-modal-styles {
+    padding: 4px 20px 14px;
+}
+
+.product-modal-styles.hidden {
+    display: none;
+}
+
+.product-modal-styles-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 11px;
+}
+
+.product-modal-styles-count {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.product-modal-styles-track {
+    display: flex;
+    gap: 9px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+}
+
+.product-modal-styles-track::-webkit-scrollbar {
+    height: 5px;
+}
+
+.product-modal-styles-track::-webkit-scrollbar-thumb {
+    background: rgba(201, 169, 106, 0.35);
+    border-radius: 3px;
+}
+
+.modal-style {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-md, 10px);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.modal-style img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.modal-style.active {
+    border-color: var(--accent);
+}
+
+.modal-style:active {
+    transform: scale(0.94);
+}
+
+@media (hover: hover) {
+    .modal-style:hover {
+        border-color: rgba(201, 169, 106, 0.55);
+    }
+}
+
+/* Loading shimmer: a row of placeholder tiles while the SKU call resolves. */
+.product-modal-styles.styles-loading .product-modal-styles-count {
+    display: none;
+}
+
+.product-modal-styles.styles-loading .product-modal-styles-track::after {
+    content: '';
+    flex: 0 0 100%;
+    height: 64px;
+    border-radius: var(--radius-md, 10px);
+    background: linear-gradient(90deg,
+        rgba(201, 169, 106, 0.05) 25%,
+        rgba(201, 169, 106, 0.14) 37%,
+        rgba(201, 169, 106, 0.05) 63%);
+    background-size: 400% 100%;
+    animation: stylesShimmer 1.3s ease infinite;
+}
+
+@keyframes stylesShimmer {
+    from { background-position: 100% 0; }
+    to { background-position: 0 0; }
+}
+
 /* ===== In-app Browser Overlay ===== */
 .inapp-overlay {
     position: fixed;
