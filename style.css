@@ -60,6 +60,8 @@ html {
 
     --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Brand wordmark ("Top China Finds") — clean, professional geometric sans. */
+    --wordmark: 'Montserrat', var(--sans);
 }
 
 body {
@@ -157,13 +159,13 @@ header.header-hidden {
 /* Wordmark — editorial serif, gold, with a hairline rule beneath.
    This is the page's signature; everything else stays quiet. */
 .logo {
-    font-family: var(--serif);
-    font-size: 30px;
-    font-weight: 600;
-    font-optical-sizing: auto;
+    font-family: var(--wordmark);
+    font-size: 27px;
+    font-weight: 700;
+    text-transform: uppercase;
     color: var(--accent);
-    letter-spacing: 0.5px;
-    line-height: 1;
+    letter-spacing: 2.5px;
+    line-height: 1.1;
     padding-bottom: 8px;
     position: relative;
     -webkit-text-fill-color: var(--accent);
@@ -1815,11 +1817,12 @@ main {
 }
 
 .topbar-logo {
-    font-family: var(--serif);
-    font-size: 20px;
-    font-weight: 600;
+    font-family: var(--wordmark);
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
     color: var(--accent);
-    letter-spacing: 0.3px;
+    letter-spacing: 1.8px;
 }
 
 @media (hover: hover) {

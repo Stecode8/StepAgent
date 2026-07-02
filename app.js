@@ -363,6 +363,24 @@ const SHEET5_BESTSELLERS_TAB = { name: 'Best Sellers', gid: '525974875' };
 // Video Finds tab — products featured in videos. Gets its own pill and
 // is cross-pinned into matching clothes categories by name.
 const SHEET5_VIDEO_TAB = { name: '📹 Video Finds', gid: '1323089782' };
+// "BEST Products Added" tab — surfaced on the site as the "🤝 Trusted
+// Sellers" pill. Layout differs from the clothes tabs: PIC | NAME |
+// $PRICE | ¥PRICE | LINK (link at cell 5, and NO qc column), so it needs
+// its own parser (parseHtmlSheetBest). Names are often blank and are
+// recovered from the MAIN tab id→name map, same as the clothes tabs.
+const SHEET5_BEST_TAB = { name: '🤝 Trusted Sellers', gid: '1546637477' };
+// "Pengreps" is the community name for this curated list. It never appears
+// in any product title, so it can't match by name — instead it's treated as
+// a shortcut to the Trusted Sellers category: typing it filters results to
+// that tab (see renderProducts) and it surfaces as a category autocomplete
+// suggestion (see buildCategoryTabs).
+// "pengreps" and "mertra" are both community shortcut names for this curated
+// list. Neither ever appears in a product title, so both are treated as an
+// alias for the Trusted Sellers tab: typing either filters results to that tab
+// (see renderProducts) and surfaces it as a category autocomplete suggestion
+// (see buildCategoryTabs).
+const PENGREPS_TERMS = ['pengreps', 'pengrep', 'mertra'];
+const PENGREPS_RE = /\b(?:pengreps?|mertra)\b/gi;
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
@@ -1372,6 +1390,62 @@ function parseHtmlSheetCategory(html, categoryName, nameMap) {
 }
 
 // =============================================================
+// HTML PARSING — "BEST Products Added" tab (→ Trusted Sellers pill).
+// Row layout: [emoji] | PIC | NAME | $PRICE | ¥PRICE | LINK | UP-anchor.
+// Unlike the clothes tabs the buy link sits in cell 5 (cell 4 is a
+// second, yuan price) and there is no QC column, so the shared
+// parseHtmlSheetCategory offsets don't apply. Names are frequently
+// blank and recovered from the MAIN id→name map, same as Shoes.
+// =============================================================
+function parseHtmlSheetBest(html, categoryName, nameMap) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const rows = Array.from(doc.querySelectorAll('tr'));
+    const products = [];
+
+    for (const row of rows) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 6) continue;
+
+        const picCell   = cells[1];
+        const nameCell  = cells[2];
+        const priceCell = cells[3]; // USD price ($); cell 4 is the ¥ price
+        const linkCell  = cells[5];
+
+        const img = picCell.querySelector('img');
+        if (!img) continue; // header rows have no image
+
+        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+        if (name === 'ITEM NAMES') continue; // header row
+
+        const price = (priceCell.textContent || '').trim();
+        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
+
+        let photo = img.getAttribute('src') || '';
+        if (photo) {
+            photo = photo
+                .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
+                .replace(/=w\d+-h\d+$/, '=w800-h800');
+        }
+
+        let link = fixLink(extractLink(linkCell));
+        if (!link) continue;
+
+        let weidianId = '';
+        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
+        if (idMatch) weidianId = idMatch[1];
+
+        // Recover blank names from the MAIN catalogue tab (keyed by id).
+        if (!name && nameMap && weidianId) name = nameMap.get(weidianId) || '';
+        if (!name) continue;
+
+        products.push({ name, price, photo, link, qcLink: '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
+    }
+
+    return products;
+}
+
+// =============================================================
 // HTML PARSING — Discount section of the MAIN spreadsheet tab.
 // Skips ahead to the "New Year Limited-Time Offers" section header
 // and only parses rows after it. Names are prefixed with "New Year
@@ -1858,6 +1932,7 @@ async function fetchProducts() {
         ['Discount',      1, mainHtmlP.then(h => parseHtmlSheetDiscount(h, 'Discount Items'))],
         ['Budget new',    1, fetchHtml(SHEET5_ID, SHEET5_BUDGET_TAB.gid).then(h => parseHtmlSheetCategory(h, 'Discount Items'))],
         ['Best Sellers',  2, mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers'))],
+        ['Trusted Sellers', 2, Promise.all([fetchHtml(SHEET5_ID, SHEET5_BEST_TAB.gid), nameMapP]).then(([h, m]) => parseHtmlSheetBest(h, SHEET5_BEST_TAB.name, m))],
         ['Video Finds',   3, fetchHtml(SHEET5_ID, SHEET5_VIDEO_TAB.gid).then(h => parseHtmlSheetVideo(h, '📹 Video Finds'))],
     ];
     // Per-category clothes tabs (need the name map to parse).
@@ -1899,7 +1974,7 @@ function buildCategoryTabs() {
     )];
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', '🎁 Accessories'];
+    const frontPinned = ['Discount Items', 'Best Sellers', '🤝 Trusted Sellers', '📹 Video Finds', '🎁 Accessories'];
     for (const name of [...frontPinned].reverse()) {
         const idx = categories.indexOf(name);
         if (idx > -1) {
@@ -1920,7 +1995,11 @@ function buildCategoryTabs() {
     // titles don't contain words like "Electronics").
     categorySuggestions = categories.map(cat => {
         const label = stripEmoji(cat);
-        return { display: label, value: cat, kind: 'category', terms: [label.toLowerCase(), ...label.toLowerCase().split(/\s+/)] };
+        const terms = [label.toLowerCase(), ...label.toLowerCase().split(/\s+/)];
+        // "pengreps" is an alias for the Trusted Sellers tab — typing it should
+        // suggest (and switch to) that category.
+        if (cat === SHEET5_BEST_TAB.name) terms.push(...PENGREPS_TERMS);
+        return { display: label, value: cat, kind: 'category', terms };
     });
 }
 
@@ -2127,7 +2206,23 @@ if (searchInput) searchInput.addEventListener('keydown', (e) => {
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
-    if (activeCategory === '1.1') {
+    // "pengreps" / "mertra" are shortcuts to the Trusted Sellers tab, not title
+    // words. When present they filter results to that category and are dropped
+    // from the terms scored against product names (so "pengreps uvu" still
+    // narrows to UVU items within Trusted Sellers, and a bare keyword shows all).
+    PENGREPS_RE.lastIndex = 0;
+    const pengrepsQuery = !!searchQuery && PENGREPS_RE.test(searchQuery);
+    const effectiveQuery = pengrepsQuery
+        ? searchQuery.replace(PENGREPS_RE, ' ').replace(/\s+/g, ' ').trim()
+        : searchQuery;
+
+    if (pengrepsQuery) {
+        // Overrides the active pill — always means Trusted Sellers.
+        filtered = filtered.filter(
+            p => p.category === SHEET5_BEST_TAB.name ||
+                 p.pinCategory === SHEET5_BEST_TAB.name
+        );
+    } else if (activeCategory === '1.1') {
         // Synthetic "1.1" pill — everything that is NOT a discount item.
         filtered = filtered.filter(p => p.category !== 'Discount Items');
     } else if (activeCategory !== 'all') {
@@ -2145,14 +2240,14 @@ function renderProducts(skipAnimation) {
     // activeCategory === 'all' → no filter, show everything.
 
     let isSearching = false;
-    if (searchQuery) {
+    if (effectiveQuery) {
         isSearching = true;
 
         // Score every product; keep those that match (all core terms present
         // for a "full" hit, at least one otherwise).
         const scored = [];
         for (const p of filtered) {
-            const r = searchScore(p.name, searchQuery);
+            const r = searchScore(p.name, effectiveQuery);
             if (r.matched) { p._searchScore = r.score; scored.push({ p, full: r.full }); }
         }
 
