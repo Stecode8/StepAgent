@@ -11,7 +11,7 @@
     <meta name="referrer" content="no-referrer">
     <title>Browse Products – Top China Finds</title>
     <link rel="icon" type="image/png" href="gtbuy-logo.png">
-    <link rel="stylesheet" href="style.css?v=2026-06-29-styles">
+    <link rel="stylesheet" href="style.css?v=2026-08-31-mono2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
@@ -26,11 +26,11 @@
             <span class="topbar-logo">Top China Finds</span>
         </a>
         <select id="lang-select" class="lang-select" aria-label="Language">
-            <option value="en">🇬🇧 EN</option>
-            <option value="fr">🇫🇷 FR</option>
-            <option value="de">🇩🇪 DE</option>
-            <option value="es">🇪🇸 ES</option>
-            <option value="it">🇮🇹 IT</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="it">🇮🇹 Italiano</option>
         </select>
     </div>
 
@@ -96,6 +96,19 @@
                 <img src="gtbuy-logo.png" alt="GTBuy" class="modal-buy-logo">
                 <span data-i18n="buy">Buy on GTBuy</span>
             </a>
+            <!-- Copies the original store link (Weidian/Taobao) so it can be
+                 pasted into any shopping agent, not just GTBuy. Hidden when
+                 no source link can be derived from the product. -->
+            <button id="modal-copy-btn" type="button" class="product-modal-copy hidden">
+                <span class="modal-copy-main">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    <span id="modal-copy-label" data-i18n="copy_universal">Copy Universal Link</span>
+                </span>
+                <span class="modal-copy-sub" data-i18n="copy_universal_sub">Paste this link into any agent</span>
+            </button>
             <a id="modal-qc-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-qc hidden" data-i18n="qc">
                 View QC Photos
             </a>
@@ -129,6 +142,6 @@
     })();
     </script>
 
-    <script src="app.js?v=2026-06-29-styles"></script>
+    <script src="app.js?v=2026-08-31-mono2"></script>
 </body>
 </html>

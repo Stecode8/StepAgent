@@ -37,6 +37,10 @@ const TRANSLATIONS = {
         agent_q: 'Looking for the best agent to ship goods from China?',
         need_help: 'Need Help?',
         help_sub: 'Join the community for 24/7 support',
+        copy_universal: 'Copy Universal Link',
+        copy_universal_sub: 'Paste this link into any agent',
+        copied: 'Copied!',
+        join_discord: 'Join the Discord',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
@@ -73,6 +77,10 @@ const TRANSLATIONS = {
         agent_q: 'Vous cherchez le meilleur agent pour expédier vos achats depuis la Chine ?',
         need_help: 'Besoin d\'aide ?',
         help_sub: 'Rejoignez la communauté pour une assistance 24/7',
+        copy_universal: 'Copier le lien universel',
+        copy_universal_sub: 'Collez ce lien chez n\'importe quel agent',
+        copied: 'Copié !',
+        join_discord: 'Rejoindre le Discord',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
@@ -109,6 +117,10 @@ const TRANSLATIONS = {
         agent_q: 'Suchst du den besten Agenten, um Waren aus China zu versenden?',
         need_help: 'Brauchst du Hilfe?',
         help_sub: 'Tritt der Community bei für 24/7-Support',
+        copy_universal: 'Universellen Link kopieren',
+        copy_universal_sub: 'Füge diesen Link bei jedem Agenten ein',
+        copied: 'Kopiert!',
+        join_discord: 'Discord beitreten',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
@@ -145,6 +157,10 @@ const TRANSLATIONS = {
         agent_q: '¿Buscas el mejor agente para enviar productos desde China?',
         need_help: '¿Necesitas ayuda?',
         help_sub: 'Únete a la comunidad para soporte 24/7',
+        copy_universal: 'Copiar enlace universal',
+        copy_universal_sub: 'Pega este enlace en cualquier agente',
+        copied: '¡Copiado!',
+        join_discord: 'Unirse al Discord',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
@@ -181,6 +197,10 @@ const TRANSLATIONS = {
         agent_q: 'Cerchi il miglior agente per spedire prodotti dalla Cina?',
         need_help: 'Hai bisogno di aiuto?',
         help_sub: 'Unisciti alla community per supporto 24/7',
+        copy_universal: 'Copia link universale',
+        copy_universal_sub: 'Incolla questo link in qualsiasi agente',
+        copied: 'Copiato!',
+        join_discord: 'Unisciti al Discord',
     },
 };
 
@@ -987,6 +1007,16 @@ if (gridEl) gridEl.addEventListener('click', (e) => {
         document.getElementById('modal-price').textContent = p.price;
     }
     document.getElementById('modal-buy-btn').href = p.link;
+    const copyBtn = document.getElementById('modal-copy-btn');
+    const uniLink = universalLink(p);
+    if (uniLink) {
+        copyBtn.dataset.link = uniLink;
+        copyBtn.classList.remove('hidden', 'copied');
+        const label = document.getElementById('modal-copy-label');
+        label.textContent = (window.i18n && window.i18n.t('copy_universal')) || 'Copy Universal Link';
+    } else {
+        copyBtn.classList.add('hidden');
+    }
     const qcBtn = document.getElementById('modal-qc-btn');
     if (p.qcLink) {
         qcBtn.href = p.qcLink;
@@ -1034,6 +1064,25 @@ function fixLink(link) {
         link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
     }
     return link;
+}
+
+// Rebuild the original Chinese-store URL ("universal link") from a product,
+// so it can be pasted into any shopping agent. GTBuy links carry the source
+// platform in their path (/product/weidian/123); legacy ?id= links and the
+// pre-extracted weidianId are always Weidian items.
+function universalLink(p) {
+    const m = (p.link || '').match(/\/product\/(weidian|taobao|tmall|1688)\/(\d+)/i);
+    if (m) {
+        const id = m[2];
+        switch (m[1].toLowerCase()) {
+            case 'weidian': return `https://weidian.com/item.html?itemID=${id}`;
+            case 'taobao':  return `https://item.taobao.com/item.htm?id=${id}`;
+            case 'tmall':   return `https://detail.tmall.com/item.htm?id=${id}`;
+            case '1688':    return `https://detail.1688.com/offer/${id}.html`;
+        }
+    }
+    if (p.weidianId) return `https://weidian.com/item.html?itemID=${p.weidianId}`;
+    return '';
 }
 
 // Keyword → clothes-category mapping. Every product's name is scanned
@@ -2774,6 +2823,56 @@ const modalBackdrop = document.querySelector('.product-modal-backdrop');
 if (modalBackdrop) modalBackdrop.addEventListener('click', closeProductModal);
 
 // =============================================================
+// COPY UNIVERSAL LINK — copies the original store URL for pasting
+// into any shopping agent (not just GTBuy)
+// =============================================================
+// navigator.clipboard needs a secure context (https / localhost); the
+// hidden-textarea execCommand path covers older mobile browsers.
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy') ? resolve() : reject(new Error('execCommand failed'));
+        } catch (e) {
+            reject(e);
+        } finally {
+            ta.remove();
+        }
+    });
+}
+
+const modalCopyBtn = document.getElementById('modal-copy-btn');
+let copyFeedbackTimer = null;
+if (modalCopyBtn) modalCopyBtn.addEventListener('click', () => {
+    const link = modalCopyBtn.dataset.link;
+    if (!link) return;
+    copyToClipboard(link).then(() => {
+        const label = document.getElementById('modal-copy-label');
+        label.textContent = (window.i18n && window.i18n.t('copied')) || 'Copied!';
+        modalCopyBtn.classList.add('copied');
+        clearTimeout(copyFeedbackTimer);
+        copyFeedbackTimer = setTimeout(() => {
+            label.textContent = (window.i18n && window.i18n.t('copy_universal')) || 'Copy Universal Link';
+            modalCopyBtn.classList.remove('copied');
+        }, 1600);
+    }).catch(() => {
+        // Clipboard blocked (e.g. some in-app webviews) — select-and-copy
+        // isn't possible either, so fall back to the prompt dialog where
+        // the user can long-press-copy the link themselves.
+        window.prompt('Copy this link:', link);
+    });
+});
+
+// =============================================================
 // HOME SHOWCASE — decorative animated product wall (landing page only)
 // =============================================================
 // Reuses the same fetch + parse primitives as the catalog but renders its
@@ -2787,7 +2886,7 @@ if (homeShowcaseEl) buildHomeShowcase(homeShowcaseEl);
 const featuredCarouselEl = document.getElementById('featured-carousel');
 if (featuredCarouselEl) buildFeaturedCarousel(featuredCarouselEl);
 
-const SHOWCASE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23181818' width='1' height='1'/%3E%3C/svg%3E";
+const SHOWCASE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23161618' width='1' height='1'/%3E%3C/svg%3E";
 
 async function buildHomeShowcase(root) {
     // Fast path: render the pre-baked, locally-hosted set synchronously so the

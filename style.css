@@ -8,40 +8,45 @@ html {
     overscroll-behavior: none;
 }
 
-/* ===== Premium dark-luxury theme =====
-   Warm espresso-black ground, ivory text, a single champagne-gold
-   accent. Identity carried by a Fraunces serif wordmark; all UI/data
-   stays in Inter for legibility across the dense product grid. */
+/* ===== Monochrome theme =====
+   Neutral near-black ground, grayscale surfaces, white as the only
+   accent. External brand marks (YouTube/Discord/Telegram) keep their
+   own colors. Identity carried by a Fraunces serif wordmark; all
+   UI/data stays in Inter for legibility across the dense product grid. */
 :root {
-    --ground: #0e0d0b;
-    --bg: #0e0d0b;
-    --bg-elevated: #131009;
-    --card-bg: #17130d;
-    --card-bg-hover: #201a11;
+    --ground: #101012;
+    --bg: #101012;
+    --bg-elevated: #161618;
+    --card-bg: #1b1b1d;
+    --card-bg-hover: #242427;
 
-    --text: #f1ebdf;
-    --text-secondary: #998f7c;
+    --text: #ececec;
+    --text-secondary: #9a9a9a;
 
-    --accent: #c9a96a;
-    --accent-bright: #e3c98c;
-    --accent-deep: #b8935a;
-    --accent-glow: rgba(201, 169, 106, 0.16);
-    --accent-gradient: linear-gradient(135deg, #e7cf92 0%, #bf9a55 100%);
+    --accent: #ffffff;
+    --accent-bright: #ffffff;
+    --accent-deep: #cfcfcf;
+    --accent-glow: rgba(255, 255, 255, 0.16);
+    --accent-gradient: linear-gradient(135deg, #ffffff 0%, #cfcfcf 100%);
 
-    --border: rgba(201, 169, 106, 0.10);
-    --border-light: rgba(201, 169, 106, 0.20);
-    --hairline: rgba(201, 169, 106, 0.28);
+    /* Structural borders are low-alpha white; full white stays reserved
+       for accents so the hierarchy reads clearly. */
+    --border: rgba(255, 255, 255, 0.09);
+    --border-light: rgba(255, 255, 255, 0.16);
+    --hairline: rgba(255, 255, 255, 0.26);
 
-    --header-bg: rgba(14, 13, 11, 0.78);
+    --header-bg: rgba(16, 16, 18, 0.78);
     --pill-bg: rgba(255, 255, 255, 0.035);
-    --pill-hover: rgba(201, 169, 106, 0.10);
+    --pill-hover: rgba(255, 255, 255, 0.10);
     --pill-active-bg: var(--accent);
-    --pill-active-text: #1a1408;
+    --pill-active-text: #101012;
 
     --price-color: var(--accent);
-    --eur-color: #8a8273;
+    --eur-color: #8a8a8a;
 
-    /* Semantic category accents, muted to sit inside the luxury palette */
+    /* Semantic accents — used ONLY on product-card tags (discount ring/
+       badge, 1.1 tag, Community sticker); the category bar stays
+       monochrome. */
     --c-discount: #c25b4b;
     --c-discount-deep: #9b4334;
     --c-bestseller: #8aa0c8;
@@ -74,7 +79,7 @@ body {
     overscroll-behavior: none;
 }
 
-/* Warm ambient wash behind everything — a faint pool of gold light at
+/* Warm ambient wash behind everything — a faint pool of white light at
    the top, the kind of glow a spotlit display case throws. */
 body::before {
     content: '';
@@ -83,7 +88,7 @@ body::before {
     z-index: -1;
     pointer-events: none;
     background:
-        radial-gradient(120% 80% at 50% -10%, rgba(201, 169, 106, 0.10) 0%, transparent 55%),
+        radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.10) 0%, transparent 55%),
         var(--ground);
 }
 
@@ -144,7 +149,7 @@ header.header-hidden {
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%23c9a96a' d='M1 3l4 4 4-4z'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%239a9a9a' d='M1 3l4 4 4-4z'/></svg>");
     background-repeat: no-repeat;
     background-position: right 7px center;
     transition: border-color 0.15s, background-color 0.15s;
@@ -156,7 +161,7 @@ header.header-hidden {
     outline: none;
 }
 
-/* Wordmark — editorial serif, gold, with a hairline rule beneath.
+/* Wordmark — editorial serif, white, with a hairline rule beneath.
    This is the page's signature; everything else stays quiet. */
 .logo {
     font-family: var(--wordmark);
@@ -187,7 +192,7 @@ header.header-hidden {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(180deg, rgba(201, 169, 106, 0.05) 0%, var(--card-bg) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, var(--card-bg) 100%);
     border-radius: var(--radius-md);
     padding: 16px 18px;
     margin-bottom: 16px;
@@ -216,12 +221,12 @@ header.header-hidden {
     margin-right: 14px;
     flex-shrink: 0;
     border: 1px solid var(--accent);
-    box-shadow: 0 0 0 3px rgba(201, 169, 106, 0.12);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
     position: relative;
 }
 
 /* ===== Signup Button — primary conversion CTA ===== */
-/* ===== GTBuy banner — dark panel, gold hairline, headline + logo ===== */
+/* ===== GTBuy banner — dark panel, light hairline, headline + logo ===== */
 .gtbuy-banner {
     display: flex;
     align-items: center;
@@ -474,7 +479,7 @@ header.header-hidden {
     appearance: none;
     cursor: pointer;
     white-space: nowrap;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c9a96a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9a9a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 11px center;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -533,109 +538,30 @@ header.header-hidden {
     color: var(--pill-active-text);
     border-color: var(--accent);
     font-weight: 700;
-    box-shadow: 0 2px 14px rgba(201, 169, 106, 0.25);
+    box-shadow: 0 2px 14px rgba(255, 255, 255, 0.25);
 }
 
 .category-pill:active {
     transform: scale(0.94);
 }
 
-/* Special Finds pill — gold, the house accent */
-.category-pill[data-category="Special Finds"] {
-    background: rgba(201, 169, 106, 0.10);
-    border-color: var(--border-light);
-    color: var(--accent-bright);
-    font-weight: 600;
-}
-
-.category-pill[data-category="Special Finds"]::before {
-    content: '★ ';
-    color: var(--accent);
-}
-
-.category-pill[data-category="Special Finds"].active {
-    background: var(--accent-gradient);
-    color: #1a1408;
-}
-
-.category-pill[data-category="Special Finds"].active::before {
-    color: #1a1408;
-}
-
-/* Discount Items pill — muted brick red */
-.category-pill[data-category="Discount Items"] {
-    background: rgba(194, 91, 75, 0.12);
-    border-color: rgba(194, 91, 75, 0.4);
-    color: var(--c-discount);
-    font-weight: 600;
-}
-
-.category-pill[data-category="Discount Items"].active {
-    background: linear-gradient(135deg, var(--c-discount) 0%, var(--c-discount-deep) 100%);
-    color: #fff;
-    border-color: var(--c-discount);
-    box-shadow: 0 2px 14px rgba(194, 91, 75, 0.3);
-}
-
-/* Best Sellers pill — soft slate blue */
-.category-pill[data-category="Best Sellers"] {
-    background: rgba(138, 160, 200, 0.12);
-    border-color: rgba(138, 160, 200, 0.4);
-    color: var(--c-bestseller);
-    font-weight: 600;
-}
-
-.category-pill[data-category="Best Sellers"].active {
-    background: linear-gradient(135deg, var(--c-bestseller) 0%, var(--c-bestseller-deep) 100%);
-    color: #15161a;
-    border-color: var(--c-bestseller);
-    box-shadow: 0 2px 14px rgba(138, 160, 200, 0.28);
-}
-
-/* Budget Finds pill — sage */
-.category-pill[data-category="Budget Finds"] {
-    background: rgba(154, 174, 114, 0.12);
-    border-color: rgba(154, 174, 114, 0.4);
-    color: var(--c-green);
-    font-weight: 600;
-}
-
-.category-pill[data-category="Budget Finds"]::before {
-    content: '★ ';
-    color: var(--c-green);
-}
-
-.category-pill[data-category="Budget Finds"].active {
-    background: linear-gradient(135deg, var(--c-green) 0%, #76924f 100%);
-    color: #14180c;
-    border-color: var(--c-green);
-}
-
-.category-pill[data-category="Budget Finds"].active::before {
-    color: #14180c;
-}
-
-/* Video Finds pill — sage */
+/* Featured pills (Special/Discount/Best Sellers/Budget/Video) — the
+   category bar stays strictly monochrome (semantic color lives only on
+   the product-card tags). These keep just a heavier weight, and a star
+   marker on the curated ones; active state falls back to the base
+   white-on-dark pill treatment. */
+.category-pill[data-category="Special Finds"],
+.category-pill[data-category="Discount Items"],
+.category-pill[data-category="Best Sellers"],
+.category-pill[data-category="Budget Finds"],
 .category-pill[data-category="📹 Video Finds"] {
-    background: rgba(154, 174, 114, 0.12);
-    border-color: rgba(154, 174, 114, 0.4);
-    color: var(--c-green);
     font-weight: 600;
 }
 
+.category-pill[data-category="Special Finds"]::before,
+.category-pill[data-category="Budget Finds"]::before,
 .category-pill[data-category="📹 Video Finds"]::before {
     content: '★ ';
-    color: var(--c-green);
-}
-
-.category-pill[data-category="📹 Video Finds"].active {
-    background: linear-gradient(135deg, var(--c-green) 0%, #76924f 100%);
-    color: #14180c;
-    border-color: var(--c-green);
-}
-
-.category-pill[data-category="📹 Video Finds"].active::before {
-    color: #14180c;
 }
 
 /* ===== Main Content ===== */
@@ -654,7 +580,7 @@ main {
 
 /* ===== Product Card — dark cards on the dark page =====
    Black card, image up top with a corner badge, then a row of product
-   name + gold price + a gold "Buy Now" pill (rendered via ::after — the
+   name + white price + a white "Buy Now" pill (rendered via ::after — the
    whole card opens the detail modal). */
 .product-card {
     position: relative;
@@ -678,7 +604,7 @@ main {
     .product-card:hover {
         transform: translateY(-4px);
         border-color: var(--hairline);
-        box-shadow: var(--shadow-md), 0 0 0 1px rgba(201, 169, 106, 0.12);
+        box-shadow: var(--shadow-md), 0 0 0 1px rgba(255, 255, 255, 0.12);
         background: var(--card-bg-hover);
     }
 
@@ -731,17 +657,17 @@ main {
     margin-left: auto;
     padding: 7px 14px;
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.2px;
     border-radius: 999px;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(201, 169, 106, 0.35);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.35);
 }
 
 .product-name mark {
-    background: rgba(201, 169, 106, 0.22);
+    background: rgba(255, 255, 255, 0.22);
     color: var(--accent-bright);
     border-radius: 3px;
     padding: 0 1px;
@@ -750,11 +676,11 @@ main {
 
 /* ===== Card variants — accent ring + corner badge on the dark card ===== */
 
-/* Pinned (Special Finds) — gold ring + gold star, top-right */
+/* Pinned (Special Finds) — light ring + star, top-right */
 .product-card.pinned {
     border: 1px solid var(--hairline);
-    box-shadow: 0 0 0 1px rgba(201, 169, 106, 0.18), var(--shadow-md);
-    background: linear-gradient(180deg, rgba(201, 169, 106, 0.07) 0%, var(--card-bg) 55%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), var(--shadow-md);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, var(--card-bg) 55%);
 }
 
 .product-card.pinned::before {
@@ -767,7 +693,7 @@ main {
     height: 24px;
     border-radius: 50%;
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     font-size: 12px;
     font-weight: 700;
     line-height: 24px;
@@ -783,7 +709,7 @@ main {
 @media (hover: hover) {
     .product-card.pinned:hover {
         border-color: var(--accent);
-        box-shadow: 0 0 0 1px rgba(201, 169, 106, 0.4), var(--shadow-lg);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), var(--shadow-lg);
     }
 }
 
@@ -842,7 +768,7 @@ main {
     z-index: 3;
     padding: 4px 10px;
     background: linear-gradient(135deg, var(--c-green) 0%, #76924f 100%);
-    color: #14180c;
+    color: #101012;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.3px;
@@ -876,7 +802,7 @@ main {
     z-index: 3;
     padding: 4px 10px;
     background: linear-gradient(135deg, var(--c-green) 0%, #76924f 100%);
-    color: #14180c;
+    color: #101012;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.5px;
@@ -940,12 +866,12 @@ main {
     border: none;
     border-radius: var(--radius-sm);
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     font-size: 15px;
     font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(201, 169, 106, 0.22);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.22);
 }
 
 /* ===== No Results ===== */
@@ -1014,7 +940,7 @@ main {
 .product-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(8, 7, 5, 0.9);
+    background: rgba(8, 8, 9, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
@@ -1056,7 +982,7 @@ main {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: var(--text);
-    border: 1px solid rgba(201, 169, 106, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     width: 36px;
     height: 36px;
@@ -1117,27 +1043,27 @@ main {
     margin: 0 20px 12px;
     padding: 15px;
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     font-size: 16px;
     font-weight: 700;
     border-radius: var(--radius-md);
     text-decoration: none;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
-    box-shadow: 0 4px 18px rgba(201, 169, 106, 0.25);
+    box-shadow: 0 4px 18px rgba(255, 255, 255, 0.25);
     letter-spacing: 0.2px;
 }
 
 @media (hover: hover) {
     .product-modal-buy:hover {
         filter: brightness(1.05);
-        box-shadow: 0 6px 24px rgba(201, 169, 106, 0.35);
+        box-shadow: 0 6px 24px rgba(255, 255, 255, 0.35);
     }
 }
 
 .product-modal-buy:active {
     transform: scale(0.98);
-    box-shadow: 0 2px 10px rgba(201, 169, 106, 0.2);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
 }
 
 .modal-buy-logo {
@@ -1152,12 +1078,12 @@ main {
     justify-content: center;
     margin: 0 20px 20px;
     padding: 13px;
-    background: rgba(201, 169, 106, 0.07);
+    background: rgba(255, 255, 255, 0.07);
     color: var(--accent);
     font-size: 14px;
     font-weight: 600;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(201, 169, 106, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.15s ease, transform 0.15s ease;
@@ -1166,13 +1092,94 @@ main {
 
 .product-modal-qc:active {
     transform: scale(0.98);
-    background: rgba(201, 169, 106, 0.12);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 @media (hover: hover) {
     .product-modal-qc:hover {
-        background: rgba(201, 169, 106, 0.12);
+        background: rgba(255, 255, 255, 0.12);
     }
+}
+
+/* Copy Universal Link — same visual weight as the GTBuy buy button,
+   with a slowly shifting multi-color gradient ("animated colorway"). */
+.product-modal-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    /* <button> shrink-wraps to its content (unlike the <a> buy button,
+       which fills the row as a block) — force the same full width. */
+    width: calc(100% - 40px);
+    margin: 0 20px 12px;
+    padding: 13px 15px;
+    background: linear-gradient(120deg,
+        #ffffff 0%, #cfcfcf 20%, #8f8f8f 40%,
+        #ececec 60%, #ffffff 80%, #ffffff 100%);
+    background-size: 400% 400%;
+    animation: copy-colorway 7s ease-in-out infinite;
+    color: #101012;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 4px 18px rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.2px;
+}
+
+@keyframes copy-colorway {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-modal-copy {
+        animation: none;
+    }
+}
+
+.product-modal-copy.hidden {
+    display: none;
+}
+
+.product-modal-copy:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+@media (hover: hover) {
+    .product-modal-copy:hover {
+        filter: brightness(1.05);
+        box-shadow: 0 6px 24px rgba(255, 255, 255, 0.35);
+    }
+}
+
+.modal-copy-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-copy-sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(16, 16, 18, 0.72);
+    letter-spacing: 0.15px;
+}
+
+/* Brief confirmation state after a successful copy */
+.product-modal-copy.copied {
+    background: linear-gradient(135deg, var(--c-green) 0%, #76924f 100%);
+    animation: none;
+    color: #101012;
+}
+
+.product-modal-copy.copied .modal-copy-sub {
+    color: rgba(16, 16, 18, 0.72);
 }
 
 /* ===== Product Styles / Colorways ===== */
@@ -1215,7 +1222,7 @@ main {
 }
 
 .product-modal-styles-track::-webkit-scrollbar-thumb {
-    background: rgba(201, 169, 106, 0.35);
+    background: rgba(255, 255, 255, 0.35);
     border-radius: 3px;
 }
 
@@ -1249,7 +1256,7 @@ main {
 
 @media (hover: hover) {
     .modal-style:hover {
-        border-color: rgba(201, 169, 106, 0.55);
+        border-color: rgba(255, 255, 255, 0.55);
     }
 }
 
@@ -1264,9 +1271,9 @@ main {
     height: 64px;
     border-radius: var(--radius-md, 10px);
     background: linear-gradient(90deg,
-        rgba(201, 169, 106, 0.05) 25%,
-        rgba(201, 169, 106, 0.14) 37%,
-        rgba(201, 169, 106, 0.05) 63%);
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.14) 37%,
+        rgba(255, 255, 255, 0.05) 63%);
     background-size: 400% 100%;
     animation: stylesShimmer 1.3s ease infinite;
 }
@@ -1281,7 +1288,7 @@ main {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    background: rgba(8, 7, 5, 0.9);
+    background: rgba(8, 8, 9, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex;
@@ -1326,14 +1333,14 @@ main {
 
 .inapp-ok-btn {
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     border: none;
     border-radius: var(--radius-sm);
     padding: 13px 50px;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(201, 169, 106, 0.22);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.22);
 }
 
 /* ===== Home / landing page ===== */
@@ -1427,14 +1434,32 @@ main {
     padding-bottom: 44px;
 }
 
-/* "Need Help?" community CTA — big heading, subtitle, Discord glyph. */
+/* "Need Help?" community CTA — card with an explicit Discord join
+   button inside, so the whole thing reads as clickable. */
 .help-cta {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    padding: 18px 0 6px;
+    padding: 22px 20px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.help-cta:active {
+    transform: scale(0.99);
+}
+
+@media (hover: hover) {
+    .help-cta:hover {
+        transform: translateY(-2px);
+        border-color: var(--hairline);
+        box-shadow: var(--shadow-lg);
+    }
 }
 
 .help-head {
@@ -1452,18 +1477,34 @@ main {
     text-align: center;
 }
 
+/* Discord-blurple pill — the unmistakable "this is a button" part */
+.help-join-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 13px 26px;
+    background: #5865f2;
+    color: #fff;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    border-radius: 999px;
+    box-shadow: 0 4px 18px rgba(88, 101, 242, 0.35);
+    transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
 .help-discord {
-    width: 34px;
-    height: 26px;
-    margin-top: 8px;
-    fill: var(--text);
-    transition: transform 0.2s ease, fill 0.2s ease;
+    width: 26px;
+    height: 20px;
+    fill: #fff;
 }
 
 @media (hover: hover) {
-    .help-cta:hover .help-discord {
-        transform: translateY(-3px);
-        fill: var(--accent);
+    .help-cta:hover .help-join-btn {
+        filter: brightness(1.1);
+        box-shadow: 0 6px 24px rgba(88, 101, 242, 0.5);
+        transform: translateY(-1px);
     }
 }
 
@@ -1590,7 +1631,7 @@ main {
     flex-shrink: 0;
     padding: 8px 16px;
     border-radius: 999px;
-    background: rgba(201, 169, 106, 0.10);
+    background: rgba(255, 255, 255, 0.10);
     border: 1px solid var(--border-light);
     color: var(--accent);
     font-size: 12.5px;
@@ -1602,7 +1643,7 @@ main {
 
 @media (hover: hover) {
     .featured-all:hover {
-        background: rgba(201, 169, 106, 0.16);
+        background: rgba(255, 255, 255, 0.16);
     }
 }
 
@@ -1764,13 +1805,13 @@ main {
     padding: 16px 18px;
     margin-bottom: 12px;
     background: var(--accent-gradient);
-    color: #1a1408;
+    color: #101012;
     border-radius: var(--radius-sm);
     text-decoration: none;
     font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.3px;
-    box-shadow: 0 6px 24px rgba(201, 169, 106, 0.28);
+    box-shadow: 0 6px 24px rgba(255, 255, 255, 0.28);
     transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -1787,7 +1828,7 @@ main {
 @media (hover: hover) {
     .browse-cta:hover {
         filter: brightness(1.05);
-        box-shadow: 0 8px 30px rgba(201, 169, 106, 0.38);
+        box-shadow: 0 8px 30px rgba(255, 255, 255, 0.38);
     }
 }
 
