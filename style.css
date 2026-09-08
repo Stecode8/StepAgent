@@ -101,7 +101,7 @@ body::before {
     margin: 0 auto;
 }
 
-/* Sticky controls: only search-bar + category tabs.
+/* The one sticky bar (wordmark, search, page nav, category menu).
    Hide on scroll-down, slide back in on scroll-up. */
 header {
     position: sticky;
@@ -111,12 +111,12 @@ header {
     backdrop-filter: saturate(150%) blur(22px);
     -webkit-backdrop-filter: saturate(150%) blur(22px);
     border-bottom: 1px solid var(--border);
-    padding: 14px 16px 0;
+    padding: 10px 16px;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 header > * {
-    max-width: 800px;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -125,25 +125,12 @@ header.header-hidden {
     transform: translateY(-100%);
 }
 
-.header-top {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
 .lang-select {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--card-bg);
+    background: var(--pill-bg);
     color: var(--text);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    padding: 6px 22px 6px 9px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 24px 8px 11px;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
@@ -226,8 +213,8 @@ header.header-hidden {
 }
 
 /* ===== Signup Button — primary conversion CTA ===== */
-/* ===== GTBuy banner — dark panel, light hairline, headline + logo ===== */
-.gtbuy-banner {
+/* ===== BoonBuy banner — dark panel, light hairline, headline + logo ===== */
+.agent-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -246,7 +233,7 @@ header.header-hidden {
 }
 
 /* faint warm glow behind the logo, like the reference banner */
-.gtbuy-banner::after {
+.agent-banner::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -259,17 +246,17 @@ header.header-hidden {
 }
 
 @media (hover: hover) {
-    .gtbuy-banner:hover {
+    .agent-banner:hover {
         border-color: var(--accent);
         background: var(--card-bg-hover);
     }
 }
 
-.gtbuy-banner:active {
+.agent-banner:active {
     transform: scale(0.99);
 }
 
-.gtbuy-banner-text {
+.agent-banner-text {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -277,7 +264,7 @@ header.header-hidden {
     position: relative;
 }
 
-.gtbuy-banner-head {
+.agent-banner-head {
     font-size: 19px;
     font-weight: 800;
     line-height: 1.3;
@@ -286,23 +273,23 @@ header.header-hidden {
     color: var(--accent);
 }
 
-.gtbuy-banner-cta {
+.agent-banner-cta {
     font-size: 15px;
     font-weight: 600;
     color: var(--text-secondary);
 }
 
-.gtbuy-banner-logo {
+.agent-banner-logo {
     height: 78px;
     width: auto;
     object-fit: contain;
     flex-shrink: 0;
     position: relative;
-    animation: gtbuy-float 3s ease-in-out infinite;
+    animation: agent-logo-float 3s ease-in-out infinite;
 }
 
 /* Subtle floating bob for the logo. */
-@keyframes gtbuy-float {
+@keyframes agent-logo-float {
     0%, 100% { transform: translateY(-5px); }
     50%      { transform: translateY(5px); }
 }
@@ -355,20 +342,178 @@ header.header-hidden {
 .discord-link .social-logo path { fill: #7c88f5; }
 .telegram-link .social-logo path { fill: #4fb6ee; }
 
-/* ===== Search ===== */
-.search-bar {
-    position: relative;
-    margin-bottom: 14px;
+/* ===== Top bar =====
+   Mobile-first, three rows: brand + page nav / search / tools. From
+   900px up it collapses to the single row of the reference design:
+   wordmark | search | page nav | tools. */
+.topbar-inner {
     display: flex;
+    align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+}
+
+.topbar-brand {
+    order: 1;
+    font-family: var(--wordmark);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Pill-shaped search, the widest thing in the bar. */
+.topbar-search {
+    order: 3;
+    position: relative;
+    flex: 1 1 100%;
+    min-width: 0;
+    display: flex;
     align-items: center;
 }
 
-.search-input-wrapper {
-    position: relative;
-    flex: 1;
+/* Segmented page nav — one lit segment marks the current page. */
+.topbar-nav {
+    order: 2;
+    margin-left: auto; /* mobile: sits opposite the wordmark */
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    padding: 3px;
+    background: var(--pill-bg);
+    border: 1px solid var(--border);
+    border-radius: 100px;
 }
 
+.nav-seg {
+    padding: 7px 15px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+@media (hover: hover) {
+    .nav-seg:hover { color: var(--text); }
+}
+
+.nav-seg.active {
+    background: var(--pill-hover);
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.topbar-tools {
+    order: 4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 100%;
+    justify-content: space-between;
+}
+
+@media (min-width: 900px) {
+    .topbar-inner { flex-wrap: nowrap; gap: 12px; }
+    .topbar-search { order: 2; flex: 1 1 auto; }
+    .topbar-nav { order: 3; margin-left: 0; }
+    .topbar-tools { order: 4; flex: 0 0 auto; margin-left: auto; }
+}
+
+/* Category picker — button carries the active filter's name. */
+.cat-select {
+    position: relative;
+}
+
+.cat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 210px;
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--pill-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.cat-btn > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (hover: hover) {
+    .cat-btn:hover {
+        background: var(--pill-hover);
+        border-color: var(--border-light);
+    }
+}
+
+.cat-btn[aria-expanded="true"] {
+    background: var(--pill-hover);
+    border-color: var(--border-light);
+}
+
+/* The pill list, as a dropdown panel. */
+.cat-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 200;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    width: min(360px, calc(100vw - 32px));
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+    padding: 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== Page heading ===== */
+.page-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.page-title {
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: var(--accent);
+}
+
+.page-count {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* ===== Search ===== */
 .search-icon {
     position: absolute;
     left: 13px;
@@ -379,12 +524,13 @@ header.header-hidden {
     opacity: 0.7;
 }
 
-#search-input {
+#search-input,
+#home-search-input {
     width: 100%;
-    padding: 11px 12px 11px 42px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    background: var(--bg-elevated);
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--pill-bg);
     font-size: 15px;
     font-family: inherit;
     color: var(--text);
@@ -393,15 +539,25 @@ header.header-hidden {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-#search-input::placeholder {
+#home-search-input {
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+#search-input::placeholder,
+#home-search-input::placeholder {
     color: var(--text-secondary);
     opacity: 0.8;
 }
 
-#search-input:focus {
-    border-color: var(--accent);
+#search-input:focus,
+#home-search-input:focus {
+    border-color: var(--border-light);
     box-shadow: 0 0 0 3px var(--accent-glow);
-    background: var(--card-bg);
+    background: var(--bg-elevated);
 }
 
 /* ===== Search suggestions (autocomplete) ===== */
@@ -465,10 +621,10 @@ header.header-hidden {
 }
 
 #price-sort {
-    padding: 11px 32px 11px 13px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    background: var(--bg-elevated);
+    padding: 9px 30px 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--pill-bg);
     font-size: 13px;
     font-family: inherit;
     font-weight: 500;
@@ -495,24 +651,10 @@ header.header-hidden {
     color: var(--text);
 }
 
-/* ===== Category Tabs ===== */
-.category-tabs {
-    display: flex;
-    gap: 7px;
-    overflow-x: auto;
-    padding-bottom: 14px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-}
-
-.category-tabs::-webkit-scrollbar {
-    display: none;
-}
-
+/* ===== Category pills (inside the top bar's category menu) ===== */
 .category-pill {
     flex-shrink: 0;
-    padding: 8px 17px;
+    padding: 8px 15px;
     border: 1px solid var(--border);
     border-radius: 100px;
     background: var(--pill-bg);
@@ -543,25 +685,6 @@ header.header-hidden {
 
 .category-pill:active {
     transform: scale(0.94);
-}
-
-/* Featured pills (Special/Discount/Best Sellers/Budget/Video) — the
-   category bar stays strictly monochrome (semantic color lives only on
-   the product-card tags). These keep just a heavier weight, and a star
-   marker on the curated ones; active state falls back to the base
-   white-on-dark pill treatment. */
-.category-pill[data-category="Special Finds"],
-.category-pill[data-category="Discount Items"],
-.category-pill[data-category="Best Sellers"],
-.category-pill[data-category="Budget Finds"],
-.category-pill[data-category="📹 Video Finds"] {
-    font-weight: 600;
-}
-
-.category-pill[data-category="Special Finds"]::before,
-.category-pill[data-category="Budget Finds"]::before,
-.category-pill[data-category="📹 Video Finds"]::before {
-    content: '★ ';
 }
 
 /* ===== Main Content ===== */
@@ -1101,7 +1224,7 @@ main {
     }
 }
 
-/* Copy Universal Link — same visual weight as the GTBuy buy button,
+/* Copy Universal Link — same visual weight as the BoonBuy buy button,
    with a slowly shifting multi-color gradient ("animated colorway"). */
 .product-modal-copy {
     display: flex;
@@ -1357,26 +1480,10 @@ main {
 .home-hero {
     width: 100%;
     max-width: 560px;
-    min-height: 100svh;
+    min-height: calc(100svh - 62px); /* 62px ≈ the sticky bar */
     display: flex;
     flex-direction: column;
     padding: 22px 0 26px;
-}
-
-/* Wordmark left, language selector pushed to the right. */
-.home .header-top {
-    justify-content: space-between;
-    margin-bottom: 0;
-}
-
-.home .header-top .logo {
-    order: 1;
-}
-
-.home .header-top .lang-select {
-    position: static;
-    transform: none;
-    order: 2;
 }
 
 .home .logo {
@@ -1748,7 +1855,7 @@ main {
     .home-hero {
         grid-area: hero;
         max-width: none;
-        min-height: 100vh;
+        min-height: calc(100vh - 62px); /* leave room for the sticky bar */
     }
 
     .home .logo {
@@ -1790,7 +1897,7 @@ main {
         animation-duration: var(--fdur, 60s) !important;
         animation-iteration-count: infinite !important;
     }
-    .gtbuy-banner-logo {
+    .agent-banner-logo {
         animation-duration: 3s !important;
         animation-iteration-count: infinite !important;
     }
@@ -1830,53 +1937,6 @@ main {
         filter: brightness(1.05);
         box-shadow: 0 8px 30px rgba(255, 255, 255, 0.38);
     }
-}
-
-/* ===== Product page top bar (brand-home link + language) ===== */
-.products-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 16px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.topbar-home {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    text-decoration: none;
-    color: var(--accent);
-}
-
-.topbar-back {
-    color: var(--text-secondary);
-    transition: color 0.15s ease;
-    flex-shrink: 0;
-}
-
-.topbar-logo {
-    font-family: var(--wordmark);
-    font-size: 17px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--accent);
-    letter-spacing: 1.8px;
-}
-
-@media (hover: hover) {
-    .topbar-home:hover .topbar-back {
-        color: var(--accent);
-    }
-}
-
-/* The shared .lang-select is absolutely positioned for the home header;
-   in the product-page top bar it sits inline instead. */
-.products-topbar .lang-select {
-    position: static;
-    transform: none;
 }
 
 /* ===== Accessibility: honor reduced-motion ===== */

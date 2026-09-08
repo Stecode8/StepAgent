@@ -4,19 +4,18 @@
 const TRANSLATIONS = {
     en: {
         intro: 'Welcome to my spreadsheet!',
-        signup: '40% shipping coupon and 2x 30% shipping coupons on GTBuy',
+        signup: 'Sign up on BoonBuy and get 50% off',
         youtube: 'YouTube for more content!',
-        search_placeholder: 'brand search',
+        search_placeholder: 'Search products…',
         sort_default: 'Sort by',
         sort_low: 'Price: Low to High',
         sort_high: 'Price: High to Low',
         cat_all: 'All',
-        cat_special: 'Special Finds',
-        cat_discount: '🔥 Discount Items',
-        cat_bestsellers: '🌟 Best Sellers',
+        cat_menu: 'All Categories',
+        nav_products: 'Products',
+        nav_links: 'Links',
+        count_products: 'products',
         cat_accessories: '🎁 Accessories',
-        cat_video: '📹 Video Finds',
-        cat_budget: 'Budget Finds',
         loading: 'Loading products...',
         error_load: 'Could not load products. Please check your connection and try again.',
         retry: 'Retry',
@@ -26,7 +25,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord to join the community!',
         telegram: 'Telegram for more finds!',
-        buy: 'Buy on GTBuy',
+        buy: 'Buy on BoonBuy',
         qc: 'View QC Photos',
         styles: 'Styles',
         browse: 'Browse Products',
@@ -44,19 +43,18 @@ const TRANSLATIONS = {
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
-        signup: 'Coupon de livraison -40 % et 2 coupons -30 % sur GTBuy',
+        signup: 'Inscris-toi sur BoonBuy et obtiens 50 % de réduction',
         youtube: 'YouTube pour plus de contenu !',
-        search_placeholder: 'rechercher une marque',
+        search_placeholder: 'Rechercher un produit…',
         sort_default: 'Trier par',
         sort_low: 'Prix : croissant',
         sort_high: 'Prix : décroissant',
         cat_all: 'Tout',
-        cat_special: 'Trouvailles Spéciales',
-        cat_discount: '🔥 Promotions',
-        cat_bestsellers: '🌟 Meilleures Ventes',
+        cat_menu: 'Toutes les catégories',
+        nav_products: 'Produits',
+        nav_links: 'Liens',
+        count_products: 'produits',
         cat_accessories: '🎁 Accessoires',
-        cat_video: '📹 Trouvailles Vidéo',
-        cat_budget: 'Petits Prix',
         loading: 'Chargement des produits...',
         error_load: 'Impossible de charger les produits. Vérifiez votre connexion et réessayez.',
         retry: 'Réessayer',
@@ -66,7 +64,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord pour rejoindre la communauté !',
         telegram: 'Telegram pour plus de trouvailles !',
-        buy: 'Acheter sur GTBuy',
+        buy: 'Acheter sur BoonBuy',
         qc: 'Voir les photos QC',
         styles: 'Coloris',
         browse: 'Voir les produits',
@@ -84,19 +82,18 @@ const TRANSLATIONS = {
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
-        signup: '40%-Versandgutschein und 2x 30%-Versandgutscheine auf GTBuy',
+        signup: 'Melde dich bei BoonBuy an und erhalte 50 % Rabatt',
         youtube: 'YouTube für mehr Inhalte!',
-        search_placeholder: 'Marke suchen',
+        search_placeholder: 'Produkte suchen…',
         sort_default: 'Sortieren nach',
         sort_low: 'Preis: aufsteigend',
         sort_high: 'Preis: absteigend',
         cat_all: 'Alle',
-        cat_special: 'Besondere Funde',
-        cat_discount: '🔥 Rabatte',
-        cat_bestsellers: '🌟 Bestseller',
+        cat_menu: 'Alle Kategorien',
+        nav_products: 'Produkte',
+        nav_links: 'Links',
+        count_products: 'Produkte',
         cat_accessories: '🎁 Accessoires',
-        cat_video: '📹 Video-Funde',
-        cat_budget: 'Schnäppchen',
         loading: 'Produkte werden geladen...',
         error_load: 'Produkte konnten nicht geladen werden. Bitte überprüfe deine Verbindung und versuche es erneut.',
         retry: 'Erneut versuchen',
@@ -106,7 +103,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord, um der Community beizutreten!',
         telegram: 'Telegram für mehr Funde!',
-        buy: 'Bei GTBuy kaufen',
+        buy: 'Bei BoonBuy kaufen',
         qc: 'QC-Fotos ansehen',
         styles: 'Varianten',
         browse: 'Produkte ansehen',
@@ -124,19 +121,18 @@ const TRANSLATIONS = {
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
-        signup: 'Cupón de envío del 40% y 2 cupones del 30% en GTBuy',
+        signup: 'Regístrate en BoonBuy y obtén un 50 % de descuento',
         youtube: '¡YouTube para más contenido!',
-        search_placeholder: 'buscar marca',
+        search_placeholder: 'Buscar productos…',
         sort_default: 'Ordenar por',
         sort_low: 'Precio: menor a mayor',
         sort_high: 'Precio: mayor a menor',
         cat_all: 'Todo',
-        cat_special: 'Hallazgos Especiales',
-        cat_discount: '🔥 Descuentos',
-        cat_bestsellers: '🌟 Más Vendidos',
+        cat_menu: 'Todas las categorías',
+        nav_products: 'Productos',
+        nav_links: 'Enlaces',
+        count_products: 'productos',
         cat_accessories: '🎁 Accesorios',
-        cat_video: '📹 Hallazgos en Video',
-        cat_budget: 'Ofertas',
         loading: 'Cargando productos...',
         error_load: 'No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.',
         retry: 'Reintentar',
@@ -146,7 +142,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: '¡Discord para unirte a la comunidad!',
         telegram: '¡Telegram para más hallazgos!',
-        buy: 'Comprar en GTBuy',
+        buy: 'Comprar en BoonBuy',
         qc: 'Ver fotos QC',
         styles: 'Estilos',
         browse: 'Ver productos',
@@ -164,19 +160,18 @@ const TRANSLATIONS = {
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
-        signup: 'Coupon di spedizione del 40% e 2 coupon del 30% su GTBuy',
+        signup: 'Registrati su BoonBuy e ottieni il 50% di sconto',
         youtube: 'YouTube per altri contenuti!',
-        search_placeholder: 'cerca un marchio',
+        search_placeholder: 'Cerca prodotti…',
         sort_default: 'Ordina per',
         sort_low: 'Prezzo: crescente',
         sort_high: 'Prezzo: decrescente',
         cat_all: 'Tutto',
-        cat_special: 'Trovate Speciali',
-        cat_discount: '🔥 Sconti',
-        cat_bestsellers: '🌟 Più Venduti',
+        cat_menu: 'Tutte le categorie',
+        nav_products: 'Prodotti',
+        nav_links: 'Link',
+        count_products: 'prodotti',
         cat_accessories: '🎁 Accessori',
-        cat_video: '📹 Trovate Video',
-        cat_budget: 'Offerte',
         loading: 'Caricamento prodotti...',
         error_load: 'Impossibile caricare i prodotti. Controlla la connessione e riprova.',
         retry: 'Riprova',
@@ -186,7 +181,7 @@ const TRANSLATIONS = {
         inapp_ok: 'OK',
         discord: 'Discord per entrare nella community!',
         telegram: 'Telegram per altre trovate!',
-        buy: 'Acquista su GTBuy',
+        buy: 'Acquista su BoonBuy',
         qc: 'Vedi foto QC',
         styles: 'Varianti',
         browse: 'Sfoglia i prodotti',
@@ -321,6 +316,7 @@ window.i18n = (function() {
         const cats = [...new Set(products.map(p => p.category))];
         await translateMany([...names, ...cats], currentLang);
         if (typeof buildCategoryTabs === 'function') buildCategoryTabs();
+        if (typeof syncCategoryLabel === 'function') syncCategoryLabel();
         if (typeof renderProducts === 'function') renderProducts(true);
     }
 
@@ -351,38 +347,66 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
-// Main multi-tab sheet — per-category clothes tabs, a Budget tab that
-// merges into Discount Items, and the MAIN tab's "New Year Limited-Time
-// Offers" section which is extracted as the Discount Items pill.
-const SHEET5_ID = '1qDDvfzOS6ILnVKil-V4dOZAEFbyYhSyk9S-lHzaJjnY';
-const SHEET5_TABS = [
-    { name: '👟 Shoes',           gid: '12405383' },
-    { name: '👖 Pants',           gid: '513501659' },
-    { name: '👕 T-Shirts',        gid: '1346409329' },
-    { name: '🩳 Shorts',          gid: '314806305' },
-    { name: '🧥 Hoodies',         gid: '1338354785' },
-    { name: '🧶 Sweaters',        gid: '1707026158' },
-    { name: '🏃 Tracksuits',      gid: '232441216' },
-    { name: '🦺 Jackets & Vests', gid: '1506514331' },
-    { name: '🥶 Winter Jackets',  gid: '573232849' },
-    { name: '❄️ Winter Products', gid: '1693767562' },
-    { name: '⚽ Football',        gid: '1625961130' },
-    { name: '🌸 Perfume',         gid: '1778849992' },
-    { name: '🆕 New Links',       gid: '1800079464' },
-];
-// Budget Products tab in the main sheet — retagged 'Discount Items' at
-// parse time so its products merge into the Discount Items pill.
-const SHEET5_BUDGET_TAB = { name: 'Budget Finds', gid: '800817013' };
-// Discount tab — same gid as MAIN SPREADSHEET; parser extracts only the
-// "New Year Limited-Time Offers" section.
-const SHEET5_DISCOUNT_TAB = { name: 'Discount Items', gid: '525974875' };
-// Best Sellers tab — same gid; parser extracts the showcase rows BEFORE
-// the discount section header (the curated featured products at the top
-// of the MAIN tab).
-const SHEET5_BESTSELLERS_TAB = { name: 'Best Sellers', gid: '525974875' };
-// Video Finds tab — products featured in videos. Gets its own pill and
-// is cross-pinned into matching clothes categories by name.
-const SHEET5_VIDEO_TAB = { name: '📹 Video Finds', gid: '1323089782' };
+// BoonBuy affiliate details. Sheet links already carry the invite code;
+// toAgentLink() re-stamps it so a stale or missing code can never leak an
+// unattributed click, and rewrites the handful of rows still pointing at
+// another agent.
+const INVITE_CODE = 'STEPAGENT';
+// BoonBuy product URLs encode the source platform as a digit in the path:
+// /product/2/<itemId>, where 2 = Weidian — where every item in the sheet
+// is listed (confirmed against Weidian's own item API).
+const BOONBUY_PRODUCT_BASE = 'https://boonbuy.com/product/2/';
+
+// The BoonBuy spreadsheet is ONE wide tab: a single grid split into
+// vertical category sections. Each section opens with a full-width title
+// row ("HOT ITEMS", "Sneakers", ...) followed by a Picture|Name|Price|Link
+// column header, and every product row carries TWO items side by side:
+//   PIC | NAME | PRICE | LINK | PIC | NAME | PRICE | LINK
+// The sheet's second tab ("Mobile Friendly", gid 2130334132) is a smaller
+// subset of the same catalogue, so it isn't fetched.
+const SHEET_ID = '1b4WsUkODzVHoCPWv10jAmAR2qBOZyV0PdyCa_Bd_EfA';
+const SHEET_MAIN_GID = '1206657792';
+
+// Section title (lowercased, whitespace-collapsed) -> pill label. Only
+// sections listed here are emitted: any other full-width title (the
+// sheet's own banner rows, or a section renamed upstream) resets the
+// current category so its rows are skipped instead of creating a junk
+// pill — so a renamed section needs adding here to come back.
+const SECTION_CATEGORIES = new Map([
+    ['hot items',            '🔥 Hot Items'],
+    ['sneakers',             '👟 Sneakers'],
+    ['tee/polo',             '👕 Tee/Polo'],
+    ['hoodies',              '🧥 Hoodies'],
+    ['shorts',               '🩳 Shorts'],
+    ['jackets',              '🦺 Jackets'],
+    ['sweater',              '🧶 Sweater'],
+    ['sweatpants',           '👖 SweatPants'],
+    ['jeans',                '👖 Jeans'],
+    ['accessories',          '🎁 Accessories'],
+    ['electronics',          '🎧 Electronics'],
+    ['jersey',               '⚽ Jersey'],
+    ['tracksuits',           '🏃 Tracksuits'],
+    ['beanies',              '🧢 Beanies'],
+    ['socks',                '🧦 Socks'],
+    ['travel bags/suitcase', '🧳 Travel Bags'],
+    ['decorations',          '🖼️ Decorations'],
+    ['underwears',           '🩲 Underwear'],
+    ['bags',                 '👜 Bags'],
+    ['perfumes',             '🌸 Perfumes'],
+    ['running',              '🏅 Running'],
+    ['ziper',                '🧥 Zip-Ups'],
+    ['shirts',               '👔 Shirts'],
+    ['vests',                '🎽 Vests'],
+    ['long sleeves',         '👚 Long Sleeves'],
+    ['jewelry',              '💍 Jewelry'],
+    ['summer sets',          '🩱 Summer Sets'],
+    ['2026 fifa worldcup',   '🏆 2026 World Cup'],
+]);
+
+// Sections that stay in the catalogue but get no pill of their own. Their
+// items still show under "All" and under whatever pill their name pins
+// them into (a Hot Items sneaker still appears in Sneakers).
+const HIDDEN_PILLS = new Set(['🔥 Hot Items']);
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 
@@ -933,7 +957,10 @@ const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 const gridEl = document.getElementById('product-grid');
 const noResultsEl = document.getElementById('no-results');
-const categoryTabsEl = document.getElementById('category-tabs');
+const categoryTabsEl = document.getElementById('category-menu');
+const categoryMenuBtn = document.getElementById('category-menu-btn');
+const categoryMenuLabel = document.getElementById('category-menu-label');
+const productCountEl = document.getElementById('product-count');
 const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
@@ -1041,28 +1068,34 @@ function fixLink(link) {
         link = link.replace('&', '?');
     }
     if (/inviteCode=/i.test(link)) {
-        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=STEPAGENT');
+        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=' + INVITE_CODE);
     } else {
-        link += (link.includes('?') ? '&' : '?') + 'inviteCode=STEPAGENT';
+        link += (link.includes('?') ? '&' : '?') + 'inviteCode=' + INVITE_CODE;
     }
     return link;
 }
 
+// Point a sheet link at BoonBuy with our invite code. Most rows are
+// already BoonBuy URLs and only need the code re-stamped, but a few dozen
+// still link to another agent (kakobuy) carrying THAT agent's affiliate
+// code — those URLs embed the Weidian item id, which is all we need to
+// rebuild the equivalent BoonBuy product URL.
+function toAgentLink(link) {
+    if (!link) return '';
+    if (/boonbuy\.com/i.test(link)) return fixLink(link);
+    const m = link.match(/itemID[=%3D]*(\d+)/i) || link.match(/[?&]id[=%3D]*(\d+)/i);
+    if (m) return BOONBUY_PRODUCT_BASE + m[1] + '?inviteCode=' + INVITE_CODE;
+    return fixLink(link); // unknown shape — leave it be, just stamp the code
+}
+
 // Rebuild the original Chinese-store URL ("universal link") from a product,
-// so it can be pasted into any shopping agent. GTBuy links carry the source
-// platform in their path (/product/weidian/123); legacy ?id= links and the
-// pre-extracted weidianId are always Weidian items.
+// so it can be pasted into any shopping agent. BoonBuy carries the source
+// platform as a digit in the product path (/product/2/123, 2 = Weidian);
+// an unknown digit yields no link (the copy button then stays hidden)
+// rather than a guessed one.
 function universalLink(p) {
-    const m = (p.link || '').match(/\/product\/(weidian|taobao|tmall|1688)\/(\d+)/i);
-    if (m) {
-        const id = m[2];
-        switch (m[1].toLowerCase()) {
-            case 'weidian': return `https://weidian.com/item.html?itemID=${id}`;
-            case 'taobao':  return `https://item.taobao.com/item.htm?id=${id}`;
-            case 'tmall':   return `https://detail.tmall.com/item.htm?id=${id}`;
-            case '1688':    return `https://detail.1688.com/offer/${id}.html`;
-        }
-    }
+    const m = (p.link || '').match(/\/product\/(\d+)\/(\d+)/);
+    if (m && m[1] === '2') return `https://weidian.com/item.html?itemID=${m[2]}`;
     if (p.weidianId) return `https://weidian.com/item.html?itemID=${p.weidianId}`;
     return '';
 }
@@ -1071,8 +1104,8 @@ function universalLink(p) {
 // (most-specific patterns first) to derive a pinCategory, so e.g. a
 // "Bape Tee" cross-lists into the T-Shirts pill, "Adidas Pants" into
 // Pants, etc. Items that don't match any keyword keep only their source
-// category. Strings must match the SHEET5_TABS names character-for-
-// character (emoji + label).
+// category. Strings must match a SECTION_CATEGORIES pill label
+// character-for-character (emoji + label).
 //
 // Word-boundary anchored to avoid "set" matching "Sunset" or "shirt"
 // matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
@@ -1086,114 +1119,117 @@ const SPECIAL_PIN_KEYWORDS = [
     // Football / soccer kits get their own pill — check before the
     // generic 'jersey' / 'uniform' / 'set' rules below, otherwise
     // "Real Madrid Football Jersey" would land in T-Shirts.
-    ['football',       '⚽ Football'],
-    ['soccer',         '⚽ Football'],
-    ['real madrid',    '⚽ Football'],
-    ['barcelona',      '⚽ Football'],
-    ['liverpool',      '⚽ Football'],
-    ['manchester',     '⚽ Football'],
-    ['man city',       '⚽ Football'],
-    ['arsenal',        '⚽ Football'],
-    ['chelsea',        '⚽ Football'],
-    ['juventus',       '⚽ Football'],
-    ['bayern',         '⚽ Football'],
-    ['ac milan',       '⚽ Football'],
-    ['inter milan',    '⚽ Football'],
-    ['dortmund',       '⚽ Football'],
-    ['psg',            '⚽ Football'],
-    ['national team',  '⚽ Football'],
+    ['football',       '⚽ Jersey'],
+    ['soccer',         '⚽ Jersey'],
+    ['real madrid',    '⚽ Jersey'],
+    ['barcelona',      '⚽ Jersey'],
+    ['liverpool',      '⚽ Jersey'],
+    ['manchester',     '⚽ Jersey'],
+    ['man city',       '⚽ Jersey'],
+    ['arsenal',        '⚽ Jersey'],
+    ['chelsea',        '⚽ Jersey'],
+    ['juventus',       '⚽ Jersey'],
+    ['bayern',         '⚽ Jersey'],
+    ['ac milan',       '⚽ Jersey'],
+    ['inter milan',    '⚽ Jersey'],
+    ['dortmund',       '⚽ Jersey'],
+    ['psg',            '⚽ Jersey'],
+    ['national team',  '⚽ Jersey'],
     // Apparel keywords (checked first so "Nike Hoodie" beats 'nike').
     // Plurals listed alongside singulars — \b boundary doesn't cross
     // word-char transitions so 'jacket' alone won't match "jackets".
-    ['jeans',          '👖 Pants'],
-    ['jean',           '👖 Pants'],
-    ['trousers',       '👖 Pants'],
-    ['trouser',        '👖 Pants'],
-    ['pants',          '👖 Pants'],
+    // The sheet splits legwear into Jeans and SweatPants, so denim words
+    // pin to Jeans and everything else to SweatPants.
+    ['jeans',          '👖 Jeans'],
+    ['jean',           '👖 Jeans'],
+    ['denim',          '👖 Jeans'],
+    ['trousers',       '👖 SweatPants'],
+    ['trouser',        '👖 SweatPants'],
+    ['pants',          '👖 SweatPants'],
     // Singular 'pant' — without it, "Polo Ralph Lauren track pant" fell
-    // through to the 'polo' rule below and showed up under T-Shirts.
-    ['pant',           '👖 Pants'],
-    ['joggers',        '👖 Pants'],
-    ['jogger',         '👖 Pants'],
-    ['sweatpants',     '👖 Pants'],
-    ['sweatpant',      '👖 Pants'],
-    ['leggings',       '👖 Pants'],
-    ['legging',        '👖 Pants'],
-    ['chinos',         '👖 Pants'],
-    ['chino',          '👖 Pants'],
+    // through to the 'polo' rule below and showed up under Tee/Polo.
+    ['pant',           '👖 SweatPants'],
+    ['joggers',        '👖 SweatPants'],
+    ['jogger',         '👖 SweatPants'],
+    ['sweatpants',     '👖 SweatPants'],
+    ['sweatpant',      '👖 SweatPants'],
+    ['leggings',       '👖 SweatPants'],
+    ['legging',        '👖 SweatPants'],
+    ['chinos',         '👖 SweatPants'],
+    ['chino',          '👖 SweatPants'],
     ['shorts',         '🩳 Shorts'],
     ['short',          '🩳 Shorts'],
     ['hoodies',        '🧥 Hoodies'],
     ['hoodie',         '🧥 Hoodies'],
-    ['cardigan',       '🧶 Sweaters'],
-    ['cardigans',      '🧶 Sweaters'],
-    ['sweaters',       '🧶 Sweaters'],
-    ['sweater',        '🧶 Sweaters'],
-    ['knit',           '🧶 Sweaters'],
+    ['cardigan',       '🧶 Sweater'],
+    ['cardigans',      '🧶 Sweater'],
+    ['sweaters',       '🧶 Sweater'],
+    ['sweater',        '🧶 Sweater'],
+    ['knit',           '🧶 Sweater'],
     ['tracksuits',     '🏃 Tracksuits'],
     ['tracksuit',      '🏃 Tracksuits'],
     // T-shirts / tops / jackets — moved BEFORE shoe specifics so a
     // "Lebron Jersey" routes to T-Shirts (via 'jersey') instead of
     // Shoes (via 'lebron'). "Nike Lebron" sneakers still route to
     // Shoes since they don't contain any apparel keyword first.
-    ['polo',           '👕 T-Shirts'],
-    ['t-shirts',       '👕 T-Shirts'],
-    ['t-shirt',        '👕 T-Shirts'],
-    ['tshirts',        '👕 T-Shirts'],
-    ['tshirt',         '👕 T-Shirts'],
-    ['tees',           '👕 T-Shirts'],
-    ['tee',            '👕 T-Shirts'],
-    ['jerseys',        '👕 T-Shirts'],
-    ['jersey',         '👕 T-Shirts'],
-    ['shirts',         '👕 T-Shirts'],
-    ['shirt',          '👕 T-Shirts'],
-    ['jackets',        '🦺 Jackets & Vests'],
-    ['jacket',         '🦺 Jackets & Vests'],
-    ['vests',          '🦺 Jackets & Vests'],
-    ['vest',           '🦺 Jackets & Vests'],
-    ['perfume',        '🌸 Perfume'],
-    ['cologne',        '🌸 Perfume'],
-    ['fragrance',      '🌸 Perfume'],
+    ['polo',           '👕 Tee/Polo'],
+    ['t-shirts',       '👕 Tee/Polo'],
+    ['t-shirt',        '👕 Tee/Polo'],
+    ['tshirts',        '👕 Tee/Polo'],
+    ['tshirt',         '👕 Tee/Polo'],
+    ['tees',           '👕 Tee/Polo'],
+    ['tee',            '👕 Tee/Polo'],
+    ['jerseys',        '👕 Tee/Polo'],
+    ['jersey',         '👕 Tee/Polo'],
+    ['shirts',         '👕 Tee/Polo'],
+    ['shirt',          '👕 Tee/Polo'],
+    ['jackets',        '🦺 Jackets'],
+    ['jacket',         '🦺 Jackets'],
+    ['vests',          '🦺 Jackets'],
+    ['vest',           '🦺 Jackets'],
+    ['perfume',        '🌸 Perfumes'],
+    ['cologne',        '🌸 Perfumes'],
+    ['fragrance',      '🌸 Perfumes'],
     // Specific shoe-model names that would otherwise be hijacked by
     // accessory generic words (e.g. Versace "Chain Reaction" hitting
     // 'chain', Balenciaga "Track" being fine here vs "Track Pants"
     // landing in Pants). Listed before accessories.
-    ['chain reaction',     '👟 Shoes'],
-    ['vapormax',           '👟 Shoes'],
-    ['airmax',             '👟 Shoes'],   // no-space variant of 'air max'
-    ['airforce',           '👟 Shoes'],   // no-space variant of 'air force'
-    ['shox',               '👟 Shoes'],
-    ['triple s',           '👟 Shoes'],
-    ['speed trainer',      '👟 Shoes'],
-    ['speed runner',       '👟 Shoes'],
-    ['runners',            '👟 Shoes'],
-    ['nocta',              '👟 Shoes'],
-    ['lebron',             '👟 Shoes'],
-    ['kobe',               '👟 Shoes'],
-    ['mihara',             '👟 Shoes'],
-    ['golden goose',       '👟 Shoes'],
-    ['ggdb',               '👟 Shoes'],
-    ['birkenstock',        '👟 Shoes'],
-    ['odsy',               '👟 Shoes'],
-    ['be right back',      '👟 Shoes'],
-    ['out of office',      '👟 Shoes'],
-    ['louboutin',          '👟 Shoes'],
-    ['loubutin',           '👟 Shoes'],   // sheet typo
-    ['salomon',            '👟 Shoes'],
-    ['hoka',               '👟 Shoes'],
-    ['on cloud',           '👟 Shoes'],
-    ['timberland',         '👟 Shoes'],
-    ['timbs',              '👟 Shoes'],
-    ['ugg',                '👟 Shoes'],
-    ['skate',              '👟 Shoes'],   // Louis Vuitton Skate / similar shoe lines
-    ['mcqueen',            '👟 Shoes'],   // Alexander McQueen shoe line
-    ['converses',          '👟 Shoes'],
-    ['converse',           '👟 Shoes'],
-    ['b9',                 '👟 Shoes'],   // Dior B-series
-    ['b22',                '👟 Shoes'],
-    ['b30',                '👟 Shoes'],
-    ['b33',                '👟 Shoes'],
-    ['b57',                '👟 Shoes'],
+    ['chain reaction',     '👟 Sneakers'],
+    ['vapormax',           '👟 Sneakers'],
+    ['airmax',             '👟 Sneakers'],   // no-space variant of 'air max'
+    ['airforce',           '👟 Sneakers'],   // no-space variant of 'air force'
+    ['shox',               '👟 Sneakers'],
+    ['triple s',           '👟 Sneakers'],
+    ['speed trainer',      '👟 Sneakers'],
+    ['speed runner',       '👟 Sneakers'],
+    ['runners',            '👟 Sneakers'],
+    ['nocta',              '👟 Sneakers'],
+    ['lebron',             '👟 Sneakers'],
+    ['kobe',               '👟 Sneakers'],
+    ['mihara',             '👟 Sneakers'],
+    ['golden goose',       '👟 Sneakers'],
+    ['ggdb',               '👟 Sneakers'],
+    ['birkenstock',        '👟 Sneakers'],
+    ['odsy',               '👟 Sneakers'],
+    ['be right back',      '👟 Sneakers'],
+    ['out of office',      '👟 Sneakers'],
+    ['louboutin',          '👟 Sneakers'],
+    ['loubutin',           '👟 Sneakers'],   // sheet typo
+    ['salomon',            '👟 Sneakers'],
+    ['hoka',               '👟 Sneakers'],
+    ['on cloud',           '👟 Sneakers'],
+    ['timberland',         '👟 Sneakers'],
+    ['timbs',              '👟 Sneakers'],
+    ['ugg',                '👟 Sneakers'],
+    ['skate',              '👟 Sneakers'],   // Louis Vuitton Skate / similar shoe lines
+    ['mcqueen',            '👟 Sneakers'],   // Alexander McQueen shoe line
+    ['converses',          '👟 Sneakers'],
+    ['converse',           '👟 Sneakers'],
+    ['b9',                 '👟 Sneakers'],   // Dior B-series
+    ['b22',                '👟 Sneakers'],
+    ['b30',                '👟 Sneakers'],
+    ['b33',                '👟 Sneakers'],
+    ['b57',                '👟 Sneakers'],
     // Accessory keywords are checked BEFORE the 'set'/'kit'/'uniform'
     // tracksuit-fallback block so that e.g. "Cartier Love Bracelet Set"
     // routes to Accessories instead of Tracksuits. Specific bag model
@@ -1281,42 +1317,42 @@ const SPECIAL_PIN_KEYWORDS = [
     // is caught by 'shoes', but plenty of names ("Nike Air", "Jordan",
     // "Asics Gel 1130", "Adidas Forum 84", "Puma LX Court") only have
     // brand/model identifiers.
-    ['shoes',          '👟 Shoes'],
-    ['shoe',           '👟 Shoes'],
-    ['sneakers',       '👟 Shoes'],
-    ['sneaker',        '👟 Shoes'],
-    ['trainers',       '👟 Shoes'],
-    ['boots',          '👟 Shoes'],
-    ['boot',           '👟 Shoes'],
-    ['sandals',        '👟 Shoes'],
-    ['sandal',         '👟 Shoes'],
-    ['loafers',        '👟 Shoes'],
-    ['loafer',         '👟 Shoes'],
-    ['heels',          '👟 Shoes'],
-    ['slippers',       '👟 Shoes'],
-    ['slipper',        '👟 Shoes'],
-    ['slides',         '👟 Shoes'],
-    ['slide',          '👟 Shoes'],
-    ['jordan',         '👟 Shoes'],
-    ['asics',          '👟 Shoes'],
-    ['new balance',    '👟 Shoes'],
-    ['air max',        '👟 Shoes'],
-    ['air force',      '👟 Shoes'],
-    ['air jordan',     '👟 Shoes'],
-    ['nike air',       '👟 Shoes'],
-    ['dunk',           '👟 Shoes'],
-    ['forum',          '👟 Shoes'],
-    ['samba',          '👟 Shoes'],
-    ['gazelle',        '👟 Shoes'],
-    ['yeezy',          '👟 Shoes'],
-    ['stan smith',     '👟 Shoes'],
-    ['superstar',      '👟 Shoes'],
-    ['cortez',         '👟 Shoes'],
-    ['b22',            '👟 Shoes'],
-    ['gel',            '👟 Shoes'],   // Asics Gel-* line
-    ['lx court',       '👟 Shoes'],
-    ['mr993',          '👟 Shoes'],
-    ['u574',           '👟 Shoes'],
+    ['shoes',          '👟 Sneakers'],
+    ['shoe',           '👟 Sneakers'],
+    ['sneakers',       '👟 Sneakers'],
+    ['sneaker',        '👟 Sneakers'],
+    ['trainers',       '👟 Sneakers'],
+    ['boots',          '👟 Sneakers'],
+    ['boot',           '👟 Sneakers'],
+    ['sandals',        '👟 Sneakers'],
+    ['sandal',         '👟 Sneakers'],
+    ['loafers',        '👟 Sneakers'],
+    ['loafer',         '👟 Sneakers'],
+    ['heels',          '👟 Sneakers'],
+    ['slippers',       '👟 Sneakers'],
+    ['slipper',        '👟 Sneakers'],
+    ['slides',         '👟 Sneakers'],
+    ['slide',          '👟 Sneakers'],
+    ['jordan',         '👟 Sneakers'],
+    ['asics',          '👟 Sneakers'],
+    ['new balance',    '👟 Sneakers'],
+    ['air max',        '👟 Sneakers'],
+    ['air force',      '👟 Sneakers'],
+    ['air jordan',     '👟 Sneakers'],
+    ['nike air',       '👟 Sneakers'],
+    ['dunk',           '👟 Sneakers'],
+    ['forum',          '👟 Sneakers'],
+    ['samba',          '👟 Sneakers'],
+    ['gazelle',        '👟 Sneakers'],
+    ['yeezy',          '👟 Sneakers'],
+    ['stan smith',     '👟 Sneakers'],
+    ['superstar',      '👟 Sneakers'],
+    ['cortez',         '👟 Sneakers'],
+    ['b22',            '👟 Sneakers'],
+    ['gel',            '👟 Sneakers'],   // Asics Gel-* line
+    ['lx court',       '👟 Sneakers'],
+    ['mr993',          '👟 Sneakers'],
+    ['u574',           '👟 Sneakers'],
 ];
 
 function derivePinCategory(name) {
@@ -1329,505 +1365,127 @@ function derivePinCategory(name) {
 }
 
 // =============================================================
-// HTML PARSING — main multi-tab sheet (clothes categories + budget)
-// Row layout: [emoji] | PIC(img) | NAME | PRICE | LINK | QC
-// First few rows are category title / back-link / column header; skipped
-// by requiring the PIC cell to contain an <img>.
+// HTML PARSING — the BoonBuy sheet
+// One wide grid, category sections stacked vertically (see
+// SECTION_CATEGORIES), two products per row:
+//   PIC(img) | NAME | PRICE | LINK | PIC(img) | NAME | PRICE | LINK
+// A section title is a single cell spanning the full 8 columns; the brand
+// sub-headings inside a section (e.g. "Corteiz") span 4 and so leave the
+// current category alone. The banner rows above the first section carry
+// their own full-width titles, which match no section and are skipped.
 // =============================================================
-// Build an id→name map from the MAIN tab (gid 525974875). Used to recover
-// names for tabs that leave the name column blank (e.g. Shoes). Layout there:
-// [img] | PIC | ITEM NAMES | PRICE | LINK | _ | _ | QC  (name=col 2, link=col 4)
-function buildMainNameMap(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const map = new Map();
-    for (const row of doc.querySelectorAll('tr')) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 5) continue;
-        const name = (cells[2].textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || name === 'ITEM NAMES') continue;
-        const link = fixLink(extractLink(cells[4]));
-        if (!link) continue;
-        const m = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (m && !map.has(m[1])) map.set(m[1], name);
+const SECTION_COLSPAN = 8;   // full grid width — marks a section title row
+const BLOCK_WIDTH = 4;       // PIC | NAME | PRICE | LINK
+// ¥ → $ for the ~30 rows that price in bare yuan, so the price sort can
+// compare them against the rest. Derived from the sheet's own conversions
+// (it quotes ¥180 as $29.29); it only ever affects sort order, never a
+// displayed price.
+const CNY_TO_USD = 0.163;
+
+// Split the sheet HTML into one chunk per section, each starting at its
+// title row. DOMParser over the whole 4 MB grid blocks the main thread for
+// seconds on phones; parsing chunk by chunk lets the first categories
+// paint immediately and keeps the page responsive while the rest arrive.
+function splitSheetSections(html) {
+    const marker = 'colspan="' + SECTION_COLSPAN + '"';
+    const starts = [];
+    for (let at = html.indexOf(marker); at >= 0; at = html.indexOf(marker, at + 1)) {
+        const trStart = html.lastIndexOf('<tr', at);
+        if (trStart < 0) continue;
+        if (starts.length && starts[starts.length - 1] === trStart) continue; // same row
+        starts.push(trStart);
     }
-    return map;
+    if (!starts.length) return [html];
+    return starts.map((from, k) => html.slice(from, k + 1 < starts.length ? starts[k + 1] : html.length));
 }
 
-function parseHtmlSheetCategory(html, categoryName, nameMap) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const rows = Array.from(doc.querySelectorAll('tr'));
-    const products = [];
-
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 5) continue;
-
-        const picCell   = cells[1];
-        const nameCell  = cells[2];
-        const priceCell = cells[3];
-        const linkCell  = cells[4];
-        const qcCell    = cells[5] || null;
-
-        const img = picCell.querySelector('img');
-        if (!img) continue; // header rows have no image
-
-        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        if (name === 'ITEM NAMES') continue; // header row
-        // Empty-name rows are NOT skipped yet: some tabs (e.g. Shoes) leave
-        // the name column blank, and we recover the name from the main-tab
-        // id→name map below once the product id is known.
-
-        const price = (priceCell.textContent || '').trim();
-        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
-
-        let photo = img.getAttribute('src') || '';
-        // Upgrade the size suffix to =s800 for sharp cards. Some tabs
-        // (e.g. New Links) embed images at =s100-w100-h20 — a 20-px-tall
-        // thumbnail strip that looks terrible at card size. Others come
-        // at =s179-w130-h179. Both docsubipk and the legacy non-docsubipk
-        // path accept arbitrary size suffixes — the earlier worry about
-        // session-bound tokens turned out not to apply.
-        if (photo) {
-            photo = photo
-                .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-                .replace(/=w\d+-h\d+$/, '=w800-h800');
-        }
-
-        let link = extractLink(linkCell);
-        link = fixLink(link);
-        if (!link) continue;
-
-        let qcLink = qcCell ? extractLink(qcCell) : '';
-
-        let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        // Recover a blank name from the main catalogue tab (keyed by product
-        // id). The Shoes tab ships with no names; the main tab lists the same
-        // products WITH names, so we look them up here. Rows still nameless
-        // after this (e.g. fansbuy/cnfans links absent from the main tab) are
-        // skipped, matching the original behaviour.
-        if (!name && nameMap && weidianId) name = nameMap.get(weidianId) || '';
-        if (!name) continue;
-
-        products.push({ name, price, photo, link, qcLink: qcLink || '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
-    }
-
-    return products;
-}
-
-// =============================================================
-// HTML PARSING — Discount section of the MAIN spreadsheet tab.
-// Skips ahead to the "New Year Limited-Time Offers" section header
-// and only parses rows after it. Names are prefixed with "New Year
-// Discounts -" in the sheet; we strip that prefix.
-// Row layout in this section: [emoji] | PIC | NAME | PRICE | LINK | _ | _ | QC
-// =============================================================
-function parseHtmlSheetDiscount(html, categoryName) {
-    // The MAIN SPREADSHEET tab is ~3.7 MB, but the discount section is only
-    // ~60 rows of it. Running DOMParser on the full document locks the main
-    // thread for several seconds on phones. Slice the raw HTML down to the
-    // discount section first (string ops are ~50x faster than DOM parsing)
-    // and parse only that.
-    const sectionRe = /limited.?time offers/i;
-    const startIdx = html.search(sectionRe);
-    if (startIdx < 0) return [];
-    // Back up to the start of the <tr> that contains the section header so
-    // its row counts toward the index; we still skip it with the +2 offset
-    // below. Then find the first "Back to top" after it (next section break).
-    const trStart = html.lastIndexOf('<tr', startIdx);
-    const sliceStart = trStart >= 0 ? trStart : startIdx;
-    const endRel = html.slice(sliceStart).search(/back to top/i);
-    const sliceEnd = endRel > 0 ? sliceStart + endRel : Math.min(sliceStart + 200000, html.length);
-    const chunk = html.slice(sliceStart, sliceEnd);
-
-    const parser = new DOMParser();
-    // Wrap the slice in a minimal table so cells nest correctly.
-    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
-    const rows = Array.from(doc.querySelectorAll('tr'));
-    const products = [];
-
-    let start = -1;
-    for (let i = 0; i < rows.length; i++) {
-        if (sectionRe.test(rows[i].textContent || '')) {
-            start = i + 2; // skip section header + column header
-            break;
-        }
-    }
-    if (start < 0) return products;
-
-    for (let i = start; i < rows.length; i++) {
-        const cells = rows[i].querySelectorAll('td');
-        // Section terminator: "Back to top" / "CHEAP FINDS" follow the
-        // discount block as short rows. Stop parsing the moment we exit
-        // the uniformly 8-column discount table.
-        if (cells.length < 5) break;
-        const rowText = (rows[i].textContent || '').trim();
-        if (/^back to top/i.test(rowText)) break;
-
-        const picCell   = cells[1];
-        const nameCell  = cells[2];
-        const priceCell = cells[3];
-        const linkCell  = cells[4];
-        const qcCell    = cells[cells.length - 1];
-
-        const img = picCell.querySelector('img');
-        if (!img) continue;
-
-        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        name = name.replace(/^new year discounts\s*-+\s*/i, '');
-        if (!name) continue;
-
-        const price = (priceCell.textContent || '').trim();
-        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
-
-        let photo = img.getAttribute('src') || '';
-        // Keep docsubipk URLs at their original size — Google may bind
-        // the token to the requested variant. Only upgrade the older
-        // size-suffix patterns (non-docsubipk).
-        if (photo && !/\/docsubipk\//.test(photo)) photo = photo
-            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-            .replace(/=w\d+-h\d+$/, '=w800-h800');
-
-        let link = extractLink(linkCell);
-        link = fixLink(link);
-        if (!link) continue;
-
-        const qcLink = qcCell ? extractLink(qcCell) : '';
-
-        let weidianId = '';
-        // Handle both `?id=12345` (legacy) and `/product/weidian/12345` (current GTBuy URLs).
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, isDiscount: true, pinCategory: derivePinCategory(name) });
-    }
-
-    return products;
-}
-
-// =============================================================
-// HTML PARSING — Best Sellers / showcase section of the MAIN tab.
-// Sits between the column-header row (PIC | ITEM NAMES | ...) and
-// the "🎊 New Year Limited-Time Offers 🎊" header. Same 8-column row
-// layout as the discount section, so we reuse the same field offsets.
-// =============================================================
-function parseHtmlSheetBestSellers(html, categoryName) {
-    // Slice the raw HTML between the column header and the discount
-    // section start, same micro-optimisation as parseHtmlSheetDiscount
-    // (DOMParser on the full 3.7MB doc would lock the main thread).
-    const headerRe = /ITEM NAMES/i;
-    const headerIdx = html.search(headerRe);
-    if (headerIdx < 0) return [];
-    const headerTrStart = html.lastIndexOf('<tr', headerIdx);
-    const sliceStart = headerTrStart >= 0 ? headerTrStart : headerIdx;
-    const endRel = html.slice(sliceStart).search(/limited.?time offers/i);
-    const sliceEnd = endRel > 0 ? sliceStart + endRel : Math.min(sliceStart + 200000, html.length);
-    const chunk = html.slice(sliceStart, sliceEnd);
-
+// Parse one section chunk (title row first, product rows below). Returns
+// [] for the sheet's own banner rows, whose titles match no section.
+function parseSheetSection(chunk) {
     const parser = new DOMParser();
     const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
     const rows = Array.from(doc.querySelectorAll('tr'));
     const products = [];
 
-    // Skip rows until we pass the column header (the one containing
-    // "ITEM NAMES" + "PRICE"). Start collecting from the row after.
-    let start = -1;
-    for (let i = 0; i < rows.length; i++) {
-        const t = (rows[i].textContent || '').toUpperCase();
-        if (t.includes('ITEM NAMES') && t.includes('PRICE')) {
-            start = i + 1;
-            break;
-        }
-    }
-    if (start < 0) return products;
-
-    for (let i = start; i < rows.length; i++) {
-        const cells = rows[i].querySelectorAll('td');
-        if (cells.length < 5) break;
-        const rowText = (rows[i].textContent || '').trim();
-        if (/^back to top/i.test(rowText)) break;
-
-        const picCell   = cells[1];
-        const nameCell  = cells[2];
-        const priceCell = cells[3];
-        const linkCell  = cells[4];
-        const qcCell    = cells[cells.length - 1];
-
-        const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name) continue;
-        // Skip the column-header row if we somehow re-encounter it.
-        if (/^item names$/i.test(name)) continue;
-
-        const price = (priceCell.textContent || '').trim();
-        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
-
-        // Image is optional for Best Sellers — some items (e.g. the
-        // 3DAP Watch Prototype) genuinely have no thumbnail in the
-        // sheet but should still surface. We still require a link.
-        const img = picCell.querySelector('img');
-        let photo = img ? (img.getAttribute('src') || '') : '';
-        if (photo && !/\/docsubipk\//.test(photo)) photo = photo
-            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-            .replace(/=w\d+-h\d+$/, '=w800-h800');
-
-        let link = extractLink(linkCell);
-        link = fixLink(link);
-        if (!link) continue;
-
-        let qcLink = '';
-        if (qcCell && qcCell.querySelector('a')) qcLink = extractLink(qcCell);
-
-        let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        products.push({ name, price, photo, link, qcLink, category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
-    }
-
-    return products;
-}
-
-// =============================================================
-// HTML PARSING — extra category sections of the MAIN tab.
-// The MAIN SPREADSHEET tab (gid 525974875) is one wide grid split into
-// vertical sections, each introduced by a header row whose category name
-// sits in column 0 (e.g. "Electronics", "Others", "Watches") and is
-// preceded by a "Back to top" row. The clothes categories have their own
-// dedicated tabs (parsed elsewhere); the sections below have NO dedicated
-// tab, so we walk the MAIN tab and emit their products tagged with a pill
-// label. Row layout matches the clothes tabs:
-//   [emoji] | PIC(img) | NAME | PRICE | LINK | _ | _ | QC
-// =============================================================
-// Normalized col-0 header text → pill label. Only sections listed here are
-// emitted; any other header (a dedicated-tab section like Hoodies, or a
-// showcase area like CHEAP FINDS / Best Sellers) resets currentCategory to
-// null so its rows are skipped — that prevents duplicating dedicated tabs.
-const SECTION_CATEGORIES = new Map([
-    ['bags & backpacs',  '👜 Bags & Backpacks'],
-    ['bags & backpacks', '👜 Bags & Backpacks'],
-    ['underwear',        '🩲 Underwear'],
-    ['wallets',          '👛 Wallets'],
-    ['cap & hat',        '🧢 Cap & Hat'],
-    ['jewelry',          '💍 Jewelry'],
-    ['sunglasses',       '🕶️ Sunglasses'],
-    ['electronics',      '🎧 Electronics'],
-    ['others',           '📦 Others'],
-    ['watches',          '⌚ Watches'],
-    ['belt',             '🟫 Belt'],
-]);
-
-function parseHtmlSheetSections(html) {
-    // The MAIN tab is ~3.7 MB; DOMParser on the full document locks the main
-    // thread on phones. Every wanted section sits below the "Bags & Backpacs"
-    // header, so slice from that header down to "UPDATE NEW LINKS" (the final
-    // section) before parsing — same micro-optimisation as
-    // parseHtmlSheetDiscount / parseHtmlSheetBestSellers.
-    //
-    // Anchor on the section-HEADER form `…Backpac…</td>` (a colspan'd title
-    // cell), NOT the table-of-contents jump link `…Backpacks</a>` near the top
-    // of the sheet. `&` is HTML-encoded as `&amp;` in the raw markup.
-    const firstHeaderRe = /bags\s*&(?:amp;)?\s*backpac\w*<\/td>/i;
-    const startIdx = html.search(firstHeaderRe);
-    if (startIdx < 0) return [];
-    const trStart = html.lastIndexOf('<tr', startIdx);
-    const sliceStart = trStart >= 0 ? trStart : startIdx;
-    const endRel = html.slice(sliceStart).search(/update new links/i);
-    const sliceEnd = endRel > 0 ? sliceStart + endRel : html.length;
-    const chunk = html.slice(sliceStart, sliceEnd);
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
-    const rows = Array.from(doc.querySelectorAll('tr'));
-    const products = [];
-
-    let currentCategory = null;
-    for (const row of rows) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length === 0) continue;
-
-        // Section dividers (category titles, "Back to top") are single
-        // colspan'd cells, so they have far fewer <td>s than the 8-column
-        // product rows. Detect them BEFORE the product-row guard.
-        if (cells.length < 5) {
-            const header = (cells[0].textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
-            if (SECTION_CATEGORIES.has(header)) currentCategory = SECTION_CATEGORIES.get(header);
-            else if (header) currentCategory = null; // "Back to top" or a dedicated-tab section → stop emitting
-            continue;
-        }
-        if (!currentCategory) continue;
-
-        const picCell   = cells[1];
-        const nameCell  = cells[2];
-        const priceCell = cells[3];
-        const linkCell  = cells[4];
-        const qcCell    = cells[cells.length - 1];
-
-        const img = picCell.querySelector('img');
-        if (!img) continue; // spacer rows have no image
-
-        let name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || name === 'ITEM NAMES') continue;
-
-        const price = (priceCell.textContent || '').trim();
-        if (!price || price === '$0' || /sold\s*out/i.test(price)) continue;
-
-        let photo = img.getAttribute('src') || '';
-        if (photo) {
-            photo = photo
-                .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-                .replace(/=w\d+-h\d+$/, '=w800-h800');
-        }
-
-        let link = extractLink(linkCell);
-        link = fixLink(link);
-        if (!link) continue;
-
-        const qcLink = qcCell ? extractLink(qcCell) : '';
-
-        let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        products.push({ name, price, photo, link, qcLink: qcLink || '', category: currentCategory, weidianId, pinCategory: derivePinCategory(name) });
-    }
-
-    return products;
-}
-
-// =============================================================
-// HTML PARSING — Video Finds tab of the MAIN spreadsheet.
-// Layout differs from the clothes tabs: the name is column index 2
-// (ITEM NAMES) and the price + link are trailing cells whose index
-// shifts row-to-row (some rows have 5 cells, some 6, depending on
-// whether the price gets its own column) — so we find the price as the
-// first trailing $ cell and the link as the last cell with an anchor.
-//
-// The PRODUCT PHOTOS are FLOATING (over-cell) images: Google emits them
-// as absolutely-positioned `.waffle-embedded-object-overlay` divs AFTER
-// the table, NOT inside the cells. The <img> actually inside each row is
-// a single shared spacer placeholder (identical on every row), so we
-// must ignore it.
-//
-// The overlays are NOT in row order in the DOM — Google scrambles them.
-// Instead, a `posObj('gid','embed_id', ROW, col, offX, offY)` script call
-// is emitted per image giving the cell it anchors to. ROW counts grid
-// rows with the header at 0, so the first product is ROW 1 — that equals
-// (row-gutter number − 1), the gutter being Google's 1-based row label.
-// offY is the image's pixel offset inside
-// that cell: when it's roughly a full row-height (~130px) the image
-// actually renders in the row BELOW its anchor cell, so we bump ROW by 1.
-// With that adjustment the images map 1:1 onto the data rows (some rows
-// carry two photos, some none — the offset is what disentangles them).
-// =============================================================
-function parseHtmlSheetVideo(html, categoryName) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-
-    // embed_id → photo src, in document order.
-    const srcByEmbed = {};
-    for (const ov of doc.querySelectorAll('.waffle-embedded-object-overlay')) {
-        const img = ov.querySelector('img');
-        if (ov.id && img) srcByEmbed[ov.id] = img.getAttribute('src') || '';
-    }
-
-    // posObj(...) anchors → photo keyed by grid ROW (after spill
-    // adjustment). First image wins if two ever resolve to the same row.
-    const photoByRow = {};
-    const ROW_SPILL_PX = 60; // offY past this → image belongs to the next row
-    const posRe = /posObj\('[^']*',\s*'(embed_\d+)',\s*(-?\d+),\s*-?\d+,\s*-?\d+,\s*(-?\d+)\)/g;
-    let pm;
-    while ((pm = posRe.exec(html))) {
-        const src = srcByEmbed[pm[1]];
-        if (!src) continue;
-        const row = parseInt(pm[2], 10) + (parseInt(pm[3], 10) >= ROW_SPILL_PX ? 1 : 0);
-        if (!(row in photoByRow)) photoByRow[row] = src;
-    }
-
-    const rows = doc.querySelectorAll('tr');
-    const products = [];
-
-    // Detect the shared SPACER image. Older rows keep their real photo in a
-    // floating overlay and put one identical placeholder <img> in the PIC
-    // cell; newer rows were instead added with "image in cell" — the PIC
-    // <img> IS the real photo and there's no overlay. The spacer repeats
-    // across many rows while real in-cell photos are unique, so the most
-    // frequent in-cell src is the spacer (token changes per fetch, so we
-    // can't hardcode it).
-    const imgFreq = {};
-    for (const r of rows) {
-        const im = r.querySelector('td img');
-        const s = im ? (im.getAttribute('src') || '') : '';
-        if (s) imgFreq[s] = (imgFreq[s] || 0) + 1;
-    }
-    let spacerSrc = '';
-    for (const s in imgFreq) {
-        if (imgFreq[s] > 1 && imgFreq[s] > (imgFreq[spacerSrc] || 0)) spacerSrc = s;
-    }
-
+    let category = null;
     for (const row of rows) {
         const cells = Array.from(row.querySelectorAll('td'));
-        if (cells.length < 4) continue;
+        if (!cells.length) continue;
 
-        // Name lives in the ITEM NAMES column (index 2) on every data row.
-        const name = (cells[2].textContent || '').trim().replace(/\s+/g, ' ');
-        if (!name || /^item names$/i.test(name)) continue;
-
-        // Look up this row's photo by its grid position. The row-gutter <th>
-        // holds Google's 1-based row number; the posObj ROW key is that
-        // number minus 1 (gutter 2 = first product = ROW 1).
-        const gutter = parseInt((row.querySelector('th')?.textContent || '').trim(), 10);
-        let photo = (!isNaN(gutter) && photoByRow[gutter - 1]) || '';
-        // No floating overlay? Fall back to a unique in-cell PIC image
-        // (newer "image in cell" rows), ignoring the shared spacer.
-        if (!photo) {
-            const im = row.querySelector('td img');
-            const src = im ? (im.getAttribute('src') || '') : '';
-            if (src && src !== spacerSrc) photo = src;
+        // Section title — detect it BEFORE the product-block guard, since a
+        // colspan'd title cell also sits at index 0.
+        if (parseInt(cells[0].getAttribute('colspan') || '1', 10) >= SECTION_COLSPAN) {
+            const title = (cells[0].textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
+            category = SECTION_CATEGORIES.get(title) || null;
+            if (!category) return []; // banner row, or a section we don't publish
+            continue;
         }
-        // Downscale the =s2048 high-res original to a card-sized variant.
-        if (photo) photo = photo
+        if (!category) continue;
+
+        for (let at = 0; at + BLOCK_WIDTH <= cells.length; at += BLOCK_WIDTH) {
+            const product = parseProductBlock(cells.slice(at, at + BLOCK_WIDTH), category);
+            if (product) products.push(product);
+        }
+    }
+    return products;
+}
+
+// One PIC | NAME | PRICE | LINK block → a product, or null when the block
+// isn't one: a column header, a spacer, the empty half of an odd-length
+// row, a brand sub-heading, or a row with no link to buy through.
+function parseProductBlock(cells, category) {
+    const [picCell, nameCell, priceCell, linkCell] = cells;
+
+    const img = picCell.querySelector('img');
+    if (!img) return null; // header, spacer and sub-heading blocks carry no photo
+
+    const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
+    if (!name || /^name$/i.test(name)) return null;
+
+    const raw = (priceCell.textContent || '').trim();
+    if (!raw || /sold\s*out/i.test(raw)) return null;
+    // The sheet prices each item in four currencies in one cell —
+    // "¥180｜$29.29｜€24.79｜£21.55" — so show USD with EUR alongside
+    // (the card and modal already render `price / eurPrice`). A few rows
+    // carry a bare number instead, which the sheet means as yuan.
+    const usd = raw.match(/\$\s*([\d.,]+)/);
+    const eur = raw.match(/€\s*([\d.,]+)/);
+    const cny = raw.match(/¥\s*([\d.,]+)/) || raw.match(/^([\d.,]+)$/);
+    if (!usd && !cny) return null; // no price at all → not a product block
+    const price = usd ? '$' + usd[1] : '¥' + cny[1];
+    const priceUsd = parseFloat((usd ? usd[1] : cny[1]).replace(/,/g, '')) * (usd ? 1 : CNY_TO_USD);
+
+    let photo = img.getAttribute('src') || '';
+    // Sheet photos come in at thumbnail size (=w165-h139); ask Google for a
+    // card-sized render instead. These URLs are short-lived tokens, which
+    // is what the fetch cache-buster and the 5-minute refresh are for.
+    if (photo) {
+        photo = photo
             .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
             .replace(/=w\d+-h\d+$/, '=w800-h800');
-
-        // Price: first trailing cell (after the name) holding a $ amount.
-        // Formats vary: "$40.00", "$27.00-$98.00", "20.00$", "8$", "-$50.00".
-        let price = '';
-        for (let i = 3; i < cells.length; i++) {
-            const t = (cells[i].textContent || '').trim().replace(/\s+/g, ' ');
-            if (t.includes('$') && /\d/.test(t)) { price = t; break; }
-        }
-        if (!price || /sold\s*out/i.test(price)) continue;
-
-        // Link: last cell with a real product anchor. Rows carry a trailing
-        // "up" cell linking to an in-sheet anchor (href="#gid=…&range=…");
-        // skip any anchor whose URL isn't an external http(s) link so that
-        // navigation link doesn't shadow the actual LINK cell.
-        let link = '';
-        for (let i = cells.length - 1; i >= 3; i--) {
-            if (!cells[i].querySelector('a')) continue;
-            const candidate = extractLink(cells[i]);
-            if (!/^https?:\/\//i.test(candidate)) continue;
-            link = candidate;
-            break;
-        }
-        link = fixLink(link);
-        if (!link) continue;
-
-        let weidianId = '';
-        const idMatch = link.match(/[?&]id[=%3D]*(\d+)/i) || link.match(/\/weidian\/(\d+)/i);
-        if (idMatch) weidianId = idMatch[1];
-
-        if (!photo && !weidianId) continue;
-
-        products.push({ name, price, photo, link, qcLink: '', category: categoryName, weidianId, pinCategory: derivePinCategory(name) });
     }
 
-    return products;
+    const link = toAgentLink(extractLink(linkCell));
+    if (!link) return null;
+
+    const idMatch = link.match(/\/product\/\d+\/(\d+)/);
+
+    return {
+        name,
+        price,
+        eurPrice: eur ? '€' + eur[1] : '',
+        priceUsd: Number.isFinite(priceUsd) ? priceUsd : 0,
+        photo,
+        link,
+        qcLink: '', // the sheet has no QC column
+        category,
+        weidianId: idMatch ? idMatch[1] : '',
+        pinCategory: derivePinCategory(name),
+        // The sheet tags the cheap and the 1:1 versions of an item in its
+        // name; the card badges read these back.
+        isBudget: /\[budget\]/i.test(name),
+        isOneToOne: /\[1:1\]/i.test(name),
+    };
 }
 
 // =============================================================
@@ -1872,6 +1530,7 @@ function ingestSource(order, products) {
         allProducts.push(p);
     }
     buildCategoryTabs();
+    syncCategoryLabel();
     renderProducts();
     loadingEl.classList.add('hidden');
     if (window.i18n) window.i18n.translateDynamic();
@@ -1889,42 +1548,32 @@ async function fetchProducts() {
     seenProductKeys = new Set();
     lastRenderKey = null;
 
-    // Kick every fetch off concurrently up front so the network downloads in
-    // parallel; we only consume the results in priority order below.
-    const mainHtmlP = fetchHtml(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid);
-    // The MAIN tab's id→name map lets blank-name category rows recover their
-    // names. Best-effort: on failure it degrades to an empty map (nameless
-    // rows are skipped, exactly as before).
-    const nameMapP = mainHtmlP.then(buildMainNameMap).catch(() => new Map());
-
-    // The Budget tab in the main sheet is folded into Discount Items —
-    // retagged at parse time so it shows under the Discount Items pill.
-    // Revert by passing back the real tab name.
-    //
-    // `plan` is consumed top-to-bottom; this order IS the on-screen order, so
-    // the showcase/discount items (the "top products") paint first.
-    const plan = [
-        ['Discount',      1, mainHtmlP.then(h => parseHtmlSheetDiscount(h, 'Discount Items'))],
-        ['Budget new',    1, fetchHtml(SHEET5_ID, SHEET5_BUDGET_TAB.gid).then(h => parseHtmlSheetCategory(h, 'Discount Items'))],
-        ['Best Sellers',  2, mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers'))],
-        ['Video Finds',   3, fetchHtml(SHEET5_ID, SHEET5_VIDEO_TAB.gid).then(h => parseHtmlSheetVideo(h, '📹 Video Finds'))],
-    ];
-    // Per-category clothes tabs (need the name map to parse).
-    for (const tab of SHEET5_TABS) {
-        const htmlP = fetchHtml(SHEET5_ID, tab.gid);
-        plan.push([tab.name, 4, Promise.all([htmlP, nameMapP]).then(([h, m]) => parseHtmlSheetCategory(h, tab.name, m))]);
+    let html;
+    try {
+        html = await fetchHtml(SHEET_ID, SHEET_MAIN_GID);
+    } catch (err) {
+        console.error('Sheet fetch failed', err);
+        loadingEl.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+        return;
     }
-    // Extra MAIN-tab categories (Electronics, Others/Lego, Watches, Bags…).
-    plan.push(['MAIN sections', 5, mainHtmlP.then(parseHtmlSheetSections)]);
 
+    // Parse and paint one section at a time, in sheet order — Hot Items
+    // first — yielding to the browser between sections so the grid fills in
+    // progressively instead of freezing on one 4 MB parse. The chunk index
+    // is the source order, which keeps the on-screen order identical to the
+    // sheet's own.
+    const chunks = splitSheetSections(html);
     let anyFailed = false;
-    for (const [label, order, promise] of plan) {
+    for (let at = 0; at < chunks.length; at++) {
         try {
-            ingestSource(order, await promise);
+            ingestSource(at, parseSheetSection(chunks[at]));
         } catch (err) {
             anyFailed = true;
-            console.error(`Source failed: ${label}`, err);
+            console.error('Section failed at chunk ' + at, err);
         }
+        // Let the paint from ingestSource() actually reach the screen.
+        await new Promise(resolve => setTimeout(resolve, 0));
     }
 
     loadingEl.classList.add('hidden');
@@ -1945,21 +1594,19 @@ function buildCategoryTabs() {
     // pinCategory='🎁 Accessories'.
     const categories = [...new Set(
         allProducts.flatMap(p => [p.category, p.pinCategory].filter(Boolean))
-    )];
+    )].filter(cat => !HIDDEN_PILLS.has(cat));
     categoryTabsEl.innerHTML = '';
 
-    const frontPinned = ['Discount Items', 'Best Sellers', '📹 Video Finds', '🎁 Accessories'];
-    for (const name of [...frontPinned].reverse()) {
+    // Accessories goes last: it's the catch-all most odds-and-ends pin
+    // into, so it reads better as the tail of the row than as a category
+    // competing with the clothing sections.
+    const backPinned = ['🎁 Accessories'];
+    for (const name of backPinned) {
         const idx = categories.indexOf(name);
-        if (idx > -1) {
-            categories.splice(idx, 1);
-            categories.unshift(name);
-        }
+        if (idx > -1) categories.push(...categories.splice(idx, 1));
     }
 
     addPill('All', 'all');
-    // Synthetic "1.1" pill — everything that is NOT a discount item.
-    addPill('1.1', '1.1');
     for (const cat of categories) {
         addPill(cat, cat);
     }
@@ -1990,12 +1637,7 @@ function addPill(label, value) {
 
 function catTranslationKey(value) {
     if (value === 'all') return 'cat_all';
-    if (value === 'Special Finds') return 'cat_special';
-    if (value === 'Budget Finds') return 'cat_budget';
-    if (value === 'Discount Items') return 'cat_discount';
-    if (value === 'Best Sellers') return 'cat_bestsellers';
     if (value === '🎁 Accessories') return 'cat_accessories';
-    if (value === '📹 Video Finds') return 'cat_video';
     return '';
 }
 
@@ -2011,7 +1653,55 @@ function setCategory(cat) {
     document.querySelectorAll('.category-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.category === cat);
     });
+    syncCategoryLabel();
+    closeCategoryMenu();
     renderProducts(true);
+}
+
+// The menu button doubles as the active-filter readout: "All Categories"
+// while unfiltered, the category's own pill label otherwise.
+function syncCategoryLabel() {
+    if (!categoryMenuLabel) return;
+    categoryMenuLabel.textContent = activeCategory === 'all'
+        ? ((window.i18n && window.i18n.t('cat_menu')) || 'All Categories')
+        : translatePill(activeCategory, activeCategory);
+}
+
+function openCategoryMenu() {
+    if (!categoryTabsEl) return;
+    categoryTabsEl.classList.remove('hidden');
+    if (categoryMenuBtn) categoryMenuBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeCategoryMenu() {
+    if (!categoryTabsEl) return;
+    categoryTabsEl.classList.add('hidden');
+    if (categoryMenuBtn) categoryMenuBtn.setAttribute('aria-expanded', 'false');
+}
+
+if (categoryMenuBtn) {
+    categoryMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (categoryTabsEl.classList.contains('hidden')) openCategoryMenu();
+        else closeCategoryMenu();
+    });
+    // Click-away and Escape close it; clicks inside the panel don't.
+    document.addEventListener('click', (e) => {
+        if (!categoryTabsEl.contains(e.target) && e.target !== categoryMenuBtn) closeCategoryMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeCategoryMenu();
+    });
+}
+
+// "N products" next to the page heading — the number actually on show, so
+// it tracks the active category and any search.
+function updateProductCount() {
+    if (!productCountEl) return;
+    const n = (searchQuery || activeCategory !== 'all') ? currentFiltered.length : allProducts.length;
+    if (!n) { productCountEl.textContent = ''; return; }
+    const word = (window.i18n && window.i18n.t('count_products')) || 'products';
+    productCountEl.textContent = n.toLocaleString() + ' ' + word;
 }
 
 // =============================================================
@@ -2177,15 +1867,12 @@ if (searchInput) searchInput.addEventListener('keydown', (e) => {
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
-    if (activeCategory === '1.1') {
-        // Synthetic "1.1" pill — everything that is NOT a discount item.
-        filtered = filtered.filter(p => p.category !== 'Discount Items');
-    } else if (activeCategory !== 'all') {
-        // Items show up in their primary category (p.category from the
-        // tab they were parsed from) AND in any pinCategory derived from
-        // their name. So a "Louis Vuitton Belt" parsed from the Perfume
-        // tab appears in Perfume + Accessories. An Air Jordan in Best
-        // Sellers appears in Best Sellers + Shoes. Same item never
+    if (activeCategory !== 'all') {
+        // Items show up in their primary category (p.category — the sheet
+        // section they were parsed from) AND in any pinCategory derived
+        // from their name. So a "Louis Vuitton Belt" listed in the Perfumes
+        // section appears in Perfumes + Accessories, and an Air Jordan in
+        // Hot Items appears in Hot Items + Sneakers. Same item never
         // double-renders within a single pill because the filter is OR.
         filtered = filtered.filter(
             p => p.category === activeCategory ||
@@ -2215,7 +1902,7 @@ function renderProducts(skipAnimation) {
     }
 
     // Sort: when searching, best match first (more terms matched). Then photos
-    // first, then sourceOrder tiebreak (Special Finds → Budget Finds).
+    // first, then sourceOrder tiebreak (the sheet's own section order).
     filtered.sort((a, b) => {
         if (isSearching) {
             const scoreCmp = (b._searchScore || 0) - (a._searchScore || 0);
@@ -2229,8 +1916,9 @@ function renderProducts(skipAnimation) {
     // Apply price sort if selected
     if (priceSort === 'low' || priceSort === 'high') {
         filtered.sort((a, b) => {
-            const pa = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
-            const pb = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
+            // priceUsd puts the yuan-only rows on the same scale as the rest.
+            const pa = a.priceUsd || parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
+            const pb = b.priceUsd || parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
             return priceSort === 'low' ? pa - pb : pb - pa;
         });
     }
@@ -2241,6 +1929,7 @@ function renderProducts(skipAnimation) {
         noResultsEl.classList.remove('hidden');
         currentFiltered = [];
         renderedCount = 0;
+        updateProductCount();
         lastRenderKey = renderKey();
         return;
     }
@@ -2254,6 +1943,7 @@ function renderProducts(skipAnimation) {
     const key = renderKey();
     const canAppend = key === lastRenderKey && prefixEqual(filtered, currentFiltered, renderedCount);
     currentFiltered = filtered;
+    updateProductCount();
 
     if (canAppend) {
         // Top up to the first screen if waves are still arriving; beyond that,
@@ -2289,15 +1979,12 @@ function buildCard(p, i) {
     const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
-    // Pinned links (Special Finds) keep their gold treatment; discount items
-    // get the red treatment; everything else is a "1.1" item and gets the
-    // green highlight + "1.1" tag.
-    const is11 = p.category !== 'Special Finds' &&
-                 p.category !== 'Discount Items' && !p.isDiscount;
+    // The sheet marks the cheap version of an item "[Budget]" and the top
+    // tier "[1:1]" in its name: those get the red and the sage treatment
+    // respectively, and everything in between stays a plain card.
     let extraClass = '';
-    if (p.category === 'Special Finds') extraClass = ' pinned';
-    else if (p.category === 'Discount Items' || p.isDiscount) extraClass = ' discount';
-    else extraClass = ' onepointone';
+    if (p.isBudget) extraClass = ' discount';
+    else if (p.isOneToOne) extraClass = ' onepointone';
     card.className = 'product-card' + extraClass;
     card.dataset.index = i;
 
@@ -2338,19 +2025,13 @@ function buildCard(p, i) {
     info.appendChild(nameDiv);
     info.appendChild(priceDiv);
     card.appendChild(img);
-    if (p.category === 'Discount Items' || p.isDiscount) {
+    if (p.isBudget) {
         const badge = document.createElement('div');
         badge.className = 'discount-badge';
-        badge.textContent = 'Discount!';
+        badge.textContent = 'Budget';
         card.appendChild(badge);
     }
-    if (p.category === '📹 Video Finds') {
-        const badge = document.createElement('div');
-        badge.className = 'community-badge';
-        badge.textContent = 'Community';
-        card.appendChild(badge);
-    }
-    if (is11) {
+    if (p.isOneToOne) {
         const badge = document.createElement('div');
         badge.className = 'onepointone-badge';
         badge.textContent = '1.1';
@@ -2452,8 +2133,11 @@ if (header) window.addEventListener('scroll', () => {
             // Any upward movement — reveal immediately, no threshold.
             header.classList.remove('header-hidden');
         } else if (delta > SCROLL_DELTA && currentY > getStickyThreshold()) {
-            // Scroll-down past banner with hysteresis — hide.
+            // Scroll-down past banner with hysteresis — hide. Take the
+            // category menu with it; a panel hanging off a bar that just
+            // slid away looks unmoored.
             header.classList.add('header-hidden');
+            closeCategoryMenu();
         }
         // Always update so we don't accumulate drift between events.
         lastScrollY = currentY;
@@ -2730,7 +2414,7 @@ if (modalBackdrop) modalBackdrop.addEventListener('click', closeProductModal);
 
 // =============================================================
 // COPY UNIVERSAL LINK — copies the original store URL for pasting
-// into any shopping agent (not just GTBuy)
+// into any shopping agent (not just BoonBuy)
 // =============================================================
 // navigator.clipboard needs a secure context (https / localhost); the
 // hidden-textarea execCommand path covers older mobile browsers.
@@ -2787,8 +2471,8 @@ if (modalCopyBtn) modalCopyBtn.addEventListener('click', () => {
 const homeShowcaseEl = document.getElementById('home-showcase');
 if (homeShowcaseEl) buildHomeShowcase(homeShowcaseEl);
 
-// Featured Items carousel (home page) — horizontal marquee of Best Sellers,
-// rendered synchronously from the pre-baked window.FEATURED_ITEMS.
+// Featured Items carousel (home page) — horizontal marquee of hand-picked
+// items, rendered synchronously from the pre-baked window.FEATURED_ITEMS.
 const featuredCarouselEl = document.getElementById('featured-carousel');
 if (featuredCarouselEl) buildFeaturedCarousel(featuredCarouselEl);
 
@@ -2801,22 +2485,15 @@ async function buildHomeShowcase(root) {
         renderHomeShowcase(root, window.SHOWCASE_ITEMS);
         return;
     }
-    // Fallback (no baked data): pull live from the sheets.
+    // Fallback (no baked data): pull live from the sheet.
     try {
-        // Featured + a few image-rich category tabs (these carry stable
-        // googleusercontent / CDN photos, unlike docsubipk discount previews).
-        const mainHtmlP = fetchHtml(SHEET5_ID, SHEET5_DISCOUNT_TAB.gid);
-        const nameMap = await mainHtmlP.then(buildMainNameMap).catch(() => new Map());
-        const wanted = ['👟 Shoes', '🧥 Hoodies', '🦺 Jackets & Vests', '👕 T-Shirts'];
-        const tabs = SHEET5_TABS.filter(t => wanted.includes(t.name));
-        const jobs = [
-            mainHtmlP.then(h => parseHtmlSheetBestSellers(h, 'Best Sellers')),
-            ...tabs.map(t => fetchHtml(SHEET5_ID, t.gid).then(h => parseHtmlSheetCategory(h, t.name, nameMap))),
-        ];
-        const settled = await Promise.allSettled(jobs);
+        const html = await fetchHtml(SHEET_ID, SHEET_MAIN_GID);
+        // A few photogenic sections are plenty for a decorative wall.
+        const wanted = ['🔥 Hot Items', '👟 Sneakers', '🧥 Hoodies', '👕 Tee/Polo'];
         let items = [];
-        for (const r of settled) {
-            if (r.status === 'fulfilled' && Array.isArray(r.value)) items = items.concat(r.value);
+        for (const chunk of splitSheetSections(html)) {
+            const parsed = parseSheetSection(chunk);
+            if (parsed.length && wanted.includes(parsed[0].category)) items = items.concat(parsed);
         }
         // Keep only entries with a usable, non-docsubipk photo + a buy link.
         items = items.filter(p => p && p.photo && p.link && !/\/docsubipk\//.test(p.photo));
@@ -2934,6 +2611,18 @@ function buildFeaturedCarousel(root) {
 // =============================================================
 // INIT
 // =============================================================
+// The home page has no grid, so its search box is a GET form pointing
+// here; pick the query up and start filtered.
+if (searchInput) {
+    try {
+        const q = new URLSearchParams(window.location.search).get('q');
+        if (q) {
+            searchInput.value = q;
+            searchQuery = q.toLowerCase().trim();
+        }
+    } catch (e) {}
+}
+
 // Only bootstrap the catalog on the product page (where the grid exists).
 // On the home page app.js loads solely for i18n / language switching.
 if (gridEl) {

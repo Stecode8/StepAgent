@@ -1,4 +1,4 @@
-# Creator GTBuy Affiliate Page — Template Brief
+# Creator BoonBuy Affiliate Page — Template Brief
 
 This file is meta-instructions for Claude. If you (Claude) are reading
 this in a fresh project copy, read it before touching any code.
@@ -10,7 +10,7 @@ this in a fresh project copy, read it before touching any code.
 A single-page static affiliate landing page for a content creator.
 It pulls curated products from public Google Sheets at runtime, shows
 them in a filterable grid, and routes "Buy" clicks through the
-creator's GTBuy affiliate code. Pure HTML / CSS / vanilla JS — no
+creator's BoonBuy affiliate code. Pure HTML / CSS / vanilla JS — no
 build step, no backend. Hosted on GitHub Pages (or any static host).
 
 Three files do all the work:
@@ -41,15 +41,14 @@ five? Update **both** of these in `app.js`:
 in `index.html` can be reordered to put the default first, but doing
 so is cosmetic.)
 
-### 2. GTBuy affiliate invite code
+### 2. BoonBuy affiliate invite code
 
-The code that goes in `?inviteCode=XXX`. Used in **three** places in
-the code — all must match:
+The code that goes in `?inviteCode=XXX`. Used in **two** places — both
+must match:
 
-- `index.html` — the main "Sign up to GTBuy!" CTA `href`
-- `app.js` — two places that rewrite product Buy links to inject the
-  invite code (search for `inviteCode=` and replace both instances of
-  the hard-coded code)
+- `index.html` — the signup CTA `href` on `.agent-banner`
+- `app.js` — the `INVITE_CODE` constant in `CONFIG`, which every Buy
+  link is re-stamped with by `toAgentLink()`
 
 ### 3. Social links (or none)
 
@@ -67,29 +66,29 @@ creators will want different subsets. For each:
   `.<platform>-link` rule in `style.css` for the brand color, add a
   translation key in all five language blocks.
 
-### 4. Spreadsheet sources
+### 4. Spreadsheet source
 
-The product grid is driven by public Google Sheets, fetched as HTML.
-The current instance uses four separate sheets that map to category
-pills (All / Special Finds / Budget Finds / Video Finds / per-category
-tabs from the main sheet). For a new creator, ask:
+The product grid is driven by a public Google Sheet, fetched as HTML.
+The current instance reads ONE tab whose grid is split into vertical
+category sections, two products per row. For a new creator, ask:
 
-- What Google Sheet ID(s) should power the catalog?
-- What are the tab `gid`s and human-facing names for each category?
+- What Google Sheet ID and tab `gid` should power the catalog?
+- What are the section titles, and what pill label should each get?
 - Which pill should be the default selected state (currently "All")?
 
-These live in the `CONFIG` section of `app.js` (`SHEET_ID` + `TABS`,
-`SHEET2_ID`, `SHEET3_ID`, `SHEET4_ID` and their `_TABS` arrays). The
-sheets must be set to "Anyone with the link can view" — the page
-fetches the published HTML rendering, not the API.
+These live in the `CONFIG` section of `app.js` (`SHEET_ID`,
+`SHEET_MAIN_GID`, `SECTION_CATEGORIES`). A different sheet layout means
+rewriting `parseSheetSection()` / `parseProductBlock()` to match its
+columns. The sheet must be set to "Anyone with the link can view" — the
+page fetches the published HTML rendering, not the API.
 
 ### 5. Creator brand
 
 - Brand name (goes in `<title>`, `<h1 class="logo">`, and may appear
   in translation strings like "Welcome to my spreadsheet!").
-- Logo PNG to swap in for `litbuy-logo.png` references? (The GTBuy
-  logo on the signup button stays as-is — that's the partner brand,
-  not the creator.) Favicon at `intro-img.png`.
+- Logo PNG to swap in for `litbuy-logo.png` references? (The
+  `boonbuy-logo.png` on the signup button and the Buy button stays as
+  is — that's the partner brand, not the creator.)
 
 ---
 
@@ -102,7 +101,7 @@ the user.
 
 The header has **two** parts in `index.html`:
 
-- `.header-banner` — logo, language picker, intro text, GTBuy signup
+- `.header-banner` — logo, language picker, intro text, BoonBuy signup
   CTA, social stack. **Non-sticky.** It scrolls away with the page
   and only comes back when the user scrolls all the way to the top.
 - `<header>` — search bar, price-sort dropdown, category tabs.
