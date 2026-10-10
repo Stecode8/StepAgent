@@ -427,6 +427,68 @@ header.header-hidden {
     .topbar-tools { order: 4; flex: 0 0 auto; margin-left: auto; }
 }
 
+/* Phones: keep all three rows tight and inside the viewport. Row 1 is
+   wordmark + compact page nav, row 2 search, row 3 category / sort /
+   language sharing the width (the category label ellipsizes if needed). */
+@media (max-width: 599px) {
+    header { padding: 8px 12px; }
+    .topbar-inner { gap: 7px; position: relative; }
+
+    .topbar-brand {
+        font-size: 13px;
+        letter-spacing: 1px;
+        flex-shrink: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .nav-seg { padding: 6px 10px; font-size: 12px; }
+
+    /* 16px stops iOS from zooming the page when the field is focused. */
+    #search-input,
+    #home-search-input { font-size: 16px; padding-top: 8px; padding-bottom: 8px; }
+
+    .topbar-tools { gap: 6px; justify-content: flex-start; }
+    .cat-select { position: static; flex: 1 1 auto; min-width: 0; }
+    .cat-select .cat-btn,
+    .topbar-tools > .cat-btn { width: 100%; max-width: none; justify-content: space-between; }
+    .topbar-tools > .cat-btn { width: auto; flex: 0 1 auto; }
+    .cat-btn,
+    #price-sort { padding-top: 8px; padding-bottom: 8px; font-size: 12.5px; }
+    .cat-btn { padding-left: 11px; padding-right: 10px; }
+    /* Selects size to their longest option, so pin their widths; a long
+       chosen sort label ellipsizes instead of widening the row. */
+    #price-sort {
+        flex: 0 0 94px;
+        width: 94px;
+        padding-left: 11px;
+        padding-right: 24px;
+        background-position: right 8px center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .topbar-tools .lang-select {
+        flex: 0 0 100px;
+        width: 100px;
+        margin-left: auto;
+        padding: 8px 20px 8px 9px;
+        font-size: 12px;
+        background-position: right 6px center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Dropdown spans the bar instead of hanging off the button's
+       right edge (which pushed it off-screen to the left). */
+    .cat-menu {
+        left: 0;
+        right: 0;
+        width: auto;
+        top: calc(100% + 10px);
+    }
+}
+
 /* Category picker — button carries the active filter's name. */
 .cat-select {
     position: relative;
@@ -1480,7 +1542,8 @@ main {
 .home-hero {
     width: 100%;
     max-width: 560px;
-    min-height: calc(100svh - 62px); /* 62px ≈ the sticky bar */
+    /* fill the first screen below the sticky bar (≈126px tall on phones) */
+    min-height: calc(100svh - 126px);
     display: flex;
     flex-direction: column;
     padding: 22px 0 26px;
