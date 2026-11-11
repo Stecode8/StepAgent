@@ -10,8 +10,9 @@
          is honored everywhere. -->
     <meta name="referrer" content="no-referrer">
     <title>Top China Finds</title>
-    <link rel="icon" type="image/png" href="boonbuy-logo.png">
-    <link rel="stylesheet" href="style.css?v=2026-10-10-mobile">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css?v=2026-11-11-logo">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +23,7 @@
          scroll-down, reveal on scroll-up) applies unchanged. -->
     <header class="topbar">
         <div class="topbar-inner">
-            <a href="home.html" class="topbar-brand">Top China Finds</a>
+            <a href="home.html" class="topbar-brand"><img src="favicon.svg" class="brand-mark" alt="" width="26" height="26"><span class="brand-text">Top China Finds</span></a>
 
             <div class="topbar-search">
                 <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -88,6 +89,18 @@
         </div>
     </main>
 
+    <footer class="site-footer">
+        <p class="footer-disclaimer" data-i18n="footer_disclaimer">We are not affiliated with Weidian, Taobao, 1688 or any other shopping platform. This site only helps buyers find products from Chinese marketplaces. All brand names and trademarks belong to their respective owners.</p>
+        <div class="footer-bottom">
+            <span>© 2026 Top China Finds. <span data-i18n="footer_rights">All rights reserved.</span></span>
+            <nav class="footer-links">
+                <a href="home.html" data-i18n="home">Home</a>
+                <a href="index.html" data-i18n="nav_products">Products</a>
+                <a href="https://discord.gg/k7ySvBZnFM" target="_blank" rel="noopener noreferrer">Discord</a>
+            </nav>
+        </div>
+    </footer>
+
     <!-- Product detail modal -->
     <div id="product-modal" class="product-modal hidden">
         <div class="product-modal-backdrop"></div>
@@ -95,8 +108,16 @@
             <button class="product-modal-close">&times;</button>
             <img id="modal-img" src="" alt="" class="product-modal-img" referrerpolicy="no-referrer">
             <div class="product-modal-info">
+                <div id="modal-cat" class="product-modal-cat"></div>
                 <div id="modal-name" class="product-modal-name"></div>
-                <div id="modal-price" class="product-modal-price"></div>
+                <div id="modal-tier" class="product-modal-tier hidden"></div>
+                <div class="product-modal-row">
+                    <div id="modal-price" class="product-modal-price"></div>
+                    <button id="modal-save-btn" type="button" class="product-modal-save" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.4 2.5h1.8c.8-1.4 2.3-2.5 4.4-2.5 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>
+                        <span class="modal-save-label" data-i18n="save">Save</span>
+                    </button>
+                </div>
             </div>
             <!-- Different styles/colorways of this item, pulled on demand from
                  the Weidian SKU endpoint. Hidden until at least one resolves. -->
@@ -127,6 +148,11 @@
             <a id="modal-qc-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-qc hidden" data-i18n="qc">
                 View QC Photos
             </a>
+            <!-- Other items from the same category (filled by renderSimilar). -->
+            <div id="modal-similar" class="product-modal-similar hidden">
+                <div class="product-modal-similar-head" data-i18n="similar">Similar Products</div>
+                <div id="modal-similar-track" class="product-modal-similar-track"></div>
+            </div>
         </div>
     </div>
 
@@ -157,6 +183,6 @@
     })();
     </script>
 
-    <script src="app.js?v=2026-10-10-photos"></script>
+    <script src="app.js?v=2026-11-11-logo"></script>
 </body>
 </html>

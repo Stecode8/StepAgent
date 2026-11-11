@@ -40,6 +40,18 @@ const TRANSLATIONS = {
         copy_universal_sub: 'Paste this link into any agent',
         copied: 'Copied!',
         join_discord: 'Join the Discord',
+        view: 'View',
+        tier_budget: 'Budget Batch',
+        tier_best: '1:1 Best Batch',
+        tier_standard: 'Standard Batch',
+        save: 'Save',
+        saved: 'Saved',
+        cat_saved: '♥ Saved',
+        saved_empty: 'No saved items yet. Tap the ♥ on any product to save it here.',
+        similar: 'Similar Products',
+        search_btn: 'Search',
+        footer_disclaimer: 'We are not affiliated with Weidian, Taobao, 1688 or any other shopping platform. This site only helps buyers find products from Chinese marketplaces. All brand names and trademarks belong to their respective owners.',
+        footer_rights: 'All rights reserved.',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
@@ -79,6 +91,18 @@ const TRANSLATIONS = {
         copy_universal_sub: 'Collez ce lien chez n\'importe quel agent',
         copied: 'Copié !',
         join_discord: 'Rejoindre le Discord',
+        view: 'Voir',
+        tier_budget: 'Batch économique',
+        tier_best: 'Meilleur batch 1:1',
+        tier_standard: 'Batch standard',
+        save: 'Sauver',
+        saved: 'Sauvé',
+        cat_saved: '♥ Favoris',
+        saved_empty: 'Aucun favori pour l\'instant. Appuyez sur ♥ sur un produit pour l\'enregistrer ici.',
+        similar: 'Produits similaires',
+        search_btn: 'Rechercher',
+        footer_disclaimer: 'Nous ne sommes pas affiliés à Weidian, Taobao, 1688 ni à aucune autre plateforme d\'achat. Ce site aide simplement à trouver des produits sur les marketplaces chinoises. Toutes les marques appartiennent à leurs propriétaires respectifs.',
+        footer_rights: 'Tous droits réservés.',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
@@ -118,6 +142,18 @@ const TRANSLATIONS = {
         copy_universal_sub: 'Füge diesen Link bei jedem Agenten ein',
         copied: 'Kopiert!',
         join_discord: 'Discord beitreten',
+        view: 'Ansehen',
+        tier_budget: 'Budget-Batch',
+        tier_best: '1:1 Bester Batch',
+        tier_standard: 'Standard-Batch',
+        save: 'Merken',
+        saved: 'Gemerkt',
+        cat_saved: '♥ Gemerkt',
+        saved_empty: 'Noch nichts gemerkt. Tippe bei einem Produkt auf ♥, um es hier zu speichern.',
+        similar: 'Ähnliche Produkte',
+        search_btn: 'Suchen',
+        footer_disclaimer: 'Wir sind nicht mit Weidian, Taobao, 1688 oder anderen Shopping-Plattformen verbunden. Diese Seite hilft nur dabei, Produkte auf chinesischen Marktplätzen zu finden. Alle Marken gehören ihren jeweiligen Inhabern.',
+        footer_rights: 'Alle Rechte vorbehalten.',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
@@ -157,6 +193,18 @@ const TRANSLATIONS = {
         copy_universal_sub: 'Pega este enlace en cualquier agente',
         copied: '¡Copiado!',
         join_discord: 'Unirse al Discord',
+        view: 'Ver',
+        tier_budget: 'Batch económico',
+        tier_best: 'Mejor batch 1:1',
+        tier_standard: 'Batch estándar',
+        save: 'Guardar',
+        saved: 'Guardado',
+        cat_saved: '♥ Guardados',
+        saved_empty: 'Aún no has guardado nada. Toca el ♥ de un producto para guardarlo aquí.',
+        similar: 'Productos similares',
+        search_btn: 'Buscar',
+        footer_disclaimer: 'No estamos afiliados a Weidian, Taobao, 1688 ni a ninguna otra plataforma de compras. Este sitio solo ayuda a encontrar productos en marketplaces chinos. Todas las marcas pertenecen a sus respectivos propietarios.',
+        footer_rights: 'Todos los derechos reservados.',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
@@ -196,6 +244,18 @@ const TRANSLATIONS = {
         copy_universal_sub: 'Incolla questo link in qualsiasi agente',
         copied: 'Copiato!',
         join_discord: 'Unisciti al Discord',
+        view: 'Vedi',
+        tier_budget: 'Batch economico',
+        tier_best: 'Miglior batch 1:1',
+        tier_standard: 'Batch standard',
+        save: 'Salva',
+        saved: 'Salvato',
+        cat_saved: '♥ Salvati',
+        saved_empty: 'Nessun prodotto salvato. Tocca il ♥ su un prodotto per salvarlo qui.',
+        similar: 'Prodotti simili',
+        search_btn: 'Cerca',
+        footer_disclaimer: 'Non siamo affiliati con Weidian, Taobao, 1688 o altre piattaforme di acquisto. Questo sito aiuta solo a trovare prodotti sui marketplace cinesi. Tutti i marchi appartengono ai rispettivi proprietari.',
+        footer_rights: 'Tutti i diritti riservati.',
     },
 };
 
@@ -990,6 +1050,97 @@ if (gridEl) gridEl.addEventListener('click', (e) => {
     const idx = parseInt(card.dataset.index);
     const p = currentFiltered[idx];
     if (!p) return;
+    // The heart on a card saves/unsaves without opening the popup.
+    const saveBtn = e.target.closest('.card-save');
+    if (saveBtn) {
+        e.stopPropagation();
+        toggleSaved(p);
+        return;
+    }
+    openProductModal(p);
+});
+
+// =============================================================
+// SAVED ITEMS — favourites kept in this browser (localStorage).
+// No account needed; they live on the visitor's own device only.
+// =============================================================
+const SAVED_KEY = 'saved-items';
+const SAVED_CATEGORY = '__saved';
+let savedKeys = new Set();
+try { savedKeys = new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')); } catch (e) {}
+
+function productKey(p) {
+    return (p.link || '') + '|' + (p.name || '');
+}
+
+function isSaved(p) {
+    return savedKeys.has(productKey(p));
+}
+
+function toggleSaved(p) {
+    const k = productKey(p);
+    if (savedKeys.has(k)) savedKeys.delete(k);
+    else savedKeys.add(k);
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify([...savedKeys])); } catch (e) {}
+    syncSavedUI(p);
+}
+
+// Refresh every heart/save control that shows this product, plus the
+// saved-items list when it is the view on screen.
+function syncSavedUI(p) {
+    const on = isSaved(p);
+    const k = productKey(p);
+    document.querySelectorAll('.product-card').forEach(card => {
+        const item = currentFiltered[parseInt(card.dataset.index)];
+        if (!item || productKey(item) !== k) return;
+        const btn = card.querySelector('.card-save');
+        if (btn) { btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+    });
+    const modalSave = document.getElementById('modal-save-btn');
+    if (modalSave && modalSave.dataset.key === k) setModalSaveState(on);
+    updateSavedPill();
+    if (activeCategory === SAVED_CATEGORY && !on) renderProducts(true);
+}
+
+function setModalSaveState(on) {
+    const btn = document.getElementById('modal-save-btn');
+    if (!btn) return;
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    const label = btn.querySelector('.modal-save-label');
+    if (label) label.textContent = (window.i18n && window.i18n.t(on ? 'saved' : 'save')) || (on ? 'Saved' : 'Save');
+}
+
+function updateSavedPill() {
+    const pill = categoryTabsEl && categoryTabsEl.querySelector('[data-category="' + SAVED_CATEGORY + '"]');
+    if (pill) pill.textContent = translatePill(SAVED_CATEGORY, '♥ Saved') + (savedKeys.size ? ' (' + savedKeys.size + ')' : '');
+    if (activeCategory === SAVED_CATEGORY) syncCategoryLabel();
+}
+
+const HEART_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.4 2.5h1.8c.8-1.4 2.3-2.5 4.4-2.5 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+
+// Short category name for the small label above a card's title. Hot Items
+// is a merchandising section, not a kind of product, so those items show
+// the category their name pins them into instead.
+function cardCategory(p) {
+    const cat = (p.category && !HIDDEN_PILLS.has(p.category)) ? p.category : (p.pinCategory || '');
+    if (!cat) return '';
+    return stripEmoji((window.i18n && window.i18n.dyn(cat)) || cat);
+}
+
+// The sheet tags quality tiers inside the name ("[Budget]", "[1:1]"); the
+// card shows the tier on its own line, so drop the tag from the title.
+function cleanName(name) {
+    return String(name || '').replace(/\s*\[(budget|1:1)\]\s*/gi, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function tierKey(p) {
+    if (p.isBudget) return 'tier_budget';
+    if (p.isOneToOne) return 'tier_best';
+    return '';
+}
+
+function openProductModal(p) {
     const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23e8e8ed' width='1' height='1'/%3E%3C/svg%3E";
     // Prefer the cached weidian image if the card already resolved one — the
     // p.photo source (docsubipk for discount items) often 404s by modal time.
@@ -1007,9 +1158,24 @@ if (gridEl) gridEl.addEventListener('click', (e) => {
         modalImg.src = placeholder;
     };
     modalImg.src = bigImg;
-    const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
+    const displayName = cleanName((window.i18n && window.i18n.dyn(p.name)) || p.name);
     modalImg.alt = displayName;
     document.getElementById('modal-name').textContent = displayName;
+    const modalCat = document.getElementById('modal-cat');
+    if (modalCat) modalCat.textContent = cardCategory(p);
+    const modalTier = document.getElementById('modal-tier');
+    if (modalTier) {
+        const tk = tierKey(p);
+        modalTier.textContent = tk ? ((window.i18n && window.i18n.t(tk)) || '') : '';
+        modalTier.className = 'product-modal-tier' + (p.isBudget ? ' tier-budget' : p.isOneToOne ? ' tier-best' : '');
+        modalTier.classList.toggle('hidden', !tk);
+    }
+    const modalSave = document.getElementById('modal-save-btn');
+    if (modalSave) {
+        modalSave.dataset.key = productKey(p);
+        modalSave._product = p;
+        setModalSaveState(isSaved(p));
+    }
     if (p.eurPrice) {
         document.getElementById('modal-price').textContent = p.price + ' / ' + p.eurPrice;
     } else {
@@ -1035,10 +1201,65 @@ if (gridEl) gridEl.addEventListener('click', (e) => {
     }
     // Load this item's different styles/colorways (one SKU call, cached).
     renderModalStyles(p);
+    renderSimilar(p);
     const modal = document.getElementById('product-modal');
     modal.classList.remove('hidden', 'modal-closing');
     modal.querySelector('.product-modal-content').scrollTop = 0;
     document.body.style.overflow = 'hidden';
+}
+
+// "Similar Products" strip at the bottom of the popup: other items from the
+// same category, ranked by how many words their names share with this one.
+function renderSimilar(p) {
+    const wrap = document.getElementById('modal-similar');
+    const track = document.getElementById('modal-similar-track');
+    if (!wrap || !track) return;
+    const words = new Set(cleanName(p.name).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2));
+    const k = productKey(p);
+    const seen = new Set([k]);
+    const scored = [];
+    for (const q of allProducts) {
+        if (!q.photo) continue;
+        const qk = productKey(q);
+        if (seen.has(qk)) continue;
+        const sameCat = (q.category === p.category && !HIDDEN_PILLS.has(p.category)) ||
+                        (p.pinCategory && q.pinCategory === p.pinCategory);
+        if (!sameCat) continue;
+        seen.add(qk);
+        let score = 0;
+        for (const w of cleanName(q.name).toLowerCase().split(/[^a-z0-9]+/)) if (words.has(w)) score++;
+        scored.push({ q, score });
+    }
+    scored.sort((a, b) => b.score - a.score || (a.q.sourceOrder || 0) - (b.q.sourceOrder || 0));
+    const list = scored.slice(0, 12).map(x => x.q);
+    track.innerHTML = '';
+    wrap.classList.toggle('hidden', list.length === 0);
+    for (const q of list) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'similar-card';
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.alt = '';
+        img.onerror = function() { this.onerror = null; this.style.visibility = 'hidden'; };
+        img.src = photoUrl(q.photo, 300, 300);
+        const nm = document.createElement('div');
+        nm.className = 'similar-name';
+        nm.textContent = cleanName((window.i18n && window.i18n.dyn(q.name)) || q.name);
+        const pr = document.createElement('div');
+        pr.className = 'similar-price';
+        pr.textContent = q.price;
+        btn.append(img, nm, pr);
+        btn.addEventListener('click', () => openProductModal(q));
+        track.appendChild(btn);
+    }
+    track.scrollLeft = 0;
+}
+
+const modalSaveBtn = document.getElementById('modal-save-btn');
+if (modalSaveBtn) modalSaveBtn.addEventListener('click', () => {
+    if (modalSaveBtn._product) toggleSaved(modalSaveBtn._product);
 });
 
 // =============================================================
@@ -1607,9 +1828,11 @@ function buildCategoryTabs() {
     }
 
     addPill('All', 'all');
+    addPill('♥ Saved', SAVED_CATEGORY);
     for (const cat of categories) {
         addPill(cat, cat);
     }
+    updateSavedPill();
 
     // Feed the autocomplete: each category becomes a suggestion that switches
     // the active pill (clicking it filters, rather than text-searching, since
@@ -1637,6 +1860,7 @@ function addPill(label, value) {
 
 function catTranslationKey(value) {
     if (value === 'all') return 'cat_all';
+    if (value === SAVED_CATEGORY) return 'cat_saved';
     if (value === '🎁 Accessories') return 'cat_accessories';
     return '';
 }
@@ -1867,7 +2091,9 @@ if (searchInput) searchInput.addEventListener('keydown', (e) => {
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
-    if (activeCategory !== 'all') {
+    if (activeCategory === SAVED_CATEGORY) {
+        filtered = filtered.filter(isSaved);
+    } else if (activeCategory !== 'all') {
         // Items show up in their primary category (p.category — the sheet
         // section they were parsed from) AND in any pinCategory derived
         // from their name. So a "Louis Vuitton Belt" listed in the Perfumes
@@ -1926,6 +2152,12 @@ function renderProducts(skipAnimation) {
     if (filtered.length === 0 && allProducts.length > 0) {
         gridEl.style.minHeight = '';
         gridEl.innerHTML = '';
+        const msg = noResultsEl.querySelector('p');
+        if (msg) {
+            const key = (activeCategory === SAVED_CATEGORY && !searchQuery) ? 'saved_empty' : 'no_results';
+            msg.setAttribute('data-i18n', key);
+            msg.textContent = (window.i18n && window.i18n.t(key)) || msg.textContent;
+        }
         noResultsEl.classList.remove('hidden');
         currentFiltered = [];
         renderedCount = 0;
@@ -1979,13 +2211,7 @@ function buildCard(p, i) {
     const imgSrc = p.photo ? photoUrl(p.photo, 800, 800) : placeholder;
 
     const card = document.createElement('div');
-    // The sheet marks the cheap version of an item "[Budget]" and the top
-    // tier "[1:1]" in its name: those get the red and the sage treatment
-    // respectively, and everything in between stays a plain card.
-    let extraClass = '';
-    if (p.isBudget) extraClass = ' discount';
-    else if (p.isOneToOne) extraClass = ' onepointone';
-    card.className = 'product-card' + extraClass;
+    card.className = 'product-card';
     card.dataset.index = i;
 
     const img = document.createElement('img');
@@ -2005,38 +2231,68 @@ function buildCard(p, i) {
     img.onerror = function() { this.onerror = null; this.src = placeholder; };
     img.src = imgSrc;
 
+    // Photo tile: image, optional quality tag (top-left), save heart (top-right).
+    const media = document.createElement('div');
+    media.className = 'card-media';
+    media.appendChild(img);
+    if (p.isBudget || p.isOneToOne) {
+        const badge = document.createElement('span');
+        badge.className = 'card-badge ' + (p.isBudget ? 'badge-budget' : 'badge-best');
+        badge.textContent = p.isBudget ? 'Budget' : '1:1';
+        media.appendChild(badge);
+    }
+    const save = document.createElement('button');
+    save.type = 'button';
+    const on = isSaved(p);
+    save.className = 'card-save' + (on ? ' on' : '');
+    save.setAttribute('aria-label', (window.i18n && window.i18n.t('save')) || 'Save');
+    save.setAttribute('aria-pressed', on ? 'true' : 'false');
+    save.innerHTML = HEART_SVG;
+    media.appendChild(save);
+
     const info = document.createElement('div');
     info.className = 'product-info';
 
+    const cat = cardCategory(p);
+    if (cat) {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'card-cat';
+        catDiv.textContent = cat;
+        info.appendChild(catDiv);
+    }
+
     const nameDiv = document.createElement('div');
     nameDiv.className = 'product-name';
-    const displayName = (window.i18n && window.i18n.dyn(p.name)) || p.name;
+    const displayName = cleanName((window.i18n && window.i18n.dyn(p.name)) || p.name);
     if (searchQuery) nameDiv.innerHTML = highlightMatches(displayName, searchQuery);
     else nameDiv.textContent = displayName;
-
-    const priceDiv = document.createElement('div');
-    priceDiv.className = 'product-price';
-    if (p.eurPrice) {
-        priceDiv.textContent = p.price + ' / ' + p.eurPrice;
-    } else {
-        priceDiv.textContent = p.price;
-    }
-
     info.appendChild(nameDiv);
-    info.appendChild(priceDiv);
-    card.appendChild(img);
-    if (p.isBudget) {
-        const badge = document.createElement('div');
-        badge.className = 'discount-badge';
-        badge.textContent = 'Budget';
-        card.appendChild(badge);
+
+    const tk = tierKey(p);
+    const tierDiv = document.createElement('div');
+    tierDiv.className = 'card-tier';
+    tierDiv.textContent = tk ? ((window.i18n && window.i18n.t(tk)) || '') : ((window.i18n && window.i18n.t('tier_standard')) || 'Standard Batch');
+    info.appendChild(tierDiv);
+
+    const foot = document.createElement('div');
+    foot.className = 'card-foot';
+    const priceDiv = document.createElement('span');
+    priceDiv.className = 'product-price';
+    priceDiv.textContent = p.price;
+    foot.appendChild(priceDiv);
+    if (p.eurPrice) {
+        const eur = document.createElement('span');
+        eur.className = 'card-eur';
+        eur.textContent = p.eurPrice;
+        foot.appendChild(eur);
     }
-    if (p.isOneToOne) {
-        const badge = document.createElement('div');
-        badge.className = 'onepointone-badge';
-        badge.textContent = '1.1';
-        card.appendChild(badge);
-    }
+    const view = document.createElement('span');
+    view.className = 'card-view';
+    view.textContent = ((window.i18n && window.i18n.t('view')) || 'View') + ' →';
+    foot.appendChild(view);
+    info.appendChild(foot);
+
+    card.appendChild(media);
     card.appendChild(info);
     return card;
 }
@@ -2620,6 +2876,32 @@ if (searchInput) {
             searchInput.value = q;
             searchQuery = q.toLowerCase().trim();
         }
+        // ?cat= comes from the home page's category chips (full pill label,
+        // emoji included) or "__saved" for the saved-items list.
+        const cat = new URLSearchParams(window.location.search).get('cat');
+        if (cat) activeCategory = cat;
+    } catch (e) {}
+}
+
+// Home page: category chips under the hero search hand off to the
+// products page pre-filtered. Labels come from the same category table.
+const homeChipsEl = document.getElementById('home-chips');
+if (homeChipsEl) {
+    try {
+        const chips = ['👟 Sneakers', '🧥 Hoodies', '👕 Tee/Polo', '🦺 Jackets', '👖 Jeans', '🩳 Shorts', '👜 Bags', '💍 Jewelry'];
+        for (const c of chips) {
+            const a = document.createElement('a');
+            a.className = 'home-chip';
+            a.href = 'index.html?cat=' + encodeURIComponent(c);
+            a.textContent = stripEmoji(c);
+            homeChipsEl.appendChild(a);
+        }
+        const saved = document.createElement('a');
+        saved.className = 'home-chip home-chip-saved';
+        saved.href = 'index.html?cat=' + SAVED_CATEGORY;
+        saved.setAttribute('data-i18n', 'cat_saved');
+        saved.textContent = '♥ Saved';
+        homeChipsEl.appendChild(saved);
     } catch (e) {}
 }
 
