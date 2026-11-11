@@ -4,7 +4,7 @@
 const TRANSLATIONS = {
     en: {
         intro: 'Welcome to my spreadsheet!',
-        signup: 'Sign up on BoonBuy and get 50% off',
+        signup: 'Sign up on BoonBuy and get a 40% off shipping coupon',
         youtube: 'YouTube for more content!',
         search_placeholder: 'Search products…',
         sort_default: 'Sort by',
@@ -55,7 +55,7 @@ const TRANSLATIONS = {
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
-        signup: 'Inscris-toi sur BoonBuy et obtiens 50 % de réduction',
+        signup: 'Inscris-toi sur BoonBuy et obtiens un coupon de 40 % sur la livraison',
         youtube: 'YouTube pour plus de contenu !',
         search_placeholder: 'Rechercher un produit…',
         sort_default: 'Trier par',
@@ -106,7 +106,7 @@ const TRANSLATIONS = {
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
-        signup: 'Melde dich bei BoonBuy an und erhalte 50 % Rabatt',
+        signup: 'Melde dich bei BoonBuy an und erhalte einen 40 %-Versandgutschein',
         youtube: 'YouTube für mehr Inhalte!',
         search_placeholder: 'Produkte suchen…',
         sort_default: 'Sortieren nach',
@@ -157,7 +157,7 @@ const TRANSLATIONS = {
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
-        signup: 'Regístrate en BoonBuy y obtén un 50 % de descuento',
+        signup: 'Regístrate en BoonBuy y obtén un cupón del 40 % en el envío',
         youtube: '¡YouTube para más contenido!',
         search_placeholder: 'Buscar productos…',
         sort_default: 'Ordenar por',
@@ -208,7 +208,7 @@ const TRANSLATIONS = {
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
-        signup: 'Registrati su BoonBuy e ottieni il 50% di sconto',
+        signup: 'Registrati su BoonBuy e ottieni un coupon del 40% sulla spedizione',
         youtube: 'YouTube per altri contenuti!',
         search_placeholder: 'Cerca prodotti…',
         sort_default: 'Ordina per',
@@ -258,6 +258,23 @@ const TRANSLATIONS = {
         footer_rights: 'Tutti i diritti riservati.',
     },
 };
+
+// Text for the BoonBuy sign-up bar and the Discord welcome pop-up.
+(function addPromoText() {
+    const T = {
+        en: { promo_agent_title: 'BoonBuy – a reliable, fast agent to ship from China', promo_agent_sub: 'Sign up with code STEPAGENT and get a 40% off shipping coupon', promo_register: 'Register',
+              dc_title: 'Join our Discord', dc_body: 'New finds every day, QC checks, and help with your orders, 24/7.', dc_join: 'Join the Discord', dc_later: 'Maybe later', close: 'Close' },
+        fr: { promo_agent_title: 'BoonBuy – un agent fiable et rapide pour expédier depuis la Chine', promo_agent_sub: 'Inscris-toi avec le code STEPAGENT et obtiens un coupon de 40 % sur la livraison', promo_register: 'S’inscrire',
+              dc_title: 'Rejoins notre Discord', dc_body: 'De nouvelles trouvailles chaque jour, des vérifications QC et de l’aide pour tes commandes, 24h/24.', dc_join: 'Rejoindre le Discord', dc_later: 'Plus tard', close: 'Fermer' },
+        de: { promo_agent_title: 'BoonBuy – ein zuverlässiger, schneller Agent für den Versand aus China', promo_agent_sub: 'Registriere dich mit dem Code STEPAGENT und erhalte einen 40 %-Versandgutschein', promo_register: 'Registrieren',
+              dc_title: 'Tritt unserem Discord bei', dc_body: 'Täglich neue Funde, QC-Checks und Hilfe bei deinen Bestellungen, rund um die Uhr.', dc_join: 'Discord beitreten', dc_later: 'Später', close: 'Schließen' },
+        es: { promo_agent_title: 'BoonBuy – un agente fiable y rápido para enviar desde China', promo_agent_sub: 'Regístrate con el código STEPAGENT y obtén un cupón del 40 % en el envío', promo_register: 'Registrarse',
+              dc_title: 'Únete a nuestro Discord', dc_body: 'Nuevos hallazgos cada día, revisiones QC y ayuda con tus pedidos, 24/7.', dc_join: 'Unirse al Discord', dc_later: 'Quizás luego', close: 'Cerrar' },
+        it: { promo_agent_title: 'BoonBuy – un agente affidabile e veloce per spedire dalla Cina', promo_agent_sub: 'Registrati con il codice STEPAGENT e ottieni un coupon del 40% sulla spedizione', promo_register: 'Registrati',
+              dc_title: 'Unisciti al nostro Discord', dc_body: 'Nuovi articoli ogni giorno, controlli QC e aiuto con i tuoi ordini, 24/7.', dc_join: 'Entra nel Discord', dc_later: 'Più tardi', close: 'Chiudi' },
+    };
+    Object.keys(T).forEach(l => Object.assign(TRANSLATIONS[l], T[l]));
+})();
 
 window.i18n = (function() {
     const SUPPORTED = ['en', 'fr', 'de', 'es', 'it'];
@@ -2921,3 +2938,107 @@ if (gridEl) {
         fetchProducts();
     });
 }
+
+// =============================================================
+// PROMOS: BoonBuy sign-up bar + Discord welcome pop-up
+// =============================================================
+// Both are remembered per browser, so a visitor who closes one doesn't see
+// it again for a few days. The Discord pop-up comes first; the agent bar
+// slides in under the top bar a few seconds after that is out of the way.
+(function promos() {
+    const DISCORD_URL = 'https://discord.gg/k7ySvBZnFM';
+    const REGISTER_URL = 'https://boonbuy.com/register?inviteCode=STEPAGENT';
+    const DAY = 86400000;
+    const DC_KEY = 'promo-discord-closed', AGENT_KEY = 'promo-agent-closed';
+    const DC_SNOOZE = 7 * DAY, AGENT_SNOOZE = 3 * DAY;
+    const DISCORD_PATH = 'M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.128 12.299 12.299 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.182 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z';
+
+    function recentlyClosed(key, ms) {
+        try { const t = +localStorage.getItem(key); return t && Date.now() - t < ms; } catch (e) { return false; }
+    }
+    function remember(key) { try { localStorage.setItem(key, String(Date.now())); } catch (e) {} }
+    function translate() { if (window.i18n) window.i18n.apply(); }
+    function inAppOverlayOpen() {
+        const o = document.getElementById('inapp-overlay');
+        return o && !o.classList.contains('hidden');
+    }
+    function reveal(el) { requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show'))); }
+
+    function showAgentBar() {
+        if (recentlyClosed(AGENT_KEY, AGENT_SNOOZE)) return;
+        const header = document.querySelector('header.topbar');
+        if (!header || document.getElementById('agent-bar')) return;
+        const bar = document.createElement('div');
+        bar.id = 'agent-bar';
+        bar.className = 'agent-bar';
+        bar.innerHTML =
+            '<img src="boonbuy-logo.png" alt="" class="agent-bar-logo">' +
+            '<div class="agent-bar-text">' +
+                '<strong data-i18n="promo_agent_title">BoonBuy – a reliable, fast agent to ship from China</strong>' +
+                '<span data-i18n="promo_agent_sub">Sign up with code STEPAGENT and get a 40% off shipping coupon</span>' +
+            '</div>' +
+            '<a class="agent-bar-btn" href="' + REGISTER_URL + '" target="_blank" rel="noopener noreferrer" data-i18n="promo_register">Register</a>' +
+            '<button type="button" class="agent-bar-close" data-i18n-attr="aria-label:close" aria-label="Close">&times;</button>';
+        header.appendChild(bar);
+        translate();
+        reveal(bar);
+        const close = () => {
+            remember(AGENT_KEY);
+            bar.classList.remove('show');
+            setTimeout(() => bar.remove(), 350);
+        };
+        bar.querySelector('.agent-bar-close').addEventListener('click', close);
+        bar.querySelector('.agent-bar-btn').addEventListener('click', () => remember(AGENT_KEY));
+    }
+
+    function showDiscordPopup(onDone) {
+        const wrap = document.createElement('div');
+        wrap.className = 'dc-popup';
+        wrap.setAttribute('role', 'dialog');
+        wrap.setAttribute('aria-modal', 'true');
+        wrap.setAttribute('aria-labelledby', 'dc-popup-title');
+        wrap.innerHTML =
+            '<div class="dc-popup-backdrop"></div>' +
+            '<div class="dc-popup-card">' +
+                '<button type="button" class="dc-popup-x" data-i18n-attr="aria-label:close" aria-label="Close">&times;</button>' +
+                '<div class="dc-popup-icon"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="' + DISCORD_PATH + '"/></svg></div>' +
+                '<h2 id="dc-popup-title" data-i18n="dc_title">Join our Discord</h2>' +
+                '<p data-i18n="dc_body">New finds every day, QC checks, and help with your orders, 24/7.</p>' +
+                '<a class="dc-popup-join" href="' + DISCORD_URL + '" target="_blank" rel="noopener noreferrer" data-i18n="dc_join">Join the Discord</a>' +
+                '<button type="button" class="dc-popup-later" data-i18n="dc_later">Maybe later</button>' +
+            '</div>';
+        document.body.appendChild(wrap);
+        translate();
+        reveal(wrap);
+        let done = false;
+        const onKey = e => { if (e.key === 'Escape') close(); };
+        function close() {
+            if (done) return;
+            done = true;
+            remember(DC_KEY);
+            wrap.classList.remove('show');
+            document.removeEventListener('keydown', onKey);
+            setTimeout(() => { wrap.remove(); if (onDone) onDone(); }, 300);
+        }
+        document.addEventListener('keydown', onKey);
+        ['.dc-popup-backdrop', '.dc-popup-x', '.dc-popup-later', '.dc-popup-join']
+            .forEach(sel => wrap.querySelector(sel).addEventListener('click', close));
+    }
+
+    function start() {
+        if (inAppOverlayOpen()) {
+            // Wait until the "open in browser" notice is dismissed.
+            const ok = document.getElementById('inapp-ok');
+            if (ok) ok.addEventListener('click', () => setTimeout(start, 800), { once: true });
+            return;
+        }
+        if (!recentlyClosed(DC_KEY, DC_SNOOZE)) {
+            setTimeout(() => showDiscordPopup(() => setTimeout(showAgentBar, 4000)), 2500);
+        } else {
+            setTimeout(showAgentBar, 4000);
+        }
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+})();
