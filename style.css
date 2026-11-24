@@ -65,7 +65,7 @@ html {
 
     --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    /* Brand wordmark ("Top China Finds") — clean, professional geometric sans. */
+    /* Brand wordmark ("China Top Finds") — clean, professional geometric sans. */
     --wordmark: 'Montserrat', var(--sans);
 }
 
