@@ -52,6 +52,12 @@ const TRANSLATIONS = {
         search_btn: 'Search',
         footer_disclaimer: 'We are not affiliated with Weidian, Taobao, 1688 or any other shopping platform. This site only helps buyers find products from Chinese marketplaces. All brand names and trademarks belong to their respective owners.',
         footer_rights: 'All rights reserved.',
+        filters: 'Filters',
+        clear_filters: 'Clear filters',
+        qc_photos: 'QC Photos',
+        grp_clothing: 'Clothing',
+        grp_accessories: 'Shoes & Accessories',
+        grp_more: 'More',
     },
     fr: {
         intro: 'Bienvenue sur ma feuille !',
@@ -103,6 +109,12 @@ const TRANSLATIONS = {
         search_btn: 'Rechercher',
         footer_disclaimer: 'Nous ne sommes pas affiliés à Weidian, Taobao, 1688 ni à aucune autre plateforme d\'achat. Ce site aide simplement à trouver des produits sur les marketplaces chinoises. Toutes les marques appartiennent à leurs propriétaires respectifs.',
         footer_rights: 'Tous droits réservés.',
+        filters: 'Filtres',
+        clear_filters: 'Effacer les filtres',
+        qc_photos: 'Photos QC',
+        grp_clothing: 'Vêtements',
+        grp_accessories: 'Chaussures & accessoires',
+        grp_more: 'Plus',
     },
     de: {
         intro: 'Willkommen in meiner Tabelle!',
@@ -154,6 +166,12 @@ const TRANSLATIONS = {
         search_btn: 'Suchen',
         footer_disclaimer: 'Wir sind nicht mit Weidian, Taobao, 1688 oder anderen Shopping-Plattformen verbunden. Diese Seite hilft nur dabei, Produkte auf chinesischen Marktplätzen zu finden. Alle Marken gehören ihren jeweiligen Inhabern.',
         footer_rights: 'Alle Rechte vorbehalten.',
+        filters: 'Filter',
+        clear_filters: 'Filter zurücksetzen',
+        qc_photos: 'QC-Fotos',
+        grp_clothing: 'Kleidung',
+        grp_accessories: 'Schuhe & Accessoires',
+        grp_more: 'Mehr',
     },
     es: {
         intro: '¡Bienvenido a mi hoja!',
@@ -205,6 +223,12 @@ const TRANSLATIONS = {
         search_btn: 'Buscar',
         footer_disclaimer: 'No estamos afiliados a Weidian, Taobao, 1688 ni a ninguna otra plataforma de compras. Este sitio solo ayuda a encontrar productos en marketplaces chinos. Todas las marcas pertenecen a sus respectivos propietarios.',
         footer_rights: 'Todos los derechos reservados.',
+        filters: 'Filtros',
+        clear_filters: 'Borrar filtros',
+        qc_photos: 'Fotos QC',
+        grp_clothing: 'Ropa',
+        grp_accessories: 'Zapatos y accesorios',
+        grp_more: 'Más',
     },
     it: {
         intro: 'Benvenuto nel mio foglio!',
@@ -256,6 +280,12 @@ const TRANSLATIONS = {
         search_btn: 'Cerca',
         footer_disclaimer: 'Non siamo affiliati con Weidian, Taobao, 1688 o altre piattaforme di acquisto. Questo sito aiuta solo a trovare prodotti sui marketplace cinesi. Tutti i marchi appartengono ai rispettivi proprietari.',
         footer_rights: 'Tutti i diritti riservati.',
+        filters: 'Filtri',
+        clear_filters: 'Cancella filtri',
+        qc_photos: 'Foto QC',
+        grp_clothing: 'Abbigliamento',
+        grp_accessories: 'Scarpe e accessori',
+        grp_more: 'Altro',
     },
 };
 
@@ -380,6 +410,9 @@ window.i18n = (function() {
                 btn.textContent = translatePill(value, value);
             }
         });
+        // Labels built from CATEGORY_DEFS / FACET_DEFS (filters, home
+        // collections) are relabelled by the app code.
+        if (typeof onLanguageApplied === 'function') onLanguageApplied();
     }
 
     // Translate all dynamic strings (categories + product names) for the current
@@ -390,8 +423,7 @@ window.i18n = (function() {
         try { products = allProducts; } catch (e) { return; }
         if (!products || !products.length) return;
         const names = products.map(p => p.name);
-        const cats = [...new Set(products.map(p => p.category))];
-        await translateMany([...names, ...cats], currentLang);
+        await translateMany(names, currentLang);
         if (typeof buildCategoryTabs === 'function') buildCategoryTabs();
         if (typeof syncCategoryLabel === 'function') syncCategoryLabel();
         if (typeof renderProducts === 'function') renderProducts(true);
@@ -424,68 +456,200 @@ document.addEventListener('DOMContentLoaded', () => window.i18n.init());
 // =============================================================
 // CONFIG
 // =============================================================
-// BoonBuy affiliate details. Sheet links already carry the invite code;
-// toAgentLink() re-stamps it so a stale or missing code can never leak an
-// unattributed click, and rewrites the handful of rows still pointing at
-// another agent.
+// BoonBuy affiliate details. Every Buy link is built from the product's
+// Weidian item id plus this invite code (see agentLink()).
 const INVITE_CODE = 'STEPAGENT';
 // BoonBuy product URLs encode the source platform as a digit in the path:
-// /product/2/<itemId>, where 2 = Weidian — where every item in the sheet
-// is listed (confirmed against Weidian's own item API).
+// /product/2/<itemId>, where 2 = Weidian — where every catalogue item is.
 const BOONBUY_PRODUCT_BASE = 'https://boonbuy.com/product/2/';
 
-// The BoonBuy spreadsheet is ONE wide tab: a single grid split into
-// vertical category sections. Each section opens with a full-width title
-// row ("HOT ITEMS", "Sneakers", ...) followed by a Picture|Name|Price|Link
-// column header, and every product row carries TWO items side by side:
-//   PIC | NAME | PRICE | LINK | PIC | NAME | PRICE | LINK
-// The sheet's second tab ("Mobile Friendly", gid 2130334132) is a smaller
-// subset of the same catalogue, so it isn't fetched.
-const SHEET_ID = '1b4WsUkODzVHoCPWv10jAmAR2qBOZyV0PdyCa_Bd_EfA';
-const SHEET_MAIN_GID = '1206657792';
+// The catalogue ships with the site as a JSON file, generated from a
+// channel product export by tools/build_products.py. QC photos live in a
+// second file that is only fetched the first time a product is opened.
+const PRODUCTS_URL = 'products.json?v=2026-11-24';
+const QC_URL = 'products-qc.json?v=2026-11-24';
 
-// Section title (lowercased, whitespace-collapsed) -> pill label. Only
-// sections listed here are emitted: any other full-width title (the
-// sheet's own banner rows, or a section renamed upstream) resets the
-// current category so its rows are skipped instead of creating a junk
-// pill — so a renamed section needs adding here to come back.
-const SECTION_CATEGORIES = new Map([
-    ['hot items',            '🔥 Hot Items'],
-    ['sneakers',             '👟 Sneakers'],
-    ['tee/polo',             '👕 Tee/Polo'],
-    ['hoodies',              '🧥 Hoodies'],
-    ['shorts',               '🩳 Shorts'],
-    ['jackets',              '🦺 Jackets'],
-    ['sweater',              '🧶 Sweater'],
-    ['sweatpants',           '👖 SweatPants'],
-    ['jeans',                '👖 Jeans'],
-    ['accessories',          '🎁 Accessories'],
-    ['electronics',          '🎧 Electronics'],
-    ['jersey',               '⚽ Jersey'],
-    ['tracksuits',           '🏃 Tracksuits'],
-    ['beanies',              '🧢 Beanies'],
-    ['socks',                '🧦 Socks'],
-    ['travel bags/suitcase', '🧳 Travel Bags'],
-    ['decorations',          '🖼️ Decorations'],
-    ['underwears',           '🩲 Underwear'],
-    ['bags',                 '👜 Bags'],
-    ['perfumes',             '🌸 Perfumes'],
-    ['running',              '🏅 Running'],
-    ['ziper',                '🧥 Zip-Ups'],
-    ['shirts',               '👔 Shirts'],
-    ['vests',                '🎽 Vests'],
-    ['long sleeves',         '👚 Long Sleeves'],
-    ['jewelry',              '💍 Jewelry'],
-    ['summer sets',          '🩱 Summer Sets'],
-    ['2026 fifa worldcup',   '🏆 2026 World Cup'],
-]);
+// Prices in the export are in yuan. USD for display and sorting, EUR shown
+// alongside (same ratios the old spreadsheet used: ¥180 = $29.29 = €24.79).
+const CNY_TO_USD = 0.163;
+const USD_TO_EUR = 0.846;
 
-// Sections that stay in the catalogue but get no pill of their own. Their
-// items still show under "All" and under whatever pill their name pins
-// them into (a Hot Items sneaker still appears in Sneakers).
-const HIDDEN_PILLS = new Set(['🔥 Hot Items']);
+// Categories: key (as written by build_products.py), emoji, menu group, and
+// the label in en / fr / de / es / it. Array order is menu order.
+const CATEGORY_DEFS = [
+    ['tops',        '👕', 'clothing',    ['T-shirts, Shirts & Tops', 'T-shirts, chemises & hauts', 'T-Shirts, Hemden & Tops', 'Camisetas, camisas y tops', 'T-shirt, camicie e top']],
+    ['hoodies',     '🧥', 'clothing',    ['Hoodies & Sweatshirts', 'Hoodies & sweats', 'Hoodies & Sweatshirts', 'Sudaderas', 'Felpe']],
+    ['sweaters',    '🧶', 'clothing',    ['Sweaters & Knitwear', 'Pulls & mailles', 'Pullover & Strick', 'Jerséis y punto', 'Maglioni e maglieria']],
+    ['jackets',     '🦺', 'clothing',    ['Jackets & Coats', 'Vestes & manteaux', 'Jacken & Mäntel', 'Chaquetas y abrigos', 'Giacche e cappotti']],
+    ['sets',        '🏃', 'clothing',    ['Sets & Tracksuits', 'Ensembles & survêtements', 'Sets & Trainingsanzüge', 'Conjuntos y chándales', 'Completi e tute']],
+    ['jeans',       '👖', 'clothing',    ['Jeans', 'Jeans', 'Jeans', 'Vaqueros', 'Jeans']],
+    ['pants',       '👖', 'clothing',    ['Pants', 'Pantalons', 'Hosen', 'Pantalones', 'Pantaloni']],
+    ['shorts',      '🩳', 'clothing',    ['Shorts', 'Shorts', 'Shorts', 'Pantalones cortos', 'Pantaloncini']],
+    ['dresses',     '👗', 'clothing',    ['Dresses & Skirts', 'Robes & jupes', 'Kleider & Röcke', 'Vestidos y faldas', 'Abiti e gonne']],
+    ['bodysuits',   '🩱', 'clothing',    ['Bodysuits & Jumpsuits', 'Bodys & combinaisons', 'Bodys & Overalls', 'Bodis y monos', 'Body e tute intere']],
+    ['jerseys',     '⚽', 'clothing',    ['Jerseys', 'Maillots', 'Trikots', 'Camisetas deportivas', 'Maglie sportive']],
+    ['underwear',   '🩲', 'clothing',    ['Underwear & Sleepwear', 'Sous-vêtements & pyjamas', 'Unterwäsche & Nachtwäsche', 'Ropa interior y pijamas', 'Intimo e pigiami']],
+    ['shoes',       '👟', 'accessories', ['Shoes', 'Chaussures', 'Schuhe', 'Zapatos', 'Scarpe']],
+    ['socks',       '🧦', 'accessories', ['Socks', 'Chaussettes', 'Socken', 'Calcetines', 'Calze']],
+    ['hats',        '🧢', 'accessories', ['Hats & Caps', 'Chapeaux & casquettes', 'Hüte & Caps', 'Gorros y gorras', 'Cappelli']],
+    ['bags',        '👜', 'accessories', ['Bags', 'Sacs', 'Taschen', 'Bolsos', 'Borse']],
+    ['jewelry',     '💍', 'accessories', ['Jewelry', 'Bijoux', 'Schmuck', 'Joyería', 'Gioielli']],
+    ['watches',     '⌚', 'accessories', ['Watches', 'Montres', 'Uhren', 'Relojes', 'Orologi']],
+    ['glasses',     '🕶️', 'accessories', ['Glasses', 'Lunettes', 'Brillen', 'Gafas', 'Occhiali']],
+    ['belts',       '🪢', 'accessories', ['Belts & Ties', 'Ceintures & cravates', 'Gürtel & Krawatten', 'Cinturones y corbatas', 'Cinture e cravatte']],
+    ['scarves',     '🧣', 'accessories', ['Scarves & Gloves', 'Écharpes & gants', 'Schals & Handschuhe', 'Bufandas y guantes', 'Sciarpe e guanti']],
+    ['halloween',   '🎃', 'more',        ['Halloween & Party', 'Halloween & fête', 'Halloween & Party', 'Halloween y fiesta', 'Halloween e feste']],
+    ['pets',        '🐾', 'more',        ['Pets', 'Animaux', 'Haustiere', 'Mascotas', 'Animali']],
+    ['electronics', '🎧', 'more',        ['Electronics', 'Électronique', 'Elektronik', 'Electrónica', 'Elettronica']],
+    ['home',        '🏠', 'more',        ['Home & Lifestyle', 'Maison & lifestyle', 'Haus & Lifestyle', 'Hogar y estilo de vida', 'Casa e lifestyle']],
+    ['toys',        '🧸', 'more',        ['Toys & Plush', 'Jouets & peluches', 'Spielzeug & Plüsch', 'Juguetes y peluches', 'Giocattoli e peluche']],
+    ['other',       '📦', 'more',        ['Other', 'Autres', 'Sonstiges', 'Otros', 'Altro']],
+];
+const CATEGORY_GROUPS = ['clothing', 'accessories', 'more'];
+// Label of the "Type" dropdown (the category, as a filter): en / fr / de / es / it.
+const TYPE_LABEL = ['Type', 'Type', 'Art', 'Tipo', 'Tipo'];
 
-const REFRESH_INTERVAL = 5 * 60 * 1000;
+// Tag facets. `filter: true` facets get a dropdown on the Products page, in
+// this order. Value keys are what build_products.py writes ("style:korean").
+// Labels are en / fr / de / es / it.
+const FACET_DEFS = [
+    { key: 'style', filter: true, label: ['Style', 'Style', 'Stil', 'Estilo', 'Stile'], values: [
+        ['american-streetwear', ['Streetwear', 'Streetwear', 'Streetwear', 'Streetwear', 'Streetwear']],
+        ['vintage-retro',       ['Vintage & Retro', 'Vintage & rétro', 'Vintage & Retro', 'Vintage y retro', 'Vintage e retrò']],
+        ['gothic-punk',         ['Gothic & Punk', 'Gothique & punk', 'Gothic & Punk', 'Gótico y punk', 'Gotico e punk']],
+        ['korean',              ['Korean', 'Coréen', 'Koreanisch', 'Coreano', 'Coreano']],
+        ['japanese',            ['Japanese', 'Japonais', 'Japanisch', 'Japonés', 'Giapponese']],
+        ['old-money-smart',     ['Old Money', 'Old Money', 'Old Money', 'Old Money', 'Old Money']],
+        ['y2k-hot-girl',        ['Y2K', 'Y2K', 'Y2K', 'Y2K', 'Y2K']],
+        ['hip-hop',             ['Hip-hop', 'Hip-hop', 'Hip-Hop', 'Hip-hop', 'Hip-hop']],
+        ['workwear-outdoor',    ['Workwear & Outdoor', 'Workwear & outdoor', 'Workwear & Outdoor', 'Workwear y outdoor', 'Workwear e outdoor']],
+        ['sporty',              ['Sporty', 'Sportswear', 'Sportlich', 'Deportivo', 'Sportivo']],
+        ['preppy-college',      ['Preppy', 'Preppy', 'Preppy', 'Preppy', 'Preppy']],
+        ['minimalist-basic',    ['Minimalist', 'Minimaliste', 'Minimalistisch', 'Minimalista', 'Minimal']],
+        ['cute',                ['Cute', 'Mignon', 'Süß', 'Mono', 'Carino']],
+    ]},
+    { key: 'pattern', filter: true, label: ['Pattern', 'Motif', 'Muster', 'Estampado', 'Fantasia'], values: [
+        ['graphic-print',    ['Graphic print', 'Imprimé graphique', 'Grafikprint', 'Estampado gráfico', 'Stampa grafica']],
+        ['letters-logo',     ['Lettering', 'Lettrage', 'Schriftzug', 'Letras', 'Scritte']],
+        ['embroidered',      ['Embroidered', 'Brodé', 'Bestickt', 'Bordado', 'Ricamato']],
+        ['striped',          ['Striped', 'Rayé', 'Gestreift', 'Rayas', 'A righe']],
+        ['colour-block',     ['Colour block', 'Color block', 'Colorblock', 'Bloques de color', 'Color block']],
+        ['floral',           ['Floral', 'Fleuri', 'Geblümt', 'Floral', 'Floreale']],
+        ['stars',            ['Stars', 'Étoiles', 'Sterne', 'Estrellas', 'Stelle']],
+        ['skull',            ['Skull', 'Tête de mort', 'Totenkopf', 'Calavera', 'Teschio']],
+        ['leopard',          ['Leopard', 'Léopard', 'Leopard', 'Leopardo', 'Leopardato']],
+        ['camo',             ['Camo', 'Camouflage', 'Camouflage', 'Camuflaje', 'Mimetico']],
+        ['plaid-check',      ['Plaid & Check', 'Carreaux', 'Kariert', 'Cuadros', 'Quadri']],
+        ['graffiti',         ['Graffiti', 'Graffiti', 'Graffiti', 'Grafiti', 'Graffiti']],
+        ['gradient-tie-dye', ['Gradient & Tie-dye', 'Dégradé & tie-dye', 'Farbverlauf & Batik', 'Degradado y tie-dye', 'Sfumato e tie-dye']],
+        ['polka-dot',        ['Polka dot', 'Pois', 'Gepunktet', 'Lunares', 'Pois']],
+    ]},
+    { key: 'colour', filter: true, label: ['Colour', 'Couleur', 'Farbe', 'Color', 'Colore'], values: [
+        ['black',       ['Black', 'Noir', 'Schwarz', 'Negro', 'Nero']],
+        ['white',       ['White', 'Blanc', 'Weiß', 'Blanco', 'Bianco']],
+        ['grey',        ['Grey', 'Gris', 'Grau', 'Gris', 'Grigio']],
+        ['blue',        ['Blue', 'Bleu', 'Blau', 'Azul', 'Blu']],
+        ['red',         ['Red', 'Rouge', 'Rot', 'Rojo', 'Rosso']],
+        ['pink',        ['Pink', 'Rose', 'Rosa', 'Rosa', 'Rosa']],
+        ['green',       ['Green', 'Vert', 'Grün', 'Verde', 'Verde']],
+        ['brown',       ['Brown & Beige', 'Marron & beige', 'Braun & Beige', 'Marrón y beige', 'Marrone e beige']],
+        ['yellow',      ['Yellow', 'Jaune', 'Gelb', 'Amarillo', 'Giallo']],
+        ['purple',      ['Purple', 'Violet', 'Lila', 'Morado', 'Viola']],
+        ['orange',      ['Orange', 'Orange', 'Orange', 'Naranja', 'Arancione']],
+        ['silver',      ['Silver', 'Argent', 'Silber', 'Plateado', 'Argento']],
+        ['gold',        ['Gold', 'Or', 'Gold', 'Dorado', 'Oro']],
+        ['multicolour', ['Multicolour', 'Multicolore', 'Mehrfarbig', 'Multicolor', 'Multicolore']],
+    ]},
+    { key: 'fit', filter: true, label: ['Fit', 'Coupe', 'Passform', 'Corte', 'Vestibilità'], values: [
+        ['loose-oversized', ['Loose & Oversized', 'Ample & oversize', 'Locker & Oversize', 'Holgado y oversize', 'Ampio e oversize']],
+        ['wide-leg',        ['Wide leg', 'Jambe large', 'Weites Bein', 'Pierna ancha', 'Gamba larga']],
+        ['straight',        ['Straight', 'Droit', 'Gerade', 'Recto', 'Dritto']],
+        ['slim',            ['Slim', 'Ajusté', 'Slim', 'Ajustado', 'Aderente']],
+        ['cropped',         ['Cropped', 'Court', 'Cropped', 'Corto', 'Corto']],
+    ]},
+    { key: 'season', filter: true, label: ['Season', 'Saison', 'Saison', 'Temporada', 'Stagione'], values: [
+        ['winter', ['Winter', 'Hiver', 'Winter', 'Invierno', 'Inverno']],
+        ['summer', ['Summer', 'Été', 'Sommer', 'Verano', 'Estate']],
+    ]},
+    // Price tiers are computed from the price, not stored as tags.
+    { key: 'price', filter: true, label: ['Price', 'Prix', 'Preis', 'Precio', 'Prezzo'], values: [
+        ['under-10', ['Under $10', 'Moins de 10 $', 'Unter 10 $', 'Menos de 10 $', 'Meno di 10 $']],
+        ['10-25',    ['$10–25', '10–25 $', '10–25 $', '10–25 $', '10–25 $']],
+        ['25-50',    ['$25–50', '25–50 $', '25–50 $', '25–50 $', '25–50 $']],
+        ['50-plus',  ['$50+', '50 $ et plus', 'Ab 50 $', 'Más de 50 $', 'Oltre 50 $']],
+    ]},
+    // Not shown as dropdowns, but searchable and usable in ?facet= links.
+    { key: 'material', label: ['Material', 'Matière', 'Material', 'Material', 'Materiale'], values: [
+        ['cotton',     ['Cotton', 'Coton', 'Baumwolle', 'Algodón', 'Cotone']],
+        ['denim',      ['Denim', 'Denim', 'Denim', 'Denim', 'Denim']],
+        ['leather',    ['Leather', 'Cuir', 'Leder', 'Cuero', 'Pelle']],
+        ['wool-knit',  ['Wool & Knit', 'Laine & maille', 'Wolle & Strick', 'Lana y punto', 'Lana e maglia']],
+        ['fleece-fur', ['Fleece & Fur', 'Polaire & fourrure', 'Fleece & Fell', 'Forro polar y pelo', 'Pile e pelliccia']],
+        ['silk-satin', ['Silk & Satin', 'Soie & satin', 'Seide & Satin', 'Seda y satén', 'Seta e raso']],
+        ['mesh',       ['Mesh', 'Mesh', 'Mesh', 'Malla', 'Rete']],
+        ['linen',      ['Linen', 'Lin', 'Leinen', 'Lino', 'Lino']],
+        ['nylon',      ['Nylon', 'Nylon', 'Nylon', 'Nylon', 'Nylon']],
+        ['corduroy',   ['Corduroy', 'Velours côtelé', 'Cord', 'Pana', 'Velluto a coste']],
+        ['metal',      ['Metal', 'Métal', 'Metall', 'Metal', 'Metallo']],
+    ]},
+    { key: 'gender', label: ['For', 'Pour', 'Für', 'Para', 'Per'], values: [
+        ['women', ['Women', 'Femme', 'Damen', 'Mujer', 'Donna']],
+        ['men',   ['Men', 'Homme', 'Herren', 'Hombre', 'Uomo']],
+    ]},
+    { key: 'occasion', label: ['Occasion', 'Occasion', 'Anlass', 'Ocasión', 'Occasione'], values: [
+        ['halloween', ['Halloween', 'Halloween', 'Halloween', 'Halloween', 'Halloween']],
+        ['christmas', ['Christmas', 'Noël', 'Weihnachten', 'Navidad', 'Natale']],
+    ]},
+    { key: 'feature', label: ['Feature', 'Détail', 'Detail', 'Detalle', 'Dettaglio'], values: [
+        ['hooded', ['Hooded', 'À capuche', 'Mit Kapuze', 'Con capucha', 'Con cappuccio']],
+    ]},
+];
+
+// Home page "Shop by style" collections: [facet, value]. Each links to the
+// Products page with that filter applied.
+const HOME_COLLECTIONS = [
+    ['style', 'american-streetwear'], ['style', 'vintage-retro'], ['style', 'gothic-punk'],
+    ['style', 'old-money-smart'], ['style', 'y2k-hot-girl'], ['style', 'korean'],
+    ['season', 'winter'], ['style', 'workwear-outdoor'],
+];
+
+const LANG_INDEX = { en: 0, fr: 1, de: 2, es: 3, it: 4 };
+function langIdx() {
+    const l = (window.i18n && window.i18n.current) || 'en';
+    return LANG_INDEX[l] || 0;
+}
+const CATEGORY_BY_KEY = new Map(CATEGORY_DEFS.map(([key, emoji, group, labels]) => [key, { key, emoji, group, labels }]));
+const FACET_BY_KEY = new Map(FACET_DEFS.map(f => [f.key, { ...f, valueMap: new Map(f.values) }]));
+const FILTER_FACETS = FACET_DEFS.filter(f => f.filter).map(f => f.key);
+
+// Category label without emoji, in the current language (English if unknown).
+function catName(key, lang) {
+    const c = CATEGORY_BY_KEY.get(key);
+    if (!c) return key || '';
+    return c.labels[lang == null ? langIdx() : lang] || c.labels[0];
+}
+// Pill text: emoji + label.
+function catPillLabel(key) {
+    const c = CATEGORY_BY_KEY.get(key);
+    return c ? c.emoji + ' ' + catName(key) : key;
+}
+function facetName(facet, lang) {
+    const f = FACET_BY_KEY.get(facet);
+    return f ? (f.label[lang == null ? langIdx() : lang] || f.label[0]) : facet;
+}
+function tagName(facet, value, lang) {
+    const f = FACET_BY_KEY.get(facet);
+    const labels = f && f.valueMap.get(value);
+    return labels ? (labels[lang == null ? langIdx() : lang] || labels[0]) : value;
+}
+function priceTier(usd) {
+    return usd < 10 ? 'under-10' : usd < 25 ? '10-25' : usd < 50 ? '25-50' : '50-plus';
+}
+// Tag values of one facet on a product ("price" is derived from the price).
+function productFacetValues(p, facet) {
+    if (facet === 'price') return [priceTier(p.priceUsd)];
+    return p.tagMap[facet] || [];
+}
 
 // =============================================================
 // SEARCH ALIASES — short forms, brand expansions, category synonyms
@@ -693,7 +857,7 @@ const SYNONYM_GROUPS = [
     ['clarks', 'wallabee', 'wallabees'],
 
     // ===== Tops =====
-    ['hoodie', 'hoodies', 'hooded', 'tech fleece', 'pullover', 'sweatshirt', 'sweater', 'zip up', 'zip-up'],
+    ['hoodie', 'hoodies', 'hooded', 'tech fleece', 'sweatshirt', 'zip up', 'zip-up'],
     ['crewneck', 'crew neck', 'crew'],
     ['sweater', 'sweaters', 'knit', 'knitwear', 'cardigan', 'jumper'],
     ['tee', 'tshirt', 't-shirt', 't shirt', 'shirt', 't-shirts'],
@@ -709,7 +873,7 @@ const SYNONYM_GROUPS = [
     // 'pants' bridges joggers↔pants: titles say "Nike Tech Pants", never
     // "joggers", so a jogger search must also reach pant-type items.
     ['joggers', 'sweatpants', 'track pants', 'trackpants', 'jogger', 'pants'],
-    ['shorts', 'short', 'sweatshorts'],
+    ['shorts', 'sweatshorts', 'five-pocket', 'five-point'],
     ['cargo', 'cargos', 'cargo pants', 'cargo shorts'],
     ['skirt', 'skirts'],
     ['leggings', 'tights'],
@@ -717,7 +881,7 @@ const SYNONYM_GROUPS = [
     // ===== Outerwear =====
     ['jacket', 'jackets'],
     ['coat', 'coats'],
-    ['puffer', 'down jacket', 'puffer jacket', 'down'],
+    ['puffer', 'down jacket', 'puffer jacket'],
     ['parka'],
     ['trench', 'trench coat'],
     ['bomber', 'bomber jacket', 'ma1', 'ma-1'],
@@ -823,6 +987,27 @@ const SYNONYM_GROUPS = [
     ['plaid', 'check', 'checkered', 'gingham'],
     ['stripe', 'striped', 'stripes'],
     ['floral', 'flower'],
+
+    // ===== Machine-translation quirks in product titles =====
+    // Chinese "帽" (hood) often comes through as "hat"; "棉服" (padded
+    // jacket) as "cotton suit"; "做旧" (distressed) as "make old".
+    ['hoodie', 'hooded', 'hat sweater', 'hat coat', 'hat suit', 'with hat'],
+    ['puffer', 'down jacket', 'down coat', 'cotton suit', 'cotton-padded', 'padded'],
+    ['distressed', 'make old', 'made old', 'do old', 'water wash', 'washed', 'ripped', 'holes'],
+    ['oversized', 'loose', 'baggy', 'drop shoulder', 'boxy'],
+    ['streetwear', 'high street', 'street'],
+    ['vintage', 'retro'],
+    ['y2k', 'hottie', 'millennium'],
+    ['gothic', 'goth', 'punk', 'dark'],
+    ['old money', 'light luxury'],
+    ['tracksuit', 'sports suit', 'sweat suit', 'two-piece', 'two piece'],
+    ['beanie', 'knitted hat', 'cold hat'],
+    ['cap', 'baseball cap', 'peaked cap'],
+    ['tee', 't-shirt', 'short sleeve'],
+    ['longsleeve', 'long sleeve'],
+    ['pyjamas', 'pajamas', 'homewear', 'sleepwear'],
+    ['jumper', 'sweater', 'pullover', 'knit'],
+    ['flared', 'flare', 'flares', 'bootcut', 'body microphone', 'microphone trousers', 'microphone pants'],
 ];
 
 // Colour words used for SMART COLOUR RANKING. Because <5% of product titles
@@ -917,15 +1102,16 @@ function fuzzyBudget(token) {
 // Does a query token match this name — exactly/alias-wise, OR within a small
 // edit distance of some word in the name (typo tolerance)? `nameWords` is the
 // pre-split lowercase word list (passed in so we split each name once).
+// Returns 2 for an exact/alias match, 1 for a typo-tolerant match, 0 for none.
 function tokenMatchesName(token, name, nameWords) {
-    if (tokenMatcher(token).test(name)) return true;
+    if (tokenMatcher(token).test(name)) return 2;
     const budget = fuzzyBudget(token);
-    if (!budget) return false;
+    if (!budget) return 0;
     for (const w of nameWords) {
         if (Math.abs(w.length - token.length) > budget) continue;
-        if (editDistance(token, w, budget) <= budget) return true;
+        if (editDistance(token, w, budget) <= budget) return 1;
     }
-    return false;
+    return 0;
 }
 
 // Score a product name against the query. Returns
@@ -958,24 +1144,29 @@ function searchScore(name, query) {
     }
 
     // Core term matching (required).
-    let coreMatched = 0;
+    // Typo matches only make the "full" tier when nothing else would: an
+    // exact hit on every term beats a near-miss ("shorts" must not pull in
+    // every "short sleeve" when real shorts exist). See renderProducts.
+    let coreMatched = 0, coreExact = 0;
     for (const t of coreTokens) {
-        if (tokenMatchesName(t, name, nameWords)) coreMatched++;
+        const m = tokenMatchesName(t, name, nameWords);
+        if (m) coreMatched++;
+        if (m === 2) coreExact++;
     }
     const phrase = tokens.length > 1 && tokenMatcher(query).test(name);
-    if (phrase) coreMatched = coreTokens.length; // phrase implies all core terms present
+    if (phrase) coreMatched = coreExact = coreTokens.length; // phrase implies all core terms present
 
     let matched, full;
     if (coreTokens.length > 0) {
         matched = coreMatched >= 1;
-        full = coreMatched >= coreTokens.length;
+        full = coreExact >= coreTokens.length;
     } else {
         // Colour-only (or empty-core) query: the colour is the requirement.
         matched = colorBonus > 0;
         full = colorBonus >= 3; // literal colour hit
     }
 
-    const score = coreMatched * 10 + colorBonus + (phrase ? 2 : 0);
+    const score = coreMatched * 10 + coreExact * 5 + colorBonus + (phrase ? 2 : 0);
     return { matched, full, score };
 }
 
@@ -1009,11 +1200,6 @@ function highlightMatches(text, query) {
 // APP STATE
 // =============================================================
 let allProducts = [];
-// Keys of products already ingested this load, used to drop pixel-for-pixel
-// duplicate cards (same link + name + price + photo). Listings that differ in
-// ANY of those fields — different price, photo, or link under the same name —
-// are kept. Reset alongside allProducts at the start of each fetch.
-let seenProductKeys = new Set();
 let currentFiltered = [];
 let activeCategory = 'all';
 let searchQuery = '';
@@ -1129,9 +1315,9 @@ function setModalSaveState(on) {
 }
 
 function updateSavedPill() {
-    const pill = categoryTabsEl && categoryTabsEl.querySelector('[data-category="' + SAVED_CATEGORY + '"]');
-    if (pill) pill.textContent = translatePill(SAVED_CATEGORY, '♥ Saved') + (savedKeys.size ? ' (' + savedKeys.size + ')' : '');
-    if (activeCategory === SAVED_CATEGORY) syncCategoryLabel();
+    // The "♥ Saved (n)" entry in the filter row's Type dropdown.
+    const opt = filterBarEl && filterBarEl.querySelector('.filter-type option[value="' + SAVED_CATEGORY + '"]');
+    if (opt) opt.textContent = translatePill(SAVED_CATEGORY) + (savedKeys.size ? ' (' + savedKeys.size + ')' : '');
 }
 
 const HEART_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.4 2.5h1.8c.8-1.4 2.3-2.5 4.4-2.5 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
@@ -1140,21 +1326,25 @@ const HEART_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="
 // is a merchandising section, not a kind of product, so those items show
 // the category their name pins them into instead.
 function cardCategory(p) {
-    const cat = (p.category && !HIDDEN_PILLS.has(p.category)) ? p.category : (p.pinCategory || '');
-    if (!cat) return '';
-    return stripEmoji((window.i18n && window.i18n.dyn(cat)) || cat);
+    return catName(p.category);
 }
 
-// The sheet tags quality tiers inside the name ("[Budget]", "[1:1]"); the
-// card shows the tier on its own line, so drop the tag from the title.
+// Title as shown (translated when a translation is cached).
 function cleanName(name) {
-    return String(name || '').replace(/\s*\[(budget|1:1)\]\s*/gi, ' ').replace(/\s+/g, ' ').trim();
+    return String(name || '').replace(/\s+/g, ' ').trim();
 }
 
-function tierKey(p) {
-    if (p.isBudget) return 'tier_budget';
-    if (p.isOneToOne) return 'tier_best';
-    return '';
+// Short descriptor line under a title, e.g. "Vintage & Retro · Loose &
+// Oversized" — this is what stands in for a brand name on these products.
+function cardTags(p, max) {
+    const out = [];
+    for (const f of ['style', 'fit', 'pattern', 'material']) {
+        for (const v of p.tagMap[f] || []) {
+            out.push(tagName(f, v));
+            if (out.length >= max) return out;
+        }
+    }
+    return out;
 }
 
 function openProductModal(p) {
@@ -1182,10 +1372,10 @@ function openProductModal(p) {
     if (modalCat) modalCat.textContent = cardCategory(p);
     const modalTier = document.getElementById('modal-tier');
     if (modalTier) {
-        const tk = tierKey(p);
-        modalTier.textContent = tk ? ((window.i18n && window.i18n.t(tk)) || '') : '';
-        modalTier.className = 'product-modal-tier' + (p.isBudget ? ' tier-budget' : p.isOneToOne ? ' tier-best' : '');
-        modalTier.classList.toggle('hidden', !tk);
+        const tags = cardTags(p, 4);
+        modalTier.textContent = tags.join(' · ');
+        modalTier.className = 'product-modal-tier';
+        modalTier.classList.toggle('hidden', !tags.length);
     }
     const modalSave = document.getElementById('modal-save-btn');
     if (modalSave) {
@@ -1209,13 +1399,7 @@ function openProductModal(p) {
     } else {
         copyBtn.classList.add('hidden');
     }
-    const qcBtn = document.getElementById('modal-qc-btn');
-    if (p.qcLink) {
-        qcBtn.href = p.qcLink;
-        qcBtn.classList.remove('hidden');
-    } else {
-        qcBtn.classList.add('hidden');
-    }
+    renderModalQc(p);
     // Load this item's different styles/colorways (one SKU call, cached).
     renderModalStyles(p);
     renderSimilar(p);
@@ -1225,13 +1409,50 @@ function openProductModal(p) {
     document.body.style.overflow = 'hidden';
 }
 
+// QC photos strip in the popup. The photo file is fetched once, on the
+// first open; a token guards against a slow load landing on a newer popup.
+let modalQcToken = 0;
+function renderModalQc(p) {
+    const wrap = document.getElementById('modal-qc');
+    const track = document.getElementById('modal-qc-track');
+    const count = document.getElementById('modal-qc-count');
+    if (!wrap || !track) return;
+    const token = ++modalQcToken;
+    wrap.classList.add('hidden');
+    track.innerHTML = '';
+    loadQcPhotos().then(all => {
+        if (token !== modalQcToken) return;
+        const photos = (all && all[p.weidianId]) || [];
+        if (!photos.length) return;
+        if (count) count.textContent = photos.length;
+        for (const src of photos) {
+            const a = document.createElement('a');
+            a.className = 'qc-thumb';
+            a.href = src;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            const img = document.createElement('img');
+            img.loading = 'lazy';
+            img.referrerPolicy = 'no-referrer';
+            img.alt = '';
+            img.onerror = function() { a.remove(); };
+            img.src = photoUrl(src, 240, 320);
+            a.appendChild(img);
+            track.appendChild(a);
+        }
+        track.scrollLeft = 0;
+        wrap.classList.remove('hidden');
+    });
+}
+
 // "Similar Products" strip at the bottom of the popup: other items from the
-// same category, ranked by how many words their names share with this one.
+// same category, ranked by shared tags and shared title words.
 function renderSimilar(p) {
     const wrap = document.getElementById('modal-similar');
     const track = document.getElementById('modal-similar-track');
     if (!wrap || !track) return;
     const words = new Set(cleanName(p.name).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2));
+    const pTags = new Set(p.tags);
     const k = productKey(p);
     const seen = new Set([k]);
     const scored = [];
@@ -1239,12 +1460,11 @@ function renderSimilar(p) {
         if (!q.photo) continue;
         const qk = productKey(q);
         if (seen.has(qk)) continue;
-        const sameCat = (q.category === p.category && !HIDDEN_PILLS.has(p.category)) ||
-                        (p.pinCategory && q.pinCategory === p.pinCategory);
-        if (!sameCat) continue;
+        if (q.category !== p.category) continue;
         seen.add(qk);
         let score = 0;
         for (const w of cleanName(q.name).toLowerCase().split(/[^a-z0-9]+/)) if (words.has(w)) score++;
+        for (const t of q.tags) if (pTags.has(t)) score += 2;
         scored.push({ q, score });
     }
     scored.sort((a, b) => b.score - a.score || (a.q.sourceOrder || 0) - (b.q.sourceOrder || 0));
@@ -1280,52 +1500,8 @@ if (modalSaveBtn) modalSaveBtn.addEventListener('click', () => {
 });
 
 // =============================================================
-// HTML PARSING — scrape the htmlview to get images + affiliate links
+// SHARED HELPERS — store links
 // =============================================================
-function buildHtmlUrl(sheetId, gid) {
-    // _ts cache-buster: ensure each fetch returns FRESH docsubipk tokens.
-    // Google's htmlview sets no-cache headers but some intermediaries
-    // and service workers ignore them. Stale HTML → stale tokens → 404.
-    return `https://docs.google.com/spreadsheets/d/${sheetId}/htmlview/sheet?gid=${gid}&_ts=${Date.now()}`;
-}
-
-// =============================================================
-// SHARED HELPERS — link extraction & invite code
-// =============================================================
-function extractLink(cell) {
-    const anchor = cell.querySelector('a');
-    if (!anchor) return '';
-    const href = anchor.getAttribute('href') || '';
-    const match = href.match(/[?&]q=([^&]+)/);
-    return match ? decodeURIComponent(match[1]) : href;
-}
-
-function fixLink(link) {
-    if (!link) return '';
-    if (!link.includes('?') && link.includes('&')) {
-        link = link.replace('&', '?');
-    }
-    if (/inviteCode=/i.test(link)) {
-        link = link.replace(/inviteCode=[^&]*/i, 'inviteCode=' + INVITE_CODE);
-    } else {
-        link += (link.includes('?') ? '&' : '?') + 'inviteCode=' + INVITE_CODE;
-    }
-    return link;
-}
-
-// Point a sheet link at BoonBuy with our invite code. Most rows are
-// already BoonBuy URLs and only need the code re-stamped, but a few dozen
-// still link to another agent (kakobuy) carrying THAT agent's affiliate
-// code — those URLs embed the Weidian item id, which is all we need to
-// rebuild the equivalent BoonBuy product URL.
-function toAgentLink(link) {
-    if (!link) return '';
-    if (/boonbuy\.com/i.test(link)) return fixLink(link);
-    const m = link.match(/itemID[=%3D]*(\d+)/i) || link.match(/[?&]id[=%3D]*(\d+)/i);
-    if (m) return BOONBUY_PRODUCT_BASE + m[1] + '?inviteCode=' + INVITE_CODE;
-    return fixLink(link); // unknown shape — leave it be, just stamp the code
-}
-
 // Rebuild the original Chinese-store URL ("universal link") from a product,
 // so it can be pasted into any shopping agent. BoonBuy carries the source
 // platform as a digit in the product path (/product/2/123, 2 = Weidian);
@@ -1338,526 +1514,108 @@ function universalLink(p) {
     return '';
 }
 
-// Keyword → clothes-category mapping. Every product's name is scanned
-// (most-specific patterns first) to derive a pinCategory, so e.g. a
-// "Bape Tee" cross-lists into the T-Shirts pill, "Adidas Pants" into
-// Pants, etc. Items that don't match any keyword keep only their source
-// category. Strings must match a SECTION_CATEGORIES pill label
-// character-for-character (emoji + label).
-//
-// Word-boundary anchored to avoid "set" matching "Sunset" or "shirt"
-// matching "sweatshirt" (resolved by ordering: 'sweatshirt' would need
-// to come before 'shirt' if it were a target keyword).
-const SPECIAL_PIN_KEYWORDS = [
-    // Order matters: most specific first. The first \b-anchored match
-    // against the lowercased product name decides the target. So
-    // 'sweater' beats 'tee' for "Sweater Tee", 'hoodie' beats 'air max'
-    // for a hypothetical "Air Max Hoodie", etc.
-    //
-    // Football / soccer kits get their own pill — check before the
-    // generic 'jersey' / 'uniform' / 'set' rules below, otherwise
-    // "Real Madrid Football Jersey" would land in T-Shirts.
-    ['football',       '⚽ Jersey'],
-    ['soccer',         '⚽ Jersey'],
-    ['real madrid',    '⚽ Jersey'],
-    ['barcelona',      '⚽ Jersey'],
-    ['liverpool',      '⚽ Jersey'],
-    ['manchester',     '⚽ Jersey'],
-    ['man city',       '⚽ Jersey'],
-    ['arsenal',        '⚽ Jersey'],
-    ['chelsea',        '⚽ Jersey'],
-    ['juventus',       '⚽ Jersey'],
-    ['bayern',         '⚽ Jersey'],
-    ['ac milan',       '⚽ Jersey'],
-    ['inter milan',    '⚽ Jersey'],
-    ['dortmund',       '⚽ Jersey'],
-    ['psg',            '⚽ Jersey'],
-    ['national team',  '⚽ Jersey'],
-    // Apparel keywords (checked first so "Nike Hoodie" beats 'nike').
-    // Plurals listed alongside singulars — \b boundary doesn't cross
-    // word-char transitions so 'jacket' alone won't match "jackets".
-    // The sheet splits legwear into Jeans and SweatPants, so denim words
-    // pin to Jeans and everything else to SweatPants.
-    ['jeans',          '👖 Jeans'],
-    ['jean',           '👖 Jeans'],
-    ['denim',          '👖 Jeans'],
-    ['trousers',       '👖 SweatPants'],
-    ['trouser',        '👖 SweatPants'],
-    ['pants',          '👖 SweatPants'],
-    // Singular 'pant' — without it, "Polo Ralph Lauren track pant" fell
-    // through to the 'polo' rule below and showed up under Tee/Polo.
-    ['pant',           '👖 SweatPants'],
-    ['joggers',        '👖 SweatPants'],
-    ['jogger',         '👖 SweatPants'],
-    ['sweatpants',     '👖 SweatPants'],
-    ['sweatpant',      '👖 SweatPants'],
-    ['leggings',       '👖 SweatPants'],
-    ['legging',        '👖 SweatPants'],
-    ['chinos',         '👖 SweatPants'],
-    ['chino',          '👖 SweatPants'],
-    ['shorts',         '🩳 Shorts'],
-    ['short',          '🩳 Shorts'],
-    ['hoodies',        '🧥 Hoodies'],
-    ['hoodie',         '🧥 Hoodies'],
-    ['cardigan',       '🧶 Sweater'],
-    ['cardigans',      '🧶 Sweater'],
-    ['sweaters',       '🧶 Sweater'],
-    ['sweater',        '🧶 Sweater'],
-    ['knit',           '🧶 Sweater'],
-    ['tracksuits',     '🏃 Tracksuits'],
-    ['tracksuit',      '🏃 Tracksuits'],
-    // T-shirts / tops / jackets — moved BEFORE shoe specifics so a
-    // "Lebron Jersey" routes to T-Shirts (via 'jersey') instead of
-    // Shoes (via 'lebron'). "Nike Lebron" sneakers still route to
-    // Shoes since they don't contain any apparel keyword first.
-    ['polo',           '👕 Tee/Polo'],
-    ['t-shirts',       '👕 Tee/Polo'],
-    ['t-shirt',        '👕 Tee/Polo'],
-    ['tshirts',        '👕 Tee/Polo'],
-    ['tshirt',         '👕 Tee/Polo'],
-    ['tees',           '👕 Tee/Polo'],
-    ['tee',            '👕 Tee/Polo'],
-    ['jerseys',        '👕 Tee/Polo'],
-    ['jersey',         '👕 Tee/Polo'],
-    ['shirts',         '👕 Tee/Polo'],
-    ['shirt',          '👕 Tee/Polo'],
-    ['jackets',        '🦺 Jackets'],
-    ['jacket',         '🦺 Jackets'],
-    ['vests',          '🦺 Jackets'],
-    ['vest',           '🦺 Jackets'],
-    ['perfume',        '🌸 Perfumes'],
-    ['cologne',        '🌸 Perfumes'],
-    ['fragrance',      '🌸 Perfumes'],
-    // Specific shoe-model names that would otherwise be hijacked by
-    // accessory generic words (e.g. Versace "Chain Reaction" hitting
-    // 'chain', Balenciaga "Track" being fine here vs "Track Pants"
-    // landing in Pants). Listed before accessories.
-    ['chain reaction',     '👟 Sneakers'],
-    ['vapormax',           '👟 Sneakers'],
-    ['airmax',             '👟 Sneakers'],   // no-space variant of 'air max'
-    ['airforce',           '👟 Sneakers'],   // no-space variant of 'air force'
-    ['shox',               '👟 Sneakers'],
-    ['triple s',           '👟 Sneakers'],
-    ['speed trainer',      '👟 Sneakers'],
-    ['speed runner',       '👟 Sneakers'],
-    ['runners',            '👟 Sneakers'],
-    ['nocta',              '👟 Sneakers'],
-    ['lebron',             '👟 Sneakers'],
-    ['kobe',               '👟 Sneakers'],
-    ['mihara',             '👟 Sneakers'],
-    ['golden goose',       '👟 Sneakers'],
-    ['ggdb',               '👟 Sneakers'],
-    ['birkenstock',        '👟 Sneakers'],
-    ['odsy',               '👟 Sneakers'],
-    ['be right back',      '👟 Sneakers'],
-    ['out of office',      '👟 Sneakers'],
-    ['louboutin',          '👟 Sneakers'],
-    ['loubutin',           '👟 Sneakers'],   // sheet typo
-    ['salomon',            '👟 Sneakers'],
-    ['hoka',               '👟 Sneakers'],
-    ['on cloud',           '👟 Sneakers'],
-    ['timberland',         '👟 Sneakers'],
-    ['timbs',              '👟 Sneakers'],
-    ['ugg',                '👟 Sneakers'],
-    ['skate',              '👟 Sneakers'],   // Louis Vuitton Skate / similar shoe lines
-    ['mcqueen',            '👟 Sneakers'],   // Alexander McQueen shoe line
-    ['converses',          '👟 Sneakers'],
-    ['converse',           '👟 Sneakers'],
-    ['b9',                 '👟 Sneakers'],   // Dior B-series
-    ['b22',                '👟 Sneakers'],
-    ['b30',                '👟 Sneakers'],
-    ['b33',                '👟 Sneakers'],
-    ['b57',                '👟 Sneakers'],
-    // Accessory keywords are checked BEFORE the 'set'/'kit'/'uniform'
-    // tracksuit-fallback block so that e.g. "Cartier Love Bracelet Set"
-    // routes to Accessories instead of Tracksuits. Specific bag model
-    // names sit above generic 'bag' so "LV Neverfull" doesn't get
-    // mis-routed if generic falls through to something else later.
-    ['birkin',         '🎁 Accessories'],
-    ['kelly bag',      '🎁 Accessories'],
-    ['neverfull',      '🎁 Accessories'],
-    ['speedy',         '🎁 Accessories'],
-    ['fanny pack',     '🎁 Accessories'],
-    ['belt bag',       '🎁 Accessories'],
-    ['waist bag',      '🎁 Accessories'],
-    ['bucket hat',     '🎁 Accessories'],
-    ['belt',           '🎁 Accessories'],
-    ['belts',          '🎁 Accessories'],
-    ['handbag',        '🎁 Accessories'],
-    ['purse',          '🎁 Accessories'],
-    ['tote',           '🎁 Accessories'],
-    ['crossbody',      '🎁 Accessories'],
-    ['shoulder bag',   '🎁 Accessories'],
-    ['sling',          '🎁 Accessories'],
-    ['messenger',      '🎁 Accessories'],
-    ['backpack',       '🎁 Accessories'],
-    ['duffel',         '🎁 Accessories'],
-    ['duffle',         '🎁 Accessories'],
-    ['weekender',      '🎁 Accessories'],
-    ['clutch',         '🎁 Accessories'],
-    ['bag',            '🎁 Accessories'],
-    ['bags',           '🎁 Accessories'],
-    ['wallet',         '🎁 Accessories'],
-    ['wallets',        '🎁 Accessories'],
-    ['cardholder',     '🎁 Accessories'],
-    ['card holder',    '🎁 Accessories'],
-    ['bifold',         '🎁 Accessories'],
-    ['hat',            '🎁 Accessories'],
-    ['hats',           '🎁 Accessories'],
-    ['cap',            '🎁 Accessories'],
-    ['caps',           '🎁 Accessories'],
-    ['beanie',         '🎁 Accessories'],
-    ['beanies',        '🎁 Accessories'],
-    ['snapback',       '🎁 Accessories'],
-    ['scarf',          '🎁 Accessories'],
-    ['scarves',        '🎁 Accessories'],
-    ['gloves',         '🎁 Accessories'],
-    ['mittens',        '🎁 Accessories'],
-    ['necktie',        '🎁 Accessories'],
-    ['bowtie',         '🎁 Accessories'],
-    ['sunglasses',     '🎁 Accessories'],
-    ['shades',         '🎁 Accessories'],
-    ['eyewear',        '🎁 Accessories'],
-    ['watch',          '🎁 Accessories'],
-    ['watches',        '🎁 Accessories'],
-    ['wristwatch',     '🎁 Accessories'],
-    ['rolex',          '🎁 Accessories'],
-    ['submariner',     '🎁 Accessories'],
-    ['daytona',        '🎁 Accessories'],
-    ['datejust',       '🎁 Accessories'],
-    ['royal oak',      '🎁 Accessories'],
-    ['nautilus',       '🎁 Accessories'],
-    ['patek',          '🎁 Accessories'],
-    ['bracelet',       '🎁 Accessories'],
-    ['bracelets',      '🎁 Accessories'],
-    ['bangle',         '🎁 Accessories'],
-    ['necklace',       '🎁 Accessories'],
-    ['necklaces',      '🎁 Accessories'],
-    ['pendant',        '🎁 Accessories'],
-    ['chain',          '🎁 Accessories'],
-    ['chains',         '🎁 Accessories'],
-    ['earring',        '🎁 Accessories'],
-    ['earrings',       '🎁 Accessories'],
-    ['hoops',          '🎁 Accessories'],
-    ['brooch',         '🎁 Accessories'],
-    ['keychain',       '🎁 Accessories'],
-    ['lanyard',        '🎁 Accessories'],
-    ['socks',          '🎁 Accessories'],
-    ['audemars',       '🎁 Accessories'],
-    ['piguet',         '🎁 Accessories'],
-    ['airpods',        '🎁 Accessories'],
-    ['beannies',       '🎁 Accessories'],   // sheet typo of 'beanies'
-    ['set',            '🏃 Tracksuits'],
-    ['kit',            '🏃 Tracksuits'],
-    ['uniform',        '🏃 Tracksuits'],
-    // Footwear — generic words first, then shoe-dedicated brands and
-    // recognisable shoe model names. The "Shoes" suffix on most items
-    // is caught by 'shoes', but plenty of names ("Nike Air", "Jordan",
-    // "Asics Gel 1130", "Adidas Forum 84", "Puma LX Court") only have
-    // brand/model identifiers.
-    ['shoes',          '👟 Sneakers'],
-    ['shoe',           '👟 Sneakers'],
-    ['sneakers',       '👟 Sneakers'],
-    ['sneaker',        '👟 Sneakers'],
-    ['trainers',       '👟 Sneakers'],
-    ['boots',          '👟 Sneakers'],
-    ['boot',           '👟 Sneakers'],
-    ['sandals',        '👟 Sneakers'],
-    ['sandal',         '👟 Sneakers'],
-    ['loafers',        '👟 Sneakers'],
-    ['loafer',         '👟 Sneakers'],
-    ['heels',          '👟 Sneakers'],
-    ['slippers',       '👟 Sneakers'],
-    ['slipper',        '👟 Sneakers'],
-    ['slides',         '👟 Sneakers'],
-    ['slide',          '👟 Sneakers'],
-    ['jordan',         '👟 Sneakers'],
-    ['asics',          '👟 Sneakers'],
-    ['new balance',    '👟 Sneakers'],
-    ['air max',        '👟 Sneakers'],
-    ['air force',      '👟 Sneakers'],
-    ['air jordan',     '👟 Sneakers'],
-    ['nike air',       '👟 Sneakers'],
-    ['dunk',           '👟 Sneakers'],
-    ['forum',          '👟 Sneakers'],
-    ['samba',          '👟 Sneakers'],
-    ['gazelle',        '👟 Sneakers'],
-    ['yeezy',          '👟 Sneakers'],
-    ['stan smith',     '👟 Sneakers'],
-    ['superstar',      '👟 Sneakers'],
-    ['cortez',         '👟 Sneakers'],
-    ['b22',            '👟 Sneakers'],
-    ['gel',            '👟 Sneakers'],   // Asics Gel-* line
-    ['lx court',       '👟 Sneakers'],
-    ['mr993',          '👟 Sneakers'],
-    ['u574',           '👟 Sneakers'],
-];
-
-function derivePinCategory(name) {
-    const lower = (name || '').toLowerCase();
-    for (const [kw, target] of SPECIAL_PIN_KEYWORDS) {
-        const re = new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
-        if (re.test(lower)) return target;
-    }
-    return '';
-}
-
-// =============================================================
-// HTML PARSING — the BoonBuy sheet
-// One wide grid, category sections stacked vertically (see
-// SECTION_CATEGORIES), two products per row:
-//   PIC(img) | NAME | PRICE | LINK | PIC(img) | NAME | PRICE | LINK
-// A section title is a single cell spanning the full 8 columns; the brand
-// sub-headings inside a section (e.g. "Corteiz") span 4 and so leave the
-// current category alone. The banner rows above the first section carry
-// their own full-width titles, which match no section and are skipped.
-// =============================================================
-const SECTION_COLSPAN = 8;   // full grid width — marks a section title row
-const BLOCK_WIDTH = 4;       // PIC | NAME | PRICE | LINK
-// ¥ → $ for the ~30 rows that price in bare yuan, so the price sort can
-// compare them against the rest. Derived from the sheet's own conversions
-// (it quotes ¥180 as $29.29); it only ever affects sort order, never a
-// displayed price.
-const CNY_TO_USD = 0.163;
-
-// Split the sheet HTML into one chunk per section, each starting at its
-// title row. DOMParser over the whole 4 MB grid blocks the main thread for
-// seconds on phones; parsing chunk by chunk lets the first categories
-// paint immediately and keeps the page responsive while the rest arrive.
-function splitSheetSections(html) {
-    const marker = 'colspan="' + SECTION_COLSPAN + '"';
-    const starts = [];
-    for (let at = html.indexOf(marker); at >= 0; at = html.indexOf(marker, at + 1)) {
-        const trStart = html.lastIndexOf('<tr', at);
-        if (trStart < 0) continue;
-        if (starts.length && starts[starts.length - 1] === trStart) continue; // same row
-        starts.push(trStart);
-    }
-    if (!starts.length) return [html];
-    return starts.map((from, k) => html.slice(from, k + 1 < starts.length ? starts[k + 1] : html.length));
-}
-
-// Parse one section chunk (title row first, product rows below). Returns
-// [] for the sheet's own banner rows, whose titles match no section.
-function parseSheetSection(chunk) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString('<table>' + chunk + '</table>', 'text/html');
-    const rows = Array.from(doc.querySelectorAll('tr'));
-    const products = [];
-
-    let category = null;
-    for (const row of rows) {
-        const cells = Array.from(row.querySelectorAll('td'));
-        if (!cells.length) continue;
-
-        // Section title — detect it BEFORE the product-block guard, since a
-        // colspan'd title cell also sits at index 0.
-        if (parseInt(cells[0].getAttribute('colspan') || '1', 10) >= SECTION_COLSPAN) {
-            const title = (cells[0].textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
-            category = SECTION_CATEGORIES.get(title) || null;
-            if (!category) return []; // banner row, or a section we don't publish
-            continue;
-        }
-        if (!category) continue;
-
-        for (let at = 0; at + BLOCK_WIDTH <= cells.length; at += BLOCK_WIDTH) {
-            const product = parseProductBlock(cells.slice(at, at + BLOCK_WIDTH), category);
-            if (product) products.push(product);
-        }
-    }
-    return products;
-}
-
-// One PIC | NAME | PRICE | LINK block → a product, or null when the block
-// isn't one: a column header, a spacer, the empty half of an odd-length
-// row, a brand sub-heading, or a row with no link to buy through.
-function parseProductBlock(cells, category) {
-    const [picCell, nameCell, priceCell, linkCell] = cells;
-
-    const img = picCell.querySelector('img');
-    if (!img) return null; // header, spacer and sub-heading blocks carry no photo
-
-    const name = (nameCell.textContent || '').trim().replace(/\s+/g, ' ');
-    if (!name || /^name$/i.test(name)) return null;
-
-    const raw = (priceCell.textContent || '').trim();
-    if (!raw || /sold\s*out/i.test(raw)) return null;
-    // The sheet prices each item in four currencies in one cell —
-    // "¥180｜$29.29｜€24.79｜£21.55" — so show USD with EUR alongside
-    // (the card and modal already render `price / eurPrice`). A few rows
-    // carry a bare number instead, which the sheet means as yuan.
-    const usd = raw.match(/\$\s*([\d.,]+)/);
-    const eur = raw.match(/€\s*([\d.,]+)/);
-    const cny = raw.match(/¥\s*([\d.,]+)/) || raw.match(/^([\d.,]+)$/);
-    if (!usd && !cny) return null; // no price at all → not a product block
-    const price = usd ? '$' + usd[1] : '¥' + cny[1];
-    const priceUsd = parseFloat((usd ? usd[1] : cny[1]).replace(/,/g, '')) * (usd ? 1 : CNY_TO_USD);
-
-    let photo = img.getAttribute('src') || '';
-    // Sheet photos come in at thumbnail size (=w165-h139); ask Google for a
-    // card-sized render instead. These URLs are short-lived tokens, which
-    // is what the fetch cache-buster and the 5-minute refresh are for.
-    if (photo) {
-        photo = photo
-            .replace(/=s\d+(-w\d+)?(-h\d+)?$/, '=s800')
-            .replace(/=w\d+-h\d+$/, '=w800-h800');
-    }
-
-    const link = toAgentLink(extractLink(linkCell));
-    if (!link) return null;
-
-    const idMatch = link.match(/\/product\/\d+\/(\d+)/);
-
-    return {
-        name,
-        price,
-        eurPrice: eur ? '€' + eur[1] : '',
-        priceUsd: Number.isFinite(priceUsd) ? priceUsd : 0,
-        photo,
-        link,
-        qcLink: '', // the sheet has no QC column
-        category,
-        weidianId: idMatch ? idMatch[1] : '',
-        pinCategory: derivePinCategory(name),
-        // The sheet tags the cheap and the 1:1 versions of an item in its
-        // name; the card badges read these back.
-        isBudget: /\[budget\]/i.test(name),
-        isOneToOne: /\[1:1\]/i.test(name),
-    };
-}
-
 // =============================================================
 // FETCH PRODUCTS
 // =============================================================
-// Per-product overrides — for items whose spreadsheet cell has a missing
-// image or unclear name. `match` is a substring tested against p.name
-// (lowercased). First match wins. `src` → photo override, `name` →
-// display-name override.
-const PRODUCT_OVERRIDES = [
-    { match: '3dap',  src: 'img-3dap-watch.png', name: 'Swatch X AP' },
-];
-
-async function fetchHtml(sheetId, gid) {
-    const resp = await fetch(buildHtmlUrl(sheetId, gid));
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} for gid ${gid}`);
-    return resp.text();
+// products.json → product objects the rest of the page uses:
+//   { name, price, eurPrice, priceUsd, photo, link, category, tags,
+//     tagMap, weidianId, searchText, sourceOrder }
+function agentLink(itemId) {
+    return BOONBUY_PRODUCT_BASE + itemId + '?inviteCode=' + INVITE_CODE;
 }
 
-// Merge one source's products into the catalogue and repaint. Each source
-// is rendered the moment it arrives, so the top-priority products appear
-// almost instantly while the rest stream in underneath. sourceOrder (lower
-// = higher up) keeps the final order identical to the old all-at-once load.
-function ingestSource(order, products) {
-    if (!products || !products.length) return;
-    for (const p of products) {
-        // Drop exact-duplicate cards: a listing is redundant only when its
-        // link, name, price AND photo all match one already shown. Any
-        // difference (price/photo/link) keeps both — see seenProductKeys.
-        const dupKey = `${p.link} ${p.name} ${p.price} ${p.photo}`;
-        if (seenProductKeys.has(dupKey)) continue;
-        seenProductKeys.add(dupKey);
-
-        const lower = (p.name || '').toLowerCase();
-        for (const o of PRODUCT_OVERRIDES) {
-            if (!lower.includes(o.match)) continue;
-            if (o.src && !p.photo) p.photo = o.src;
-            if (o.name) p.name = o.name;
-            break;
-        }
-        p.sourceOrder = order;
-        allProducts.push(p);
+function toProduct(raw, order) {
+    const usd = raw.y * CNY_TO_USD;
+    const tagMap = {};
+    for (const t of raw.t || []) {
+        const i = t.indexOf(':');
+        const facet = t.slice(0, i), value = t.slice(i + 1);
+        (tagMap[facet] || (tagMap[facet] = [])).push(value);
     }
-    buildCategoryTabs();
-    syncCategoryLabel();
-    renderProducts();
-    loadingEl.classList.add('hidden');
-    if (window.i18n) window.i18n.translateDynamic();
+    const p = {
+        name: raw.n,
+        price: '$' + usd.toFixed(2),
+        eurPrice: '€' + (usd * USD_TO_EUR).toFixed(2),
+        priceUsd: usd,
+        photo: raw.i,
+        link: agentLink(raw.id),
+        category: raw.c,
+        tags: raw.t || [],
+        tagMap,
+        weidianId: raw.id,
+        sourceOrder: order,
+    };
+    // Search matches the title plus the category and tag names in every
+    // language, so "gothic jacket" or "veste gothique" finds a skull-print
+    // coat whose title never says "gothic" or "jacket".
+    const words = [raw.n];
+    for (let l = 0; l < 5; l++) {
+        words.push(catName(p.category, l));
+        for (const f in tagMap) for (const v of tagMap[f]) words.push(tagName(f, v, l));
+    }
+    p.searchText = words.join(' ');
+    return p;
 }
 
 async function fetchProducts() {
     errorEl.classList.add('hidden');
     noResultsEl.classList.add('hidden');
     loadingEl.classList.remove('hidden');
-
-    // Start fresh. The grid is wiped lazily by the first ingestSource() →
-    // renderProducts() (the render key resets), so on an auto-refresh the
-    // old cards stay on screen until the first new wave is ready.
     allProducts = [];
-    seenProductKeys = new Set();
     lastRenderKey = null;
 
-    let html;
+    let data;
     try {
-        html = await fetchHtml(SHEET_ID, SHEET_MAIN_GID);
+        // One retry: a dropped connection on a flaky mobile network
+        // shouldn't leave the visitor on the error screen.
+        const load = async () => {
+            const resp = await fetch(PRODUCTS_URL);
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.json();
+        };
+        data = await load().catch(() => new Promise(r => setTimeout(r, 800)).then(load));
     } catch (err) {
-        console.error('Sheet fetch failed', err);
+        console.error('Product load failed', err);
         loadingEl.classList.add('hidden');
         errorEl.classList.remove('hidden');
         return;
     }
 
-    // Parse and paint one section at a time, in sheet order — Hot Items
-    // first — yielding to the browser between sections so the grid fills in
-    // progressively instead of freezing on one 4 MB parse. The chunk index
-    // is the source order, which keeps the on-screen order identical to the
-    // sheet's own.
-    const chunks = splitSheetSections(html);
-    let anyFailed = false;
-    for (let at = 0; at < chunks.length; at++) {
-        try {
-            ingestSource(at, parseSheetSection(chunks[at]));
-        } catch (err) {
-            anyFailed = true;
-            console.error('Section failed at chunk ' + at, err);
-        }
-        // Let the paint from ingestSource() actually reach the screen.
-        await new Promise(resolve => setTimeout(resolve, 0));
-    }
-
+    allProducts = (data.items || []).map(toProduct);
     loadingEl.classList.add('hidden');
-    if (allProducts.length === 0) {
-        if (anyFailed) errorEl.classList.remove('hidden');
-    } else if (window.i18n) {
-        window.i18n.translateDynamic();
+    buildCategoryTabs();
+    buildFilterBar();
+    syncCategoryLabel();
+    renderProducts();
+    if (window.i18n) window.i18n.translateDynamic();
+}
+
+// QC photos: one shared file, fetched the first time any product opens.
+let qcPromise = null;
+function loadQcPhotos() {
+    if (!qcPromise) {
+        qcPromise = fetch(QC_URL)
+            .then(r => (r.ok ? r.json() : {}))
+            .catch(() => ({}));
     }
+    return qcPromise;
 }
 
 // =============================================================
 // CATEGORY TABS
 // =============================================================
+// Product types live in the filter row's Type dropdown (buildFilterBar);
+// this only feeds the search autocomplete: each category, in every
+// language, becomes a suggestion that switches the type.
 function buildCategoryTabs() {
-    // Union of primary categories AND pinCategory targets, so derived
-    // pills like '🎁 Accessories' (no items carry that as p.category)
-    // still surface in the tab list as long as at least one item has
-    // pinCategory='🎁 Accessories'.
-    const categories = [...new Set(
-        allProducts.flatMap(p => [p.category, p.pinCategory].filter(Boolean))
-    )].filter(cat => !HIDDEN_PILLS.has(cat));
-    categoryTabsEl.innerHTML = '';
-
-    // Accessories goes last: it's the catch-all most odds-and-ends pin
-    // into, so it reads better as the tail of the row than as a category
-    // competing with the clothing sections.
-    const backPinned = ['🎁 Accessories'];
-    for (const name of backPinned) {
-        const idx = categories.indexOf(name);
-        if (idx > -1) categories.push(...categories.splice(idx, 1));
-    }
-
-    addPill('All', 'all');
-    addPill('♥ Saved', SAVED_CATEGORY);
-    for (const cat of categories) {
-        addPill(cat, cat);
-    }
-    updateSavedPill();
-
-    // Feed the autocomplete: each category becomes a suggestion that switches
-    // the active pill (clicking it filters, rather than text-searching, since
-    // titles don't contain words like "Electronics").
-    categorySuggestions = categories.map(cat => {
-        const label = stripEmoji(cat);
-        const terms = [label.toLowerCase(), ...label.toLowerCase().split(/\s+/)];
-        return { display: label, value: cat, kind: 'category', terms };
+    const present = new Set(allProducts.map(p => p.category));
+    categorySuggestions = CATEGORY_DEFS.map(c => c[0]).filter(k => present.has(k)).map(key => {
+        const terms = [];
+        for (let l = 0; l < 5; l++) {
+            const label = catName(key, l).toLowerCase();
+            terms.push(label, ...label.split(/[\s&,]+/).filter(w => w.length > 2));
+        }
+        return { display: catName(key), value: key, kind: 'category', terms };
     });
 }
 
@@ -1865,28 +1623,174 @@ function stripEmoji(s) {
     return String(s).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}️‍]/gu, '').trim();
 }
 
-function addPill(label, value) {
-    const btn = document.createElement('button');
-    btn.className = 'category-pill' + (activeCategory === value ? ' active' : '');
-    btn.dataset.category = value;
-    btn.dataset.catKey = catTranslationKey(value);
-    btn.textContent = translatePill(value, label);
-    btn.addEventListener('click', () => setCategory(value));
-    categoryTabsEl.appendChild(btn);
+function translatePill(value) {
+    const t = (k, fb) => (window.i18n && window.i18n.t(k)) || fb;
+    if (value === 'all') return t('cat_all', 'All');
+    if (value === SAVED_CATEGORY) return t('cat_saved', '♥ Saved');
+    return catPillLabel(value);
 }
 
-function catTranslationKey(value) {
-    if (value === 'all') return 'cat_all';
-    if (value === SAVED_CATEGORY) return 'cat_saved';
-    if (value === '🎁 Accessories') return 'cat_accessories';
-    return '';
+// =============================================================
+// FILTERS — style / pattern / colour / fit / season / price dropdowns
+// =============================================================
+// activeFilters: facet -> value ('' = any). Combined with the category,
+// search and price sort; mirrored into the page URL so a filtered view can
+// be shared or linked to (the home page collections link here this way).
+const activeFilters = {};
+const filterBarEl = document.getElementById('filter-bar');
+const filterToggleEl = document.getElementById('filters-toggle');
+
+function hasActiveFilters() {
+    return Object.values(activeFilters).some(Boolean);
 }
 
-function translatePill(value, fallback) {
-    const key = catTranslationKey(value);
-    if (key) return (window.i18n && window.i18n.t(key)) || fallback;
-    // Sheet-driven category — fall back to dynamic-translation cache
-    return (window.i18n && window.i18n.dyn(value)) || fallback;
+// True when a product type (category) is chosen, for the filter UI.
+function hasActiveType() {
+    return activeCategory !== 'all';
+}
+
+function buildFilterBar() {
+    if (!filterBarEl) return;
+    filterBarEl.innerHTML = '';
+    const counts = {};
+    for (const p of allProducts) {
+        for (const f of FILTER_FACETS) for (const v of productFacetValues(p, f)) {
+            counts[f + ':' + v] = (counts[f + ':' + v] || 0) + 1;
+        }
+    }
+    // Facets that aren't dropdowns (material, occasion…) can still arrive
+    // via the URL; show them as a removable chip so the filter is visible.
+    for (const [facet, value] of Object.entries(activeFilters)) {
+        if (!value || FILTER_FACETS.includes(facet)) continue;
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'filter-chip';
+        chip.textContent = tagName(facet, value) + ' ×';
+        chip.addEventListener('click', () => setFilter(facet, ''));
+        filterBarEl.appendChild(chip);
+    }
+    // Product type (= category) comes first: it's the same choice as the
+    // category menu in the top bar, kept in sync both ways via setCategory.
+    const typeSel = document.createElement('select');
+    const typeOn = hasActiveType();
+    typeSel.className = 'filter-select filter-type' + (typeOn ? ' active' : '');
+    typeSel.dataset.facet = 'type';
+    typeSel.setAttribute('aria-label', TYPE_LABEL[langIdx()]);
+    const anyType = document.createElement('option');
+    anyType.value = '';
+    anyType.textContent = TYPE_LABEL[langIdx()];
+    typeSel.appendChild(anyType);
+    // Saved items (hearted on this device) are a pseudo-type at the top.
+    const savedOpt = document.createElement('option');
+    savedOpt.value = SAVED_CATEGORY;
+    savedOpt.textContent = ((window.i18n && window.i18n.t('cat_saved')) || '♥ Saved') + (savedKeys.size ? ' (' + savedKeys.size + ')' : '');
+    typeSel.appendChild(savedOpt);
+    const catCounts = {};
+    for (const p of allProducts) catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+    for (const group of CATEGORY_GROUPS) {
+        const og = document.createElement('optgroup');
+        og.label = (window.i18n && window.i18n.t('grp_' + group)) || group;
+        for (const [key, , g] of CATEGORY_DEFS) {
+            if (g !== group || !catCounts[key]) continue;
+            const o = document.createElement('option');
+            o.value = key;
+            o.textContent = catName(key) + ' (' + catCounts[key].toLocaleString() + ')';
+            og.appendChild(o);
+        }
+        if (og.children.length) typeSel.appendChild(og);
+    }
+    typeSel.value = typeOn ? activeCategory : '';
+    typeSel.addEventListener('change', () => setCategory(typeSel.value || 'all'));
+    filterBarEl.appendChild(typeSel);
+
+    for (const facet of FILTER_FACETS) {
+        const sel = document.createElement('select');
+        sel.className = 'filter-select' + (activeFilters[facet] ? ' active' : '');
+        sel.dataset.facet = facet;
+        sel.setAttribute('aria-label', facetName(facet));
+        const any = document.createElement('option');
+        any.value = '';
+        any.textContent = facetName(facet);
+        sel.appendChild(any);
+        for (const [value] of FACET_BY_KEY.get(facet).values) {
+            const n = counts[facet + ':' + value];
+            if (!n) continue;
+            const o = document.createElement('option');
+            o.value = value;
+            o.textContent = tagName(facet, value) + ' (' + n.toLocaleString() + ')';
+            sel.appendChild(o);
+        }
+        sel.value = activeFilters[facet] || '';
+        sel.addEventListener('change', () => setFilter(facet, sel.value));
+        filterBarEl.appendChild(sel);
+    }
+    const clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'filter-clear' + (hasActiveFilters() || hasActiveType() ? '' : ' hidden');
+    clear.textContent = (window.i18n && window.i18n.t('clear_filters')) || 'Clear filters';
+    clear.addEventListener('click', clearFilters);
+    // Price sort sits at the end of the row (it used to be in the top bar).
+    if (priceSortEl) filterBarEl.appendChild(priceSortEl);
+    filterBarEl.appendChild(clear);
+    syncFilterToggle();
+}
+
+function syncFilterToggle() {
+    if (!filterToggleEl) return;
+    const n = Object.values(activeFilters).filter(Boolean).length + (hasActiveType() ? 1 : 0);
+    const label = (window.i18n && window.i18n.t('filters')) || 'Filters';
+    filterToggleEl.textContent = n ? `${label} (${n})` : label;
+    filterToggleEl.classList.toggle('active', n > 0);
+}
+
+function setFilter(facet, value) {
+    activeFilters[facet] = value;
+    buildFilterBar();
+    syncUrl();
+    renderProducts(true);
+}
+
+function clearFilters() {
+    for (const k of Object.keys(activeFilters)) activeFilters[k] = '';
+    if (hasActiveType()) { setCategory('all'); return; } // rebuilds and re-renders
+    buildFilterBar();
+    syncUrl();
+    renderProducts(true);
+}
+
+// Keep ?cat= / ?q= / facet params in the address bar without reloading.
+function syncUrl() {
+    try {
+        const params = new URLSearchParams();
+        if (activeCategory && activeCategory !== 'all') params.set('cat', activeCategory);
+        if (searchQuery) params.set('q', searchQuery);
+        for (const [f, v] of Object.entries(activeFilters)) if (v) params.set(f, v);
+        const qs = params.toString();
+        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    } catch (e) {}
+}
+
+if (filterToggleEl && filterBarEl) {
+    filterToggleEl.addEventListener('click', () => {
+        const open = filterBarEl.classList.toggle('open');
+        filterToggleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+}
+
+// Called by i18n.apply() after a language switch: relabel everything this
+// file builds from CATEGORY_DEFS / FACET_DEFS.
+function onLanguageApplied() {
+    if (categoryTabsEl && allProducts.length) {
+        buildCategoryTabs();
+        syncCategoryLabel();
+    }
+    if (filterBarEl && allProducts.length) {
+        buildFilterBar();
+        // Cards carry category and tag names: repaint them in the new language.
+        lastRenderKey = null;
+        renderProducts(true);
+    }
+    if (typeof buildHomeCollections === 'function') buildHomeCollections();
 }
 
 function setCategory(cat) {
@@ -1896,6 +1800,8 @@ function setCategory(cat) {
     });
     syncCategoryLabel();
     closeCategoryMenu();
+    buildFilterBar(); // keeps the Type dropdown in step with the menu
+    syncUrl();
     renderProducts(true);
 }
 
@@ -1905,7 +1811,7 @@ function syncCategoryLabel() {
     if (!categoryMenuLabel) return;
     categoryMenuLabel.textContent = activeCategory === 'all'
         ? ((window.i18n && window.i18n.t('cat_menu')) || 'All Categories')
-        : translatePill(activeCategory, activeCategory);
+        : translatePill(activeCategory);
 }
 
 function openCategoryMenu() {
@@ -1939,7 +1845,7 @@ if (categoryMenuBtn) {
 // it tracks the active category and any search.
 function updateProductCount() {
     if (!productCountEl) return;
-    const n = (searchQuery || activeCategory !== 'all') ? currentFiltered.length : allProducts.length;
+    const n = (searchQuery || activeCategory !== 'all' || hasActiveFilters()) ? currentFiltered.length : allProducts.length;
     if (!n) { productCountEl.textContent = ''; return; }
     const word = (window.i18n && window.i18n.t('count_products')) || 'products';
     productCountEl.textContent = n.toLocaleString() + ' ' + word;
@@ -1952,7 +1858,7 @@ let searchDebounce = null;
 if (searchInput) searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(() => renderProducts(true), 200);
+    searchDebounce = setTimeout(() => { renderProducts(true); syncUrl(); }, 200);
     updateSuggestions(e.target.value);
 });
 
@@ -2111,16 +2017,10 @@ function renderProducts(skipAnimation) {
     if (activeCategory === SAVED_CATEGORY) {
         filtered = filtered.filter(isSaved);
     } else if (activeCategory !== 'all') {
-        // Items show up in their primary category (p.category — the sheet
-        // section they were parsed from) AND in any pinCategory derived
-        // from their name. So a "Louis Vuitton Belt" listed in the Perfumes
-        // section appears in Perfumes + Accessories, and an Air Jordan in
-        // Hot Items appears in Hot Items + Sneakers. Same item never
-        // double-renders within a single pill because the filter is OR.
-        filtered = filtered.filter(
-            p => p.category === activeCategory ||
-                 p.pinCategory === activeCategory
-        );
+        filtered = filtered.filter(p => p.category === activeCategory);
+    }
+    for (const [facet, value] of Object.entries(activeFilters)) {
+        if (value) filtered = filtered.filter(p => productFacetValues(p, facet).includes(value));
     }
     // activeCategory === 'all' → no filter, show everything.
 
@@ -2132,7 +2032,7 @@ function renderProducts(skipAnimation) {
         // for a "full" hit, at least one otherwise).
         const scored = [];
         for (const p of filtered) {
-            const r = searchScore(p.name, searchQuery);
+            const r = searchScore(p.searchText, searchQuery);
             if (r.matched) { p._searchScore = r.score; scored.push({ p, full: r.full }); }
         }
 
@@ -2171,7 +2071,7 @@ function renderProducts(skipAnimation) {
         gridEl.innerHTML = '';
         const msg = noResultsEl.querySelector('p');
         if (msg) {
-            const key = (activeCategory === SAVED_CATEGORY && !searchQuery) ? 'saved_empty' : 'no_results';
+            const key = (activeCategory === SAVED_CATEGORY && !searchQuery && !hasActiveFilters()) ? 'saved_empty' : 'no_results';
             msg.setAttribute('data-i18n', key);
             msg.textContent = (window.i18n && window.i18n.t(key)) || msg.textContent;
         }
@@ -2213,7 +2113,7 @@ function renderProducts(skipAnimation) {
 // View signature — a change here (active pill, search text, price sort)
 // means the displayed list is different and must be fully re-rendered.
 function renderKey() {
-    return activeCategory + ' ' + (searchQuery || '') + ' ' + (priceSort || '');
+    return [activeCategory, searchQuery || '', priceSort || '', JSON.stringify(activeFilters)].join('|');
 }
 
 // True when the first n entries of a and b are the same object references.
@@ -2252,12 +2152,6 @@ function buildCard(p, i) {
     const media = document.createElement('div');
     media.className = 'card-media';
     media.appendChild(img);
-    if (p.isBudget || p.isOneToOne) {
-        const badge = document.createElement('span');
-        badge.className = 'card-badge ' + (p.isBudget ? 'badge-budget' : 'badge-best');
-        badge.textContent = p.isBudget ? 'Budget' : '1:1';
-        media.appendChild(badge);
-    }
     const save = document.createElement('button');
     save.type = 'button';
     const on = isSaved(p);
@@ -2285,11 +2179,13 @@ function buildCard(p, i) {
     else nameDiv.textContent = displayName;
     info.appendChild(nameDiv);
 
-    const tk = tierKey(p);
-    const tierDiv = document.createElement('div');
-    tierDiv.className = 'card-tier';
-    tierDiv.textContent = tk ? ((window.i18n && window.i18n.t(tk)) || '') : ((window.i18n && window.i18n.t('tier_standard')) || 'Standard Batch');
-    info.appendChild(tierDiv);
+    const tags = cardTags(p, 2);
+    if (tags.length) {
+        const tagDiv = document.createElement('div');
+        tagDiv.className = 'card-tier';
+        tagDiv.textContent = tags.join(' · ');
+        info.appendChild(tagDiv);
+    }
 
     const foot = document.createElement('div');
     foot.className = 'card-foot';
@@ -2758,31 +2654,7 @@ async function buildHomeShowcase(root) {
         renderHomeShowcase(root, window.SHOWCASE_ITEMS);
         return;
     }
-    // Fallback (no baked data): pull live from the sheet.
-    try {
-        const html = await fetchHtml(SHEET_ID, SHEET_MAIN_GID);
-        // A few photogenic sections are plenty for a decorative wall.
-        const wanted = ['🔥 Hot Items', '👟 Sneakers', '🧥 Hoodies', '👕 Tee/Polo'];
-        let items = [];
-        for (const chunk of splitSheetSections(html)) {
-            const parsed = parseSheetSection(chunk);
-            if (parsed.length && wanted.includes(parsed[0].category)) items = items.concat(parsed);
-        }
-        // Keep only entries with a usable, non-docsubipk photo + a buy link.
-        items = items.filter(p => p && p.photo && p.link && !/\/docsubipk\//.test(p.photo));
-        const seen = new Set();
-        const uniq = [];
-        for (const p of items) {
-            const k = p.link + '|' + p.photo;
-            if (seen.has(k)) continue;
-            seen.add(k);
-            uniq.push(p);
-        }
-        if (uniq.length < 6) { root.classList.add('showcase-empty'); return; }
-        renderHomeShowcase(root, uniq);
-    } catch (e) {
-        root.classList.add('showcase-empty');
-    }
+    root.classList.add('showcase-empty');
 }
 
 function renderHomeShowcase(root, products) {
@@ -2893,50 +2765,45 @@ if (searchInput) {
             searchInput.value = q;
             searchQuery = q.toLowerCase().trim();
         }
-        // ?cat= comes from the home page's category chips (full pill label,
-        // emoji included) or "__saved" for the saved-items list.
-        const cat = new URLSearchParams(window.location.search).get('cat');
-        if (cat) activeCategory = cat;
+        // ?cat=<category key>, ?q=, and one param per facet (?style=korean)
+        // come from the home page collections or a shared link.
+        const params = new URLSearchParams(window.location.search);
+        const cat = params.get('cat');
+        if (cat && (cat === SAVED_CATEGORY || CATEGORY_BY_KEY.has(cat))) activeCategory = cat;
+        for (const [facet, def] of FACET_BY_KEY) {
+            const v = params.get(facet);
+            if (v && def.valueMap.has(v)) activeFilters[facet] = v;
+        }
+        if (Object.values(activeFilters).some(Boolean) && filterBarEl) filterBarEl.classList.add('open');
     } catch (e) {}
 }
 
-// Home page: category chips under the hero search hand off to the
-// products page pre-filtered. Labels come from the same category table.
+// Home page: "Shop by style" collections under the hero search, each a
+// link to the Products page with one filter applied. Rebuilt on language
+// change (see onLanguageApplied).
 const homeChipsEl = document.getElementById('home-chips');
-if (homeChipsEl) {
-    try {
-        const chips = ['👟 Sneakers', '🧥 Hoodies', '👕 Tee/Polo', '🦺 Jackets', '👖 Jeans', '🩳 Shorts', '👜 Bags', '💍 Jewelry'];
-        for (const c of chips) {
-            const a = document.createElement('a');
-            a.className = 'home-chip';
-            a.href = 'index.html?cat=' + encodeURIComponent(c);
-            a.textContent = stripEmoji(c);
-            homeChipsEl.appendChild(a);
-        }
-        const saved = document.createElement('a');
-        saved.className = 'home-chip home-chip-saved';
-        saved.href = 'index.html?cat=' + SAVED_CATEGORY;
-        saved.setAttribute('data-i18n', 'cat_saved');
-        saved.textContent = '♥ Saved';
-        homeChipsEl.appendChild(saved);
-    } catch (e) {}
+function buildHomeCollections() {
+    if (!homeChipsEl) return;
+    homeChipsEl.innerHTML = '';
+    for (const [facet, value] of HOME_COLLECTIONS) {
+        const a = document.createElement('a');
+        a.className = 'home-chip';
+        a.href = 'index.html?' + facet + '=' + encodeURIComponent(value);
+        a.textContent = tagName(facet, value);
+        homeChipsEl.appendChild(a);
+    }
+    const saved = document.createElement('a');
+    saved.className = 'home-chip home-chip-saved';
+    saved.href = 'index.html?cat=' + SAVED_CATEGORY;
+    saved.textContent = (window.i18n && window.i18n.t('cat_saved')) || '♥ Saved';
+    homeChipsEl.appendChild(saved);
 }
+buildHomeCollections();
 
 // Only bootstrap the catalog on the product page (where the grid exists).
 // On the home page app.js loads solely for i18n / language switching.
 if (gridEl) {
     fetchProducts();
-
-    // Auto-refresh only when the tab is hidden, so the user is never
-    // interrupted mid-scroll by a grid wipe + re-render. When they come
-    // back to the tab they get fresh data without seeing the reset.
-    let lastRefresh = Date.now();
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) return;
-        if (Date.now() - lastRefresh < REFRESH_INTERVAL) return;
-        lastRefresh = Date.now();
-        fetchProducts();
-    });
 }
 
 // =============================================================

@@ -7,17 +7,19 @@ this in a fresh project copy, read it before touching any code.
 
 ## What this project is
 
-A single-page static affiliate landing page for a content creator.
-It pulls curated products from public Google Sheets at runtime, shows
-them in a filterable grid, and routes "Buy" clicks through the
-creator's BoonBuy affiliate code. Pure HTML / CSS / vanilla JS — no
+A static affiliate site for a content creator. The product catalogue
+ships with the site as `products.json` (built from a channel product
+export), is shown in a filterable grid, and routes "Buy" clicks through
+the creator's BoonBuy affiliate code. Pure HTML / CSS / vanilla JS — no
 build step, no backend. Hosted on GitHub Pages (or any static host).
 
 Three files do all the work:
 
 - `index.html` — page scaffold and inline in-app-browser detection
 - `style.css` — all styles
-- `app.js` — i18n, sheet fetching, render, scroll behavior, modal
+- `app.js` — i18n, product loading, categories & filters, search, render, modal
+- `products.json` / `products-qc.json` — the catalogue and its QC photos
+- `tools/` — scripts that build the product files and home page picks
 
 ---
 
@@ -66,21 +68,25 @@ creators will want different subsets. For each:
   `.<platform>-link` rule in `style.css` for the brand color, add a
   translation key in all five language blocks.
 
-### 4. Spreadsheet source
+### 4. Product catalogue
 
-The product grid is driven by a public Google Sheet, fetched as HTML.
-The current instance reads ONE tab whose grid is split into vertical
-category sections, two products per row. For a new creator, ask:
+Products come from a channel export: a JSON array of
+`{id, image, title, price (yuan), link, qcImages}` with Weidian item ids.
+Products have no brand names, so they are made findable by **category**
+and **tags** (style, pattern, colour, material, fit, season, gender,
+occasion) derived from the title by `tools/categorise.py`.
 
-- What Google Sheet ID and tab `gid` should power the catalog?
-- What are the section titles, and what pill label should each get?
-- Which pill should be the default selected state (currently "All")?
+To load a new export (from the project folder):
 
-These live in the `CONFIG` section of `app.js` (`SHEET_ID`,
-`SHEET_MAIN_GID`, `SECTION_CATEGORIES`). A different sheet layout means
-rewriting `parseSheetSection()` / `parseProductBlock()` to match its
-columns. The sheet must be set to "Anyone with the link can view" — the
-page fetches the published HTML rendering, not the API.
+    python tools/build_products.py <export.json>   # writes products.json + products-qc.json
+    python tools/build_home.py                     # re-picks home Featured Items + product wall
+
+Then bump the `?v=` on `PRODUCTS_URL` / `QC_URL` in `app.js` so browsers
+fetch the new files. Category keys and tag keys written by the build must
+exist in `CATEGORY_DEFS` / `FACET_DEFS` in `app.js`, which hold the emoji,
+menu order, filter dropdowns and the label in all five languages. To add
+a category or tag: add its rule in `categorise.py`, its key mapping in
+`build_products.py` (categories only), and its labels in `app.js`.
 
 ### 5. Creator brand
 
@@ -126,9 +132,9 @@ Every key must exist in all five language blocks. Don't ship a key
 that's missing in some languages — the UI will fall back to English
 silently and you won't notice the gap.
 
-Dynamic strings from sheets (product names, category labels) go
-through `translateMany()` which caches translations in localStorage
-per-language under `i18n-dyn-<lang>`.
+Category and tag names are translated statically in `CATEGORY_DEFS` /
+`FACET_DEFS`. Product titles go through `translateMany()` (machine
+translation), cached in localStorage per language under `i18n-dyn-<lang>`.
 
 ### Mobile keyboard sticky-header pin
 
@@ -170,10 +176,9 @@ sites.
 
 ## File-by-file what you usually edit
 
-- **Adding a category pill:** add a new sheet config in the `CONFIG`
-  section of `app.js`, or a new tab in an existing sheet's `TABS`.
-  The pill is auto-generated from the tab name; add a `cat_*`
-  translation key in all five languages if you want to translate it.
+- **Adding a category:** see "Product catalogue" above.
+- **Home page style collections:** `HOME_COLLECTIONS` in `app.js`
+  (each is a `[facet, value]` pair linking to `index.html?facet=value`).
 - **Restyling a section:** all classes are in `style.css`. CSS
   variables at the top of the file (`:root` block) drive colors and
   radii — prefer editing those over hard-coding values.
@@ -185,12 +190,12 @@ sites.
 ## What an existing filled instance looks like
 
 If the placeholders above all appear to be filled with real values
-(real sheet IDs, real social URLs, a real invite code), this is an
+(a real products.json, real social URLs, a real invite code), this is an
 already-instantiated creator site, not a fresh template. Don't
 re-ask the setup questions; treat the existing values as the
 creator's chosen values and edit normally.
 
 A sign you're in a fresh / re-templated copy: invite code, social
-URLs, or sheet IDs are blank, obviously placeholder
+URLs, or the product files are blank, obviously placeholder
 (`YOUR_CODE_HERE`, `https://discord.gg/`, etc.), or the user
 explicitly says "set this up for a new creator."

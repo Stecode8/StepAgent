@@ -12,7 +12,7 @@
     <title>Top China Finds</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=2026-11-11-promo">
+    <link rel="stylesheet" href="style.css?v=2026-11-24-catalogue">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
@@ -41,20 +41,6 @@
             </nav>
 
             <div class="topbar-tools">
-                <!-- Category picker: the pills live in this menu now, and the
-                     button label reflects the active one. -->
-                <div class="cat-select">
-                    <button type="button" id="category-menu-btn" class="cat-btn" aria-haspopup="true" aria-expanded="false" aria-controls="category-menu">
-                        <span id="category-menu-label" data-i18n="cat_menu">All Categories</span>
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div id="category-menu" class="cat-menu hidden" role="menu" aria-labelledby="category-menu-btn"></div>
-                </div>
-                <select id="price-sort">
-                    <option value="default" data-i18n="sort_default">Sort by</option>
-                    <option value="low" data-i18n="sort_low">Price: Low to High</option>
-                    <option value="high" data-i18n="sort_high">Price: High to Low</option>
-                </select>
                 <select id="lang-select" class="lang-select" aria-label="Language">
                     <option value="en">🇬🇧 English</option>
                     <option value="fr">🇫🇷 Français</option>
@@ -70,6 +56,18 @@
         <div class="page-head">
             <h1 class="page-title" data-i18n="nav_products">Products</h1>
             <span id="product-count" class="page-count"></span>
+            <button type="button" id="filters-toggle" class="filters-toggle" aria-expanded="false" aria-controls="filter-bar" data-i18n="filters">Filters</button>
+        </div>
+
+        <!-- Style / pattern / colour / fit / season / price dropdowns, built
+             by app.js (buildFilterBar). Always shown on wide screens; on
+             phones it opens from the Filters button above. -->
+        <div id="filter-bar" class="filter-bar">
+            <select id="price-sort" class="filter-select">
+                <option value="default" data-i18n="sort_default">Sort by</option>
+                <option value="low" data-i18n="sort_low">Price: Low to High</option>
+                <option value="high" data-i18n="sort_high">Price: High to Low</option>
+            </select>
         </div>
 
         <div id="loading" class="loading">
@@ -145,6 +143,14 @@
                 </span>
                 <span class="modal-copy-sub" data-i18n="copy_universal_sub">Paste this link into any agent</span>
             </button>
+            <!-- QC photos of this item (products-qc.json, loaded on first open). -->
+            <div id="modal-qc" class="product-modal-qc-photos hidden">
+                <div class="product-modal-styles-head">
+                    <span data-i18n="qc_photos">QC Photos</span>
+                    <span id="modal-qc-count" class="product-modal-styles-count"></span>
+                </div>
+                <div id="modal-qc-track" class="product-modal-qc-track"></div>
+            </div>
             <a id="modal-qc-btn" href="" target="_blank" rel="noopener noreferrer" class="product-modal-qc hidden" data-i18n="qc">
                 View QC Photos
             </a>
@@ -183,6 +189,6 @@
     })();
     </script>
 
-    <script src="app.js?v=2026-11-11-promo"></script>
+    <script src="app.js?v=2026-11-24-catalogue"></script>
 </body>
 </html>
