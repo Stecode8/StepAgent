@@ -12,26 +12,17 @@
     <title>China Top Finds – Home</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=2026-11-24-catalogue">
+    <link rel="stylesheet" href="style.css?v=2026-11-26-filters">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="home">
-    <!-- Same bar as the products page. Two differences: Home is the active
-         segment, and the search is a plain GET form — there's no grid on
-         this page, so a query is handed to the products page as ?q=. -->
+    <!-- Same bar as the products page; here Home is the active segment. -->
     <header class="topbar">
         <div class="topbar-inner">
             <a href="home.html" class="topbar-brand"><img src="favicon.svg" class="brand-mark" alt="" width="26" height="26"><span class="brand-text">China Top Finds</span></a>
 
-            <form class="topbar-search" action="index.html" method="get" role="search">
-                <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="search" name="q" id="home-search-input" data-i18n-attr="placeholder:search_placeholder" placeholder="Search products…" autocomplete="off">
-            </form>
 
             <nav class="topbar-nav" aria-label="Pages">
                 <a href="home.html" class="nav-seg active" aria-current="page" data-i18n="home">Home</a>
@@ -57,18 +48,9 @@
 
             <div class="hero-center">
                 <p class="hero-tagline" data-i18n="tagline">The only website you'll need to find great products from China</p>
-                <!-- Big search box: hands the query to the products page as ?q= -->
-                <form class="hero-search" action="index.html" method="get" role="search">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    <input type="search" name="q" data-i18n-attr="placeholder:search_placeholder" placeholder="Search products…" autocomplete="off" aria-label="Search products">
-                    <button type="submit" data-i18n="search_btn">Search</button>
-                </form>
                 <!-- Quick category shortcuts (filled by app.js) -->
                 <div id="home-chips" class="home-chips"></div>
-                <!-- Primary path into the catalog, right below the search -->
+                <!-- Primary path into the catalog -->
                 <a href="index.html" class="browse-cta" data-i18n="browse">Browse Products</a>
             </div>
 
@@ -156,6 +138,6 @@
 
     <script src="showcase-data.js?v=2026-11-24"></script>
     <script src="featured-data.js?v=2026-11-24"></script>
-    <script src="app.js?v=2026-11-24-catalogue"></script>
+    <script src="app.js?v=2026-11-26-filters"></script>
 </body>
 </html>

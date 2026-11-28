@@ -6,7 +6,10 @@ const TRANSLATIONS = {
         intro: 'Welcome to my spreadsheet!',
         signup: 'Sign up on BoonBuy and get a 40% off shipping coupon',
         youtube: 'YouTube for more content!',
-        search_placeholder: 'Search products…',
+        filter_any: 'All',
+        sort_label: 'Sort',
+        sort_featured: 'Recommended',
+        filter_heading: 'Filter products',
         sort_default: 'Sort by',
         sort_low: 'Price: Low to High',
         sort_high: 'Price: High to Low',
@@ -49,7 +52,6 @@ const TRANSLATIONS = {
         cat_saved: '♥ Saved',
         saved_empty: 'No saved items yet. Tap the ♥ on any product to save it here.',
         similar: 'Similar Products',
-        search_btn: 'Search',
         footer_disclaimer: 'We are not affiliated with Weidian, Taobao, 1688 or any other shopping platform. This site only helps buyers find products from Chinese marketplaces. All brand names and trademarks belong to their respective owners.',
         footer_rights: 'All rights reserved.',
         filters: 'Filters',
@@ -63,7 +65,10 @@ const TRANSLATIONS = {
         intro: 'Bienvenue sur ma feuille !',
         signup: 'Inscris-toi sur BoonBuy et obtiens un coupon de 40 % sur la livraison',
         youtube: 'YouTube pour plus de contenu !',
-        search_placeholder: 'Rechercher un produit…',
+        filter_any: 'Tous',
+        sort_label: 'Trier',
+        sort_featured: 'Recommandés',
+        filter_heading: 'Filtrer les produits',
         sort_default: 'Trier par',
         sort_low: 'Prix : croissant',
         sort_high: 'Prix : décroissant',
@@ -106,7 +111,6 @@ const TRANSLATIONS = {
         cat_saved: '♥ Favoris',
         saved_empty: 'Aucun favori pour l\'instant. Appuyez sur ♥ sur un produit pour l\'enregistrer ici.',
         similar: 'Produits similaires',
-        search_btn: 'Rechercher',
         footer_disclaimer: 'Nous ne sommes pas affiliés à Weidian, Taobao, 1688 ni à aucune autre plateforme d\'achat. Ce site aide simplement à trouver des produits sur les marketplaces chinoises. Toutes les marques appartiennent à leurs propriétaires respectifs.',
         footer_rights: 'Tous droits réservés.',
         filters: 'Filtres',
@@ -120,7 +124,10 @@ const TRANSLATIONS = {
         intro: 'Willkommen in meiner Tabelle!',
         signup: 'Melde dich bei BoonBuy an und erhalte einen 40 %-Versandgutschein',
         youtube: 'YouTube für mehr Inhalte!',
-        search_placeholder: 'Produkte suchen…',
+        filter_any: 'Alle',
+        sort_label: 'Sortieren',
+        sort_featured: 'Empfohlen',
+        filter_heading: 'Produkte filtern',
         sort_default: 'Sortieren nach',
         sort_low: 'Preis: aufsteigend',
         sort_high: 'Preis: absteigend',
@@ -163,7 +170,6 @@ const TRANSLATIONS = {
         cat_saved: '♥ Gemerkt',
         saved_empty: 'Noch nichts gemerkt. Tippe bei einem Produkt auf ♥, um es hier zu speichern.',
         similar: 'Ähnliche Produkte',
-        search_btn: 'Suchen',
         footer_disclaimer: 'Wir sind nicht mit Weidian, Taobao, 1688 oder anderen Shopping-Plattformen verbunden. Diese Seite hilft nur dabei, Produkte auf chinesischen Marktplätzen zu finden. Alle Marken gehören ihren jeweiligen Inhabern.',
         footer_rights: 'Alle Rechte vorbehalten.',
         filters: 'Filter',
@@ -177,7 +183,10 @@ const TRANSLATIONS = {
         intro: '¡Bienvenido a mi hoja!',
         signup: 'Regístrate en BoonBuy y obtén un cupón del 40 % en el envío',
         youtube: '¡YouTube para más contenido!',
-        search_placeholder: 'Buscar productos…',
+        filter_any: 'Todos',
+        sort_label: 'Ordenar',
+        sort_featured: 'Recomendados',
+        filter_heading: 'Filtrar productos',
         sort_default: 'Ordenar por',
         sort_low: 'Precio: menor a mayor',
         sort_high: 'Precio: mayor a menor',
@@ -220,7 +229,6 @@ const TRANSLATIONS = {
         cat_saved: '♥ Guardados',
         saved_empty: 'Aún no has guardado nada. Toca el ♥ de un producto para guardarlo aquí.',
         similar: 'Productos similares',
-        search_btn: 'Buscar',
         footer_disclaimer: 'No estamos afiliados a Weidian, Taobao, 1688 ni a ninguna otra plataforma de compras. Este sitio solo ayuda a encontrar productos en marketplaces chinos. Todas las marcas pertenecen a sus respectivos propietarios.',
         footer_rights: 'Todos los derechos reservados.',
         filters: 'Filtros',
@@ -234,7 +242,10 @@ const TRANSLATIONS = {
         intro: 'Benvenuto nel mio foglio!',
         signup: 'Registrati su BoonBuy e ottieni un coupon del 40% sulla spedizione',
         youtube: 'YouTube per altri contenuti!',
-        search_placeholder: 'Cerca prodotti…',
+        filter_any: 'Tutti',
+        sort_label: 'Ordina',
+        sort_featured: 'Consigliati',
+        filter_heading: 'Filtra prodotti',
         sort_default: 'Ordina per',
         sort_low: 'Prezzo: crescente',
         sort_high: 'Prezzo: decrescente',
@@ -277,7 +288,6 @@ const TRANSLATIONS = {
         cat_saved: '♥ Salvati',
         saved_empty: 'Nessun prodotto salvato. Tocca il ♥ su un prodotto per salvarlo qui.',
         similar: 'Prodotti simili',
-        search_btn: 'Cerca',
         footer_disclaimer: 'Non siamo affiliati con Weidian, Taobao, 1688 o altre piattaforme di acquisto. Questo sito aiuta solo a trovare prodotti sui marketplace cinesi. Tutti i marchi appartengono ai rispettivi proprietari.',
         footer_rights: 'Tutti i diritti riservati.',
         filters: 'Filtri',
@@ -424,7 +434,6 @@ window.i18n = (function() {
         if (!products || !products.length) return;
         const names = products.map(p => p.name);
         await translateMany(names, currentLang);
-        if (typeof buildCategoryTabs === 'function') buildCategoryTabs();
         if (typeof syncCategoryLabel === 'function') syncCategoryLabel();
         if (typeof renderProducts === 'function') renderProducts(true);
     }
@@ -652,557 +661,11 @@ function productFacetValues(p, facet) {
 }
 
 // =============================================================
-// SEARCH ALIASES — short forms, brand expansions, category synonyms
-//
-// Each row in SYNONYM_GROUPS is a set of equivalent terms; typing any of them
-// also tries matching the others. So `['lv', 'louis vuitton']` means searching
-// "lv" finds "Louis Vuitton ..." products AND vice versa. Keep terms
-// lowercased. Add freely.
-//
-// Caution on very short aliases (1-2 chars): matching uses \b word boundary,
-// so "lv" won't match "involve" — but it WILL match anything starting with
-// those letters. Avoid initials that commonly start unrelated words
-// (`am` matches "American", `h` matches every H word, `ye` matches "yellow").
-// When in doubt, only include the longer canonical form.
-// =============================================================
-const SYNONYM_GROUPS = [
-    // ===== Luxury / designer houses =====
-    ['lv', 'louis vuitton'],
-    ['ysl', 'slp', 'saint laurent', 'yves saint laurent'],
-    ['cdg', 'comme des garcons', 'comme des garçons', 'play cdg'],
-    ['bv', 'bottega veneta', 'bottega'],
-    ['d&g', 'dg', 'dolce gabbana', 'dolce and gabbana', 'dolce & gabbana'],
-    ['mm', 'mmm', 'mm6', 'maison margiela', 'margiela'],
-    ['rl', 'polo', 'ralph lauren', 'polo ralph lauren'],
-    ['rrl', 'double rl'],
-    ['gg', 'gucci'],
-    ['cd', 'dior', 'christian dior'],
-    ['ff', 'fendi'],
-    ['cc', 'chanel'],
-    ['hermes', 'hermès'],
-    ['vltn', 'valentino'],
-    ['mcm', 'mode creation munich'],
-    ['bb', 'burberry', 'tb burberry'],
-    ['celine', 'céline'],
-    ['gvc', 'givenchy'],
-    ['loewe'],
-    ['balmain'],
-    ['miu miu', 'miumiu'],
-    ['prada'],
-    ['versace', 'medusa'],
-    ['moncler'],
-    ['canada goose', 'cg'],
-    ['arcteryx', "arc'teryx", 'arc teryx'],
-    ['stone island'],
-    ['patagonia', 'patagucci'],
-    ['mschf'],
-    ['amiri'],
-    ['rhude'],
-    ['represent'],
-    ['purple', 'purple brand'],
-    ['gallery', 'gallery dept', 'gallery department'],
-    ['eric emanuel'],
-    ['chrome hearts'],
-    ['crtz', 'corteiz', 'cortiez'],
-    ['sup', 'supreme'],
-    ['palace'],
-    ['stussy', 'stüssy'],
-    ['kith'],
-    ['fog', 'essentials', 'fear of god'],
-    ['assc', 'anti social social club'],
-    ['vlone'],
-    ['trapstar'],
-    ['sp5der', 'spider', 'sp5'],
-    ['bape', 'a bathing ape', 'bathing ape'],
-    ['aape'],
-    ['bbc', 'billionaire boys club', 'ice cream'],
-    ['bal', 'balenciaga'],
-    ['gd', 'goyard'],
-    ['mk', 'michael kors'],
-    ['tb', 'thom browne', 'tory burch'],
-    ['tnf', 'nf', 'north face', 'the north face'],
-    ['cpfm', 'cactus plant flea market'],
-    ['travis scott', 'cactus jack'],
-    ['ovo', "october's very own", 'octobers very own', 'drake'],
-    ['ow', 'off white', 'off-white', 'virgil'],
-
-    // ===== Streetwear / Japanese / niche =====
-    ['hm', 'human made'],
-    ['nbhd', 'neighborhood'],
-    ['wtaps'],
-    ['sacai'],
-    ['kapital'],
-    ['needles'],
-    ['undercover'],
-    ['visvim'],
-    ['junya', 'junya watanabe'],
-    ['y3', 'y-3'],
-    ['yohji', 'yohji yamamoto'],
-    ['issey', 'issey miyake', 'pleats please'],
-    ['rick owens', 'drkshdw'],
-    ['vetements'],
-    ['acne', 'acne studios'],
-    ['jacquemus'],
-    ['raf', 'raf simons'],
-    ['ann', 'ann demeulemeester'],
-    ['marni'],
-    ['lanvin'],
-
-    // ===== Mainstream / sport / workwear =====
-    ['nike'],
-    ['adidas', 'three stripes', '3 stripes'],
-    ['puma'],
-    ['reebok'],
-    ['vans'],
-    ['converse', 'chuck taylor', 'chucks'],
-    ['asics'],
-    ['onitsuka', 'onitsuka tiger'],
-    ['salomon'],
-    ['hoka'],
-    ['on cloud', 'oncloud', 'on running'],
-    ['nb', 'new balance'],
-    ['carhartt', 'carhartt wip', 'wip'],
-    ['dickies'],
-    ['levis', "levi's", 'levi strauss'],
-    ['wrangler'],
-    ['lacoste'],
-    ['tommy', 'tommy hilfiger', 'th'],
-    ['ck', 'calvin klein'],
-    ['hugo boss', 'boss'],
-    ['armani', 'ea', 'emporio armani', 'giorgio armani'],
-    ['zegna'],
-    ['brunello', 'brunello cucinelli'],
-    ['loro piana', 'lp'],
-    ['tom ford'],
-
-    // ===== Jordan / Air Max / Yeezy / model shorthand =====
-    ['aj', 'air jordan', 'jordan'],
-    ['aj1', 'air jordan 1', 'jordan 1', 'j1'],
-    ['aj3', 'air jordan 3', 'jordan 3'],
-    ['aj4', 'air jordan 4', 'jordan 4', 'j4'],
-    ['aj5', 'air jordan 5', 'jordan 5'],
-    ['aj6', 'air jordan 6', 'jordan 6'],
-    ['aj11', 'air jordan 11', 'jordan 11'],
-    ['aj12', 'air jordan 12', 'jordan 12'],
-    ['aj13', 'air jordan 13', 'jordan 13'],
-    ['af1', 'air force 1', 'air force one', 'forces'],
-    ['sb', 'nike sb', 'sb dunk', 'dunk sb'],
-    ['dunk', 'nike dunk'],
-    ['blazer', 'nike blazer'],
-    ['cortez', 'nike cortez'],
-    ['tn', 'air max plus', 'air max tn'],
-    ['am1', 'air max 1'],
-    ['am90', 'air max 90'],
-    ['am95', 'air max 95'],
-    ['am97', 'air max 97'],
-    ['am270', 'air max 270'],
-    ['am720', 'air max 720'],
-    ['vapormax', 'vapor max'],
-    ['pegasus', 'nike pegasus'],
-    ['ub', 'ultraboost', 'ultra boost'],
-    ['nmd', 'adidas nmd'],
-    ['ss', 'stan smith'],
-    ['superstar'],
-    ['samba'],
-    ['gazelle'],
-    ['spzl', 'spezial'],
-    ['campus'],
-    ['handball', 'handball spezial'],
-    ['forum', 'adidas forum'],
-    ['yz', 'yzy', 'yeezy'],
-    ['yz350', 'yeezy 350', 'boost 350'],
-    ['yz450', 'yeezy 450'],
-    ['yz500', 'yeezy 500'],
-    ['yz700', 'yeezy 700'],
-    ['yzy slide', 'yeezy slide'],
-    ['foam runner', 'yeezy foam', 'foam rnr'],
-    ['nb550', 'new balance 550', '550'],
-    ['nb327', 'new balance 327', '327'],
-    ['nb990', 'new balance 990', '990'],
-    ['nb991', 'new balance 991', '991'],
-    ['nb992', 'new balance 992', '992'],
-    ['nb993', 'new balance 993', '993'],
-    ['nb2002', 'new balance 2002', '2002r', '2002'],
-    ['nb9060', 'new balance 9060', '9060'],
-    ['nb1906', 'new balance 1906', '1906'],
-    ['nb530', 'new balance 530', '530'],
-    ['nb574', 'new balance 574', '574'],
-    ['gel lyte', 'gel-lyte', 'gellyte'],
-    ['kayano', 'gel kayano', 'gel-kayano'],
-    ['nimbus', 'gel nimbus'],
-    ['novablast'],
-    ['mexico 66', 'onitsuka mexico'],
-    ['xt6', 'xt-6', 'xt 6', 'salomon xt6'],
-    ['xt4', 'xt-4'],
-    ['speedcross', 'salomon speedcross'],
-    ['clifton', 'hoka clifton'],
-    ['bondi', 'hoka bondi'],
-    ['old skool', 'old school', 'vans old skool'],
-    ['sk8 hi', 'sk8-hi', 'sk8hi'],
-    ['slip on', 'slip-on', 'slipon'],
-
-    // ===== Footwear (general / non-sneaker) =====
-    ['shoes', 'sneakers', 'kicks', 'trainers', 'footwear'],
-    ['boots', 'boot'],
-    ['slides', 'sliders', 'slide', 'slippers'],
-    ['sandals', 'sandal'],
-    ['loafers', 'loafer', 'mules', 'mule'],
-    ['heels', 'heel', 'pumps', 'stiletto'],
-    ['flats', 'ballet flats', 'flat'],
-    ['doc martens', 'dr martens', 'dr. martens', 'dms'],
-    ['timberland', 'timbs'],
-    ['ugg', 'uggs'],
-    ['crocs', 'croc'],
-    ['birkenstock', 'birks'],
-    ['clarks', 'wallabee', 'wallabees'],
-
-    // ===== Tops =====
-    ['hoodie', 'hoodies', 'hooded', 'tech fleece', 'sweatshirt', 'zip up', 'zip-up'],
-    ['crewneck', 'crew neck', 'crew'],
-    ['sweater', 'sweaters', 'knit', 'knitwear', 'cardigan', 'jumper'],
-    ['tee', 'tshirt', 't-shirt', 't shirt', 'shirt', 't-shirts'],
-    ['long sleeve', 'longsleeve', 'long-sleeve', 'ls tee', 'ls'],
-    ['polo shirt', 'polo'],
-    ['button up', 'button down', 'button-up', 'button-down', 'dress shirt', 'oxford', 'oxford shirt'],
-    ['tank', 'tank top', 'singlet', 'sleeveless'],
-    ['flannel'],
-
-    // ===== Bottoms =====
-    ['pants', 'trousers', 'slacks'],
-    ['jeans', 'denim', 'denims'],
-    // 'pants' bridges joggers↔pants: titles say "Nike Tech Pants", never
-    // "joggers", so a jogger search must also reach pant-type items.
-    ['joggers', 'sweatpants', 'track pants', 'trackpants', 'jogger', 'pants'],
-    ['shorts', 'sweatshorts', 'five-pocket', 'five-point'],
-    ['cargo', 'cargos', 'cargo pants', 'cargo shorts'],
-    ['skirt', 'skirts'],
-    ['leggings', 'tights'],
-
-    // ===== Outerwear =====
-    ['jacket', 'jackets'],
-    ['coat', 'coats'],
-    ['puffer', 'down jacket', 'puffer jacket'],
-    ['parka'],
-    ['trench', 'trench coat'],
-    ['bomber', 'bomber jacket', 'ma1', 'ma-1'],
-    ['varsity', 'letterman', 'varsity jacket'],
-    ['denim jacket', 'jean jacket', 'trucker jacket'],
-    ['windbreaker', 'anorak', 'shell', 'shell jacket', 'rain jacket'],
-    ['vest', 'gilet'],
-    ['tech', 'tech fleece'],
-    ['fleece'],
-
-    // ===== Sets / formal / dresses =====
-    ['tracksuit', 'track suit', 'tracksuits'],
-    ['set', 'co-ord', 'coord', 'matching set', 'two piece', '2 piece'],
-    ['suit', 'blazer', 'sport coat'],
-    ['dress', 'dresses', 'gown'],
-
-    // ===== Bags =====
-    ['bag', 'bags', 'handbag', 'purse'],
-    ['tote', 'tote bag'],
-    ['crossbody', 'cross body', 'shoulder bag', 'sling', 'sling bag', 'messenger'],
-    ['backpack', 'back pack', 'rucksack'],
-    ['duffel', 'duffle', 'duffel bag', 'duffle bag', 'gym bag', 'weekender'],
-    ['fanny pack', 'belt bag', 'waist bag', 'bum bag', 'hip pack'],
-    ['clutch'],
-    ['speedy', 'lv speedy'],
-    ['neverfull', 'lv neverfull'],
-    ['birkin', 'hermes birkin'],
-    ['kelly', 'hermes kelly'],
-
-    // ===== Small leather goods / accessories =====
-    ['wallet', 'wallets', 'cardholder', 'card holder', 'bifold', 'bi-fold', 'long wallet'],
-    ['belt', 'belts', 'buckle'],
-    ['hat', 'hats', 'cap', 'caps'],
-    ['beanie', 'beanies', 'knit hat', 'skull cap'],
-    ['bucket hat', 'bucket', 'fisherman hat'],
-    ['snapback', 'trucker hat', 'trucker cap', 'baseball cap', 'dad hat'],
-    ['scarf', 'scarves'],
-    ['gloves', 'glove', 'mittens'],
-    ['tie', 'necktie', 'bowtie', 'bow tie'],
-
-    // ===== Jewelry / eyewear / watches =====
-    ['sunglasses', 'shades', 'sunnies'],
-    ['glasses', 'eyewear', 'frames', 'spectacles'],
-    ['watch', 'watches', 'wristwatch'],
-    ['rolex', 'submariner', 'datejust', 'daytona', 'gmt'],
-    ['audemars piguet', 'royal oak'],
-    ['patek', 'patek philippe', 'nautilus'],
-    ['cartier', 'love bracelet', 'juste un clou'],
-    ['bracelet', 'bracelets', 'cuff', 'bangle'],
-    ['necklace', 'necklaces', 'chain', 'chains', 'pendant'],
-    ['ring', 'rings', 'band'],
-    ['earring', 'earrings', 'studs', 'hoops'],
-    ['pin', 'pins', 'brooch'],
-    ['keychain', 'keychains', 'key chain', 'lanyard', 'key holder'],
-
-    // ===== Electronics / tech =====
-    ['headphones', 'headphone', 'cans', 'over-ear', 'over ear'],
-    ['earbuds', 'earphones', 'in-ear', 'iems', 'in ear'],
-    ['airpods', 'air pods', 'airpod', 'airpods pro', 'airpods max'],
-    ['speaker', 'speakers', 'bluetooth speaker', 'wireless speaker'],
-    ['phone', 'smartphone', 'iphone', 'android'],
-    ['phone case', 'phonecase', 'iphone case'],
-    ['airpods case', 'airpod case'],
-    ['charger', 'charging cable', 'usb cable', 'lightning cable', 'usb-c'],
-    ['power bank', 'powerbank', 'portable charger'],
-    ['smartwatch', 'apple watch', 'iwatch'],
-    ['drone'],
-    ['camera', 'cam'],
-    ['mouse', 'gaming mouse'],
-    ['keyboard', 'mechanical keyboard'],
-
-    // ===== Misc =====
-    ['perfume', 'cologne', 'fragrance', 'eau de parfum', 'edp', 'edt'],
-    ['lighter', 'zippo'],
-    ['umbrella'],
-    ['stuffed animal', 'plush', 'plushie', 'plushy'],
-    ['lego', 'legos'],
-    ['football jersey', 'soccer jersey', 'jersey'],
-    ['fifa', 'world cup'],
-
-    // ===== Colours (also drives smart colour ranking, see COLOR_WORDS) =====
-    ['black', 'noir'],
-    ['white', 'blanc', 'off white', 'off-white', 'cream', 'ivory'],
-    ['grey', 'gray', 'charcoal'],
-    ['red', 'crimson', 'burgundy', 'maroon', 'wine'],
-    ['blue', 'navy', 'royal blue', 'sky blue', 'teal'],
-    ['green', 'olive', 'khaki', 'mint', 'lime'],
-    ['yellow', 'gold'],
-    ['orange'],
-    ['pink', 'rose', 'fuchsia'],
-    ['purple', 'violet', 'lilac'],
-    ['brown', 'tan', 'beige', 'chocolate', 'coffee'],
-    ['silver', 'metallic'],
-    ['multicolor', 'multicolour', 'rainbow'],
-
-    // ===== Materials / patterns =====
-    ['leather'],
-    ['suede'],
-    ['cotton'],
-    ['wool', 'cashmere', 'merino'],
-    ['nylon'],
-    ['camo', 'camouflage'],
-    ['plaid', 'check', 'checkered', 'gingham'],
-    ['stripe', 'striped', 'stripes'],
-    ['floral', 'flower'],
-
-    // ===== Machine-translation quirks in product titles =====
-    // Chinese "帽" (hood) often comes through as "hat"; "棉服" (padded
-    // jacket) as "cotton suit"; "做旧" (distressed) as "make old".
-    ['hoodie', 'hooded', 'hat sweater', 'hat coat', 'hat suit', 'with hat'],
-    ['puffer', 'down jacket', 'down coat', 'cotton suit', 'cotton-padded', 'padded'],
-    ['distressed', 'make old', 'made old', 'do old', 'water wash', 'washed', 'ripped', 'holes'],
-    ['oversized', 'loose', 'baggy', 'drop shoulder', 'boxy'],
-    ['streetwear', 'high street', 'street'],
-    ['vintage', 'retro'],
-    ['y2k', 'hottie', 'millennium'],
-    ['gothic', 'goth', 'punk', 'dark'],
-    ['old money', 'light luxury'],
-    ['tracksuit', 'sports suit', 'sweat suit', 'two-piece', 'two piece'],
-    ['beanie', 'knitted hat', 'cold hat'],
-    ['cap', 'baseball cap', 'peaked cap'],
-    ['tee', 't-shirt', 'short sleeve'],
-    ['longsleeve', 'long sleeve'],
-    ['pyjamas', 'pajamas', 'homewear', 'sleepwear'],
-    ['jumper', 'sweater', 'pullover', 'knit'],
-    ['flared', 'flare', 'flares', 'bootcut', 'body microphone', 'microphone trousers', 'microphone pants'],
-];
-
-// Colour words used for SMART COLOUR RANKING. Because <5% of product titles
-// contain a colour, a colour term must NOT hard-exclude results — instead it
-// boosts ranking: items whose title names the colour rank first, then items
-// that come in many colourways (likely available in it), then the rest. See
-// searchScore / renderProducts. Keep these lowercased; multi-word colours are
-// matched via the alias table above.
-const COLOR_WORDS = new Set([
-    'black', 'white', 'grey', 'gray', 'red', 'blue', 'navy', 'green', 'olive',
-    'khaki', 'yellow', 'gold', 'orange', 'pink', 'purple', 'violet', 'brown',
-    'tan', 'beige', 'cream', 'ivory', 'silver', 'charcoal', 'burgundy',
-    'maroon', 'teal', 'mint', 'rose', 'multicolor', 'multicolour',
-]);
-
-// A title hints "available in many colours" → a colour search counts it as a
-// soft match (ranked below a literal colour hit). e.g. "Asics Shoes (+16 Colourways)".
-const COLORWAY_RE = /colou?rway|colou?rs\b|\bstyles?\b|multi.?colou?r/i;
-
-// Build the lookup dict from groups. For each term, list all other terms in
-// the same group(s). A term can appear in multiple groups (e.g. 'tee' and
-// 'shirt' are bridges) — we union their expansions.
-const SEARCH_ALIASES = (() => {
-    const dict = {};
-    for (const group of SYNONYM_GROUPS) {
-        for (const term of group) {
-            const list = dict[term] || (dict[term] = []);
-            for (const other of group) {
-                if (other !== term && !list.includes(other)) list.push(other);
-            }
-        }
-    }
-    return dict;
-})();
-
-// Memoized OR-regex per token. \b anchors the start of each expansion so
-// short forms like "lv" don't false-match inside other words ("involve"),
-// while still matching at the start of any word ("LV Monogram Bag").
-// Digit-ending aliases (aj1, am90, 550, ...) get a (?!\d) lookahead so that
-// "aj1" doesn't accidentally match "aj11" or "am90" match "am900".
-const _tokenMatcherCache = {};
-function tokenMatcher(token) {
-    if (_tokenMatcherCache[token]) return _tokenMatcherCache[token];
-    const expansions = [token, ...(SEARCH_ALIASES[token] || [])];
-    const parts = expansions.map(s => {
-        const esc = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return /\d$/.test(s) ? esc + '(?!\\d)' : esc;
-    });
-    return (_tokenMatcherCache[token] = new RegExp('\\b(?:' + parts.join('|') + ')', 'i'));
-}
-
-// Optimal String Alignment distance (Damerau-Levenshtein restricted to
-// adjacent transpositions), capped early for speed. Counts a swapped pair of
-// letters as ONE edit so common typos like "shrit"→"shirt" match within a
-// budget of 1. Used for typo tolerance.
-function editDistance(a, b, max) {
-    const la = a.length, lb = b.length;
-    if (Math.abs(la - lb) > max) return max + 1;
-    let prevPrev = null;
-    let prev = new Array(lb + 1);
-    for (let j = 0; j <= lb; j++) prev[j] = j;
-    for (let i = 1; i <= la; i++) {
-        const cur = new Array(lb + 1);
-        cur[0] = i;
-        let rowMin = i;
-        const ca = a.charCodeAt(i - 1);
-        for (let j = 1; j <= lb; j++) {
-            const cb = b.charCodeAt(j - 1);
-            const cost = ca === cb ? 0 : 1;
-            let v = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
-            if (i > 1 && j > 1 && ca === b.charCodeAt(j - 2) && a.charCodeAt(i - 2) === cb) {
-                v = Math.min(v, prevPrev[j - 2] + 1); // adjacent transposition
-            }
-            cur[j] = v;
-            if (v < rowMin) rowMin = v;
-        }
-        if (rowMin > max) return max + 1; // whole row exceeds budget → bail
-        prevPrev = prev;
-        prev = cur;
-    }
-    return prev[lb];
-}
-
-// Allowed typo budget for a token: none for very short tokens (too risky),
-// 1 for medium, 2 for long. Short tokens lean on the exact/alias path.
-function fuzzyBudget(token) {
-    if (token.length <= 3) return 0;
-    if (token.length <= 6) return 1;
-    return 2;
-}
-
-// Does a query token match this name — exactly/alias-wise, OR within a small
-// edit distance of some word in the name (typo tolerance)? `nameWords` is the
-// pre-split lowercase word list (passed in so we split each name once).
-// Returns 2 for an exact/alias match, 1 for a typo-tolerant match, 0 for none.
-function tokenMatchesName(token, name, nameWords) {
-    if (tokenMatcher(token).test(name)) return 2;
-    const budget = fuzzyBudget(token);
-    if (!budget) return 0;
-    for (const w of nameWords) {
-        if (Math.abs(w.length - token.length) > budget) continue;
-        if (editDistance(token, w, budget) <= budget) return 1;
-    }
-    return 0;
-}
-
-// Score a product name against the query. Returns
-//   { matched, full, score }
-// where `matched` = belongs in the result set, `full` = matched every core
-// (non-colour) term, and `score` ranks results (higher = better).
-//
-// Three ideas combine here:
-//  • Core (non-colour) terms are REQUIRED — at least one to appear, all of
-//    them for the "full match" tier. Alias- and typo-tolerant.
-//  • Colour terms are SOFT (smart colour ranking): titles rarely name a
-//    colour, so a colour never excludes an item — it only boosts ranking.
-//    Literal colour hit > "comes in many colourways" > no colour info.
-//  • A whole-query phrase hit adds a small bonus so exact phrases sort first.
-function searchScore(name, query) {
-    query = (query || '').trim();
-    if (!query) return { matched: true, full: true, score: 0 };
-    name = name.toLowerCase();
-    const nameWords = name.split(/[^a-z0-9]+/).filter(Boolean);
-
-    const tokens = query.split(/\s+/).filter(Boolean);
-    const colorTokens = tokens.filter(t => COLOR_WORDS.has(t));
-    const coreTokens = tokens.filter(t => !COLOR_WORDS.has(t));
-
-    // Colour contribution (ranking only): best signal across colour terms.
-    let colorBonus = 0;
-    for (const c of colorTokens) {
-        if (tokenMatcher(c).test(name)) { colorBonus = Math.max(colorBonus, 3); }      // literal colour in title
-        else if (COLORWAY_RE.test(name)) { colorBonus = Math.max(colorBonus, 1); }     // available in many colours
-    }
-
-    // Core term matching (required).
-    // Typo matches only make the "full" tier when nothing else would: an
-    // exact hit on every term beats a near-miss ("shorts" must not pull in
-    // every "short sleeve" when real shorts exist). See renderProducts.
-    let coreMatched = 0, coreExact = 0;
-    for (const t of coreTokens) {
-        const m = tokenMatchesName(t, name, nameWords);
-        if (m) coreMatched++;
-        if (m === 2) coreExact++;
-    }
-    const phrase = tokens.length > 1 && tokenMatcher(query).test(name);
-    if (phrase) coreMatched = coreExact = coreTokens.length; // phrase implies all core terms present
-
-    let matched, full;
-    if (coreTokens.length > 0) {
-        matched = coreMatched >= 1;
-        full = coreExact >= coreTokens.length;
-    } else {
-        // Colour-only (or empty-core) query: the colour is the requirement.
-        matched = colorBonus > 0;
-        full = colorBonus >= 3; // literal colour hit
-    }
-
-    const score = coreMatched * 10 + coreExact * 5 + colorBonus + (phrase ? 2 : 0);
-    return { matched, full, score };
-}
-
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-}
-
-// Wrap query terms (and their aliases) found in `text` with <mark> for the
-// result cards. Operates on HTML-escaped text so it's injection-safe. Exact /
-// alias hits only — fuzzy typo matches aren't highlighted (best-effort).
-function highlightMatches(text, query) {
-    const safe = escapeHtml(text);
-    query = (query || '').trim();
-    if (!query) return safe;
-    const parts = [];
-    for (const t of query.split(/\s+/).filter(Boolean)) {
-        for (const e of [t, ...(SEARCH_ALIASES[t] || [])]) {
-            const esc = e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            parts.push(/\d$/.test(e) ? esc + '(?!\\d)' : esc);
-        }
-    }
-    if (!parts.length) return safe;
-    parts.sort((a, b) => b.length - a.length); // prefer longest (multi-word) alias
-    let re;
-    try { re = new RegExp('\\b(?:' + parts.join('|') + ')', 'gi'); }
-    catch (e) { return safe; }
-    return safe.replace(re, m => '<mark>' + m + '</mark>');
-}
-
-// =============================================================
 // APP STATE
 // =============================================================
 let allProducts = [];
 let currentFiltered = [];
 let activeCategory = 'all';
-let searchQuery = '';
 const BATCH_SIZE = 20;
 let renderedCount = 0;
 let loadingMore = false;
@@ -1224,7 +687,6 @@ const categoryTabsEl = document.getElementById('category-menu');
 const categoryMenuBtn = document.getElementById('category-menu-btn');
 const categoryMenuLabel = document.getElementById('category-menu-label');
 const productCountEl = document.getElementById('product-count');
-const searchInput = document.getElementById('search-input');
 const priceSortEl = document.getElementById('price-sort');
 let priceSort = 'default';
 
@@ -1431,6 +893,13 @@ function renderModalQc(p) {
             a.href = src;
             a.target = '_blank';
             a.rel = 'noopener noreferrer';
+            // Open in the on-page viewer. The href stays so a long-press or
+            // middle-click can still open the original file.
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const shown = [...track.querySelectorAll('.qc-thumb')].map(t => t.getAttribute('href'));
+                openQcViewer(shown, shown.indexOf(src));
+            });
             const img = document.createElement('img');
             img.loading = 'lazy';
             img.referrerPolicy = 'no-referrer';
@@ -1519,7 +988,7 @@ function universalLink(p) {
 // =============================================================
 // products.json → product objects the rest of the page uses:
 //   { name, price, eurPrice, priceUsd, photo, link, category, tags,
-//     tagMap, weidianId, searchText, sourceOrder }
+//     tagMap, weidianId, sourceOrder }
 function agentLink(itemId) {
     return BOONBUY_PRODUCT_BASE + itemId + '?inviteCode=' + INVITE_CODE;
 }
@@ -1545,15 +1014,6 @@ function toProduct(raw, order) {
         weidianId: raw.id,
         sourceOrder: order,
     };
-    // Search matches the title plus the category and tag names in every
-    // language, so "gothic jacket" or "veste gothique" finds a skull-print
-    // coat whose title never says "gothic" or "jacket".
-    const words = [raw.n];
-    for (let l = 0; l < 5; l++) {
-        words.push(catName(p.category, l));
-        for (const f in tagMap) for (const v of tagMap[f]) words.push(tagName(f, v, l));
-    }
-    p.searchText = words.join(' ');
     return p;
 }
 
@@ -1583,7 +1043,6 @@ async function fetchProducts() {
 
     allProducts = (data.items || []).map(toProduct);
     loadingEl.classList.add('hidden');
-    buildCategoryTabs();
     buildFilterBar();
     syncCategoryLabel();
     renderProducts();
@@ -1601,24 +1060,6 @@ function loadQcPhotos() {
     return qcPromise;
 }
 
-// =============================================================
-// CATEGORY TABS
-// =============================================================
-// Product types live in the filter row's Type dropdown (buildFilterBar);
-// this only feeds the search autocomplete: each category, in every
-// language, becomes a suggestion that switches the type.
-function buildCategoryTabs() {
-    const present = new Set(allProducts.map(p => p.category));
-    categorySuggestions = CATEGORY_DEFS.map(c => c[0]).filter(k => present.has(k)).map(key => {
-        const terms = [];
-        for (let l = 0; l < 5; l++) {
-            const label = catName(key, l).toLowerCase();
-            terms.push(label, ...label.split(/[\s&,]+/).filter(w => w.length > 2));
-        }
-        return { display: catName(key), value: key, kind: 'category', terms };
-    });
-}
-
 function stripEmoji(s) {
     return String(s).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}️‍]/gu, '').trim();
 }
@@ -1634,11 +1075,20 @@ function translatePill(value) {
 // FILTERS — style / pattern / colour / fit / season / price dropdowns
 // =============================================================
 // activeFilters: facet -> value ('' = any). Combined with the category,
-// search and price sort; mirrored into the page URL so a filtered view can
+// and the price sort; mirrored into the page URL so a filtered view can
 // be shared or linked to (the home page collections link here this way).
 const activeFilters = {};
 const filterBarEl = document.getElementById('filter-bar');
+const filterPanelEl = filterBarEl ? filterBarEl.closest('.filter-panel') : null;
 const filterToggleEl = document.getElementById('filters-toggle');
+const filterCountEl = document.getElementById('filters-count');
+const filterClearAllEl = document.getElementById('filters-clear-all');
+const activeFiltersEl = document.getElementById('active-filters');
+const sortFieldEl = priceSortEl ? priceSortEl.closest('.filter-field') : null;
+
+function uiText(key, fallback) {
+    return (window.i18n && window.i18n.t(key)) || fallback;
+}
 
 function hasActiveFilters() {
     return Object.values(activeFilters).some(Boolean);
@@ -1649,98 +1099,144 @@ function hasActiveType() {
     return activeCategory !== 'all';
 }
 
+// Does p pass the chosen type and every active filter, ignoring `skip`
+// ('type' or a facet key)? renderProducts uses it with no skip; the option
+// counts skip their own dropdown so each number means "what you'd get if
+// you picked this", given everything else already chosen.
+function matchesFilters(p, skip) {
+    if (skip !== 'type') {
+        if (activeCategory === SAVED_CATEGORY) { if (!isSaved(p)) return false; }
+        else if (activeCategory !== 'all' && p.category !== activeCategory) return false;
+    }
+    for (const facet in activeFilters) {
+        const value = activeFilters[facet];
+        if (value && facet !== skip && !productFacetValues(p, facet).includes(value)) return false;
+    }
+    return true;
+}
+
+// One labelled dropdown: small caption above, select below.
+function filterField(labelText, select, on) {
+    const field = document.createElement('label');
+    field.className = 'filter-field' + (on ? ' active' : '');
+    const cap = document.createElement('span');
+    cap.className = 'filter-label';
+    cap.textContent = labelText;
+    field.append(cap, select);
+    return field;
+}
+
+function addOption(parent, value, text) {
+    const o = document.createElement('option');
+    o.value = value;
+    o.textContent = text;
+    parent.appendChild(o);
+}
+
 function buildFilterBar() {
     if (!filterBarEl) return;
     filterBarEl.innerHTML = '';
+    const anyLabel = uiText('filter_any', 'All');
+
     const counts = {};
+    const catCounts = {};
     for (const p of allProducts) {
-        for (const f of FILTER_FACETS) for (const v of productFacetValues(p, f)) {
-            counts[f + ':' + v] = (counts[f + ':' + v] || 0) + 1;
+        if (matchesFilters(p, 'type')) catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+        for (const f of FILTER_FACETS) {
+            if (!matchesFilters(p, f)) continue;
+            for (const v of productFacetValues(p, f)) counts[f + ':' + v] = (counts[f + ':' + v] || 0) + 1;
         }
     }
-    // Facets that aren't dropdowns (material, occasion…) can still arrive
-    // via the URL; show them as a removable chip so the filter is visible.
-    for (const [facet, value] of Object.entries(activeFilters)) {
-        if (!value || FILTER_FACETS.includes(facet)) continue;
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'filter-chip';
-        chip.textContent = tagName(facet, value) + ' ×';
-        chip.addEventListener('click', () => setFilter(facet, ''));
-        filterBarEl.appendChild(chip);
-    }
-    // Product type (= category) comes first: it's the same choice as the
-    // category menu in the top bar, kept in sync both ways via setCategory.
+
+    // Product type (= category) comes first.
     const typeSel = document.createElement('select');
     const typeOn = hasActiveType();
-    typeSel.className = 'filter-select filter-type' + (typeOn ? ' active' : '');
+    typeSel.className = 'filter-select filter-type';
     typeSel.dataset.facet = 'type';
-    typeSel.setAttribute('aria-label', TYPE_LABEL[langIdx()]);
-    const anyType = document.createElement('option');
-    anyType.value = '';
-    anyType.textContent = TYPE_LABEL[langIdx()];
-    typeSel.appendChild(anyType);
+    addOption(typeSel, '', anyLabel);
     // Saved items (hearted on this device) are a pseudo-type at the top.
-    const savedOpt = document.createElement('option');
-    savedOpt.value = SAVED_CATEGORY;
-    savedOpt.textContent = ((window.i18n && window.i18n.t('cat_saved')) || '♥ Saved') + (savedKeys.size ? ' (' + savedKeys.size + ')' : '');
-    typeSel.appendChild(savedOpt);
-    const catCounts = {};
-    for (const p of allProducts) catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+    addOption(typeSel, SAVED_CATEGORY, uiText('cat_saved', '♥ Saved') + (savedKeys.size ? ' (' + savedKeys.size + ')' : ''));
     for (const group of CATEGORY_GROUPS) {
         const og = document.createElement('optgroup');
-        og.label = (window.i18n && window.i18n.t('grp_' + group)) || group;
+        og.label = uiText('grp_' + group, group);
         for (const [key, , g] of CATEGORY_DEFS) {
-            if (g !== group || !catCounts[key]) continue;
-            const o = document.createElement('option');
-            o.value = key;
-            o.textContent = catName(key) + ' (' + catCounts[key].toLocaleString() + ')';
-            og.appendChild(o);
+            if (g !== group) continue;
+            const n = catCounts[key] || 0;
+            if (!n && activeCategory !== key) continue;
+            addOption(og, key, catName(key) + ' (' + n.toLocaleString() + ')');
         }
         if (og.children.length) typeSel.appendChild(og);
     }
     typeSel.value = typeOn ? activeCategory : '';
     typeSel.addEventListener('change', () => setCategory(typeSel.value || 'all'));
-    filterBarEl.appendChild(typeSel);
+    filterBarEl.appendChild(filterField(TYPE_LABEL[langIdx()], typeSel, typeOn));
 
     for (const facet of FILTER_FACETS) {
         const sel = document.createElement('select');
-        sel.className = 'filter-select' + (activeFilters[facet] ? ' active' : '');
+        const on = !!activeFilters[facet];
+        sel.className = 'filter-select';
         sel.dataset.facet = facet;
-        sel.setAttribute('aria-label', facetName(facet));
-        const any = document.createElement('option');
-        any.value = '';
-        any.textContent = facetName(facet);
-        sel.appendChild(any);
+        addOption(sel, '', anyLabel);
         for (const [value] of FACET_BY_KEY.get(facet).values) {
-            const n = counts[facet + ':' + value];
-            if (!n) continue;
-            const o = document.createElement('option');
-            o.value = value;
-            o.textContent = tagName(facet, value) + ' (' + n.toLocaleString() + ')';
-            sel.appendChild(o);
+            const n = counts[facet + ':' + value] || 0;
+            // Hide choices that would give no results, but never the one
+            // currently picked (it must stay visible to be undone).
+            if (!n && activeFilters[facet] !== value) continue;
+            addOption(sel, value, tagName(facet, value) + ' (' + n.toLocaleString() + ')');
         }
         sel.value = activeFilters[facet] || '';
         sel.addEventListener('change', () => setFilter(facet, sel.value));
-        filterBarEl.appendChild(sel);
+        filterBarEl.appendChild(filterField(facetName(facet), sel, on));
     }
-    const clear = document.createElement('button');
-    clear.type = 'button';
-    clear.className = 'filter-clear' + (hasActiveFilters() || hasActiveType() ? '' : ' hidden');
-    clear.textContent = (window.i18n && window.i18n.t('clear_filters')) || 'Clear filters';
-    clear.addEventListener('click', clearFilters);
-    // Price sort sits at the end of the row (it used to be in the top bar).
-    if (priceSortEl) filterBarEl.appendChild(priceSortEl);
-    filterBarEl.appendChild(clear);
+    // Sort sits at the end of the panel.
+    if (sortFieldEl) {
+        sortFieldEl.classList.toggle('active', priceSort !== 'default');
+        filterBarEl.appendChild(sortFieldEl);
+    }
+    buildActiveChips();
     syncFilterToggle();
 }
 
+// "Style: Korean x" chips for everything applied, visible even while the
+// phone panel is closed. Also covers facets with no dropdown (material,
+// occasion...) that arrive from a shared link.
+function buildActiveChips() {
+    if (!activeFiltersEl) return;
+    activeFiltersEl.innerHTML = '';
+    const chip = (label, value, onRemove) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'filter-chip';
+        const k = document.createElement('span');
+        k.className = 'filter-chip-k';
+        k.textContent = label + ':';
+        const v = document.createElement('span');
+        v.className = 'filter-chip-v';
+        v.textContent = value;
+        const x = document.createElement('span');
+        x.className = 'filter-chip-x';
+        x.setAttribute('aria-hidden', 'true');
+        x.textContent = '×';
+        b.append(k, v, x);
+        b.addEventListener('click', onRemove);
+        activeFiltersEl.appendChild(b);
+    };
+    if (hasActiveType()) chip(TYPE_LABEL[langIdx()], stripEmoji(translatePill(activeCategory)), () => setCategory('all'));
+    for (const facet of Object.keys(activeFilters)) {
+        const value = activeFilters[facet];
+        if (value) chip(facetName(facet), tagName(facet, value), () => setFilter(facet, ''));
+    }
+    activeFiltersEl.classList.toggle('hidden', !activeFiltersEl.children.length);
+}
+
 function syncFilterToggle() {
-    if (!filterToggleEl) return;
     const n = Object.values(activeFilters).filter(Boolean).length + (hasActiveType() ? 1 : 0);
-    const label = (window.i18n && window.i18n.t('filters')) || 'Filters';
-    filterToggleEl.textContent = n ? `${label} (${n})` : label;
-    filterToggleEl.classList.toggle('active', n > 0);
+    if (filterCountEl) {
+        filterCountEl.textContent = n;
+        filterCountEl.classList.toggle('hidden', !n);
+    }
+    if (filterToggleEl) filterToggleEl.classList.toggle('active', n > 0);
+    if (filterClearAllEl) filterClearAllEl.classList.toggle('hidden', !n);
 }
 
 function setFilter(facet, value) {
@@ -1758,30 +1254,31 @@ function clearFilters() {
     renderProducts(true);
 }
 
-// Keep ?cat= / ?q= / facet params in the address bar without reloading.
+// Keep ?cat= / facet params in the address bar without reloading.
 function syncUrl() {
     try {
         const params = new URLSearchParams();
         if (activeCategory && activeCategory !== 'all') params.set('cat', activeCategory);
-        if (searchQuery) params.set('q', searchQuery);
         for (const [f, v] of Object.entries(activeFilters)) if (v) params.set(f, v);
         const qs = params.toString();
         history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     } catch (e) {}
 }
 
-if (filterToggleEl && filterBarEl) {
+if (filterToggleEl && filterPanelEl) {
     filterToggleEl.addEventListener('click', () => {
-        const open = filterBarEl.classList.toggle('open');
+        const open = filterPanelEl.classList.toggle('open');
         filterToggleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
 }
+if (filterClearAllEl) filterClearAllEl.addEventListener('click', clearFilters);
+const noResultsClearEl = document.getElementById('no-results-clear');
+if (noResultsClearEl) noResultsClearEl.addEventListener('click', clearFilters);
 
 // Called by i18n.apply() after a language switch: relabel everything this
 // file builds from CATEGORY_DEFS / FACET_DEFS.
 function onLanguageApplied() {
     if (categoryTabsEl && allProducts.length) {
-        buildCategoryTabs();
         syncCategoryLabel();
     }
     if (filterBarEl && allProducts.length) {
@@ -1842,170 +1339,19 @@ if (categoryMenuBtn) {
 }
 
 // "N products" next to the page heading — the number actually on show, so
-// it tracks the active category and any search.
+// it tracks the active type and filters.
 function updateProductCount() {
     if (!productCountEl) return;
-    const n = (searchQuery || activeCategory !== 'all' || hasActiveFilters()) ? currentFiltered.length : allProducts.length;
+    const n = (activeCategory !== 'all' || hasActiveFilters()) ? currentFiltered.length : allProducts.length;
     if (!n) { productCountEl.textContent = ''; return; }
     const word = (window.i18n && window.i18n.t('count_products')) || 'products';
     productCountEl.textContent = n.toLocaleString() + ' ' + word;
 }
 
-// =============================================================
-// SEARCH
-// =============================================================
-let searchDebounce = null;
-if (searchInput) searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value.toLowerCase().trim();
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(() => { renderProducts(true); syncUrl(); }, 200);
-    updateSuggestions(e.target.value);
-});
-
 if (priceSortEl) priceSortEl.addEventListener('change', (e) => {
     priceSort = e.target.value;
+    if (sortFieldEl) sortFieldEl.classList.toggle('active', priceSort !== 'default');
     renderProducts(true);
-});
-
-// =============================================================
-// SEARCH SUGGESTIONS (autocomplete)
-// =============================================================
-// Category suggestions are rebuilt each load (see buildCategoryTabs). Declared
-// with var so buildCategoryTabs, defined earlier, can assign it safely.
-var categorySuggestions = [];
-
-function titleCase(s) {
-    return s.replace(/\b\w/g, c => c.toUpperCase());
-}
-
-// Static term suggestions derived from the alias table: one entry per concept,
-// displayed as its most descriptive term, matched against ALL its aliases (so
-// typing "lv" suggests "Louis Vuitton").
-const TERM_SUGGESTIONS = (() => {
-    const out = [];
-    const seen = new Set();
-    for (const group of SYNONYM_GROUPS) {
-        // Groups are authored base-term-first, so the first reasonably long
-        // term is the most recognisable label (e.g. "joggers", not "track
-        // pants"; "louis vuitton", not the "lv" abbreviation).
-        const display = group.find(t => t.length >= 4) || group[0];
-        const key = display.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push({ display: titleCase(display), value: display, kind: 'term', terms: group.map(t => t.toLowerCase()) });
-    }
-    return out;
-})();
-
-const suggestionsEl = document.getElementById('search-suggestions');
-let suggActive = -1;       // keyboard-highlighted index
-let suggCurrent = [];      // currently shown suggestions
-
-function rankSuggestion(s, q) {
-    let best = 99;
-    for (const t of s.terms) {
-        if (t === q) best = Math.min(best, 0);
-        else if (t.startsWith(q)) best = Math.min(best, 1);
-        else if (t.includes(q)) best = Math.min(best, 2);
-        else if (q.length >= 4 && Math.abs(t.length - q.length) <= 1 && editDistance(q, t, 1) <= 1) best = Math.min(best, 3);
-    }
-    return best;
-}
-
-function updateSuggestions(raw) {
-    const q = (raw || '').toLowerCase().trim();
-    if (!q) { hideSuggestions(); return; }
-    const pool = categorySuggestions.concat(TERM_SUGGESTIONS);
-    const scored = [];
-    for (const s of pool) {
-        const r = rankSuggestion(s, q);
-        if (r < 99) scored.push({ s, r });
-    }
-    // Categories first within the same rank, then shorter labels (closer match).
-    scored.sort((a, b) => a.r - b.r ||
-        (a.s.kind === b.s.kind ? 0 : a.s.kind === 'category' ? -1 : 1) ||
-        a.s.display.length - b.s.display.length);
-    const list = [];
-    const seen = new Set();
-    for (const { s } of scored) {
-        const key = s.kind + ':' + s.display.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        list.push(s);
-        if (list.length >= 8) break;
-    }
-    renderSuggestions(list, q);
-}
-
-function renderSuggestions(list, q) {
-    suggCurrent = list;
-    suggActive = -1;
-    if (!list.length) { hideSuggestions(); return; }
-    suggestionsEl.innerHTML = '';
-    list.forEach((s, i) => {
-        const li = document.createElement('li');
-        li.setAttribute('role', 'option');
-        li.dataset.index = i;
-        const icon = document.createElement('span');
-        icon.className = 'sugg-icon';
-        icon.textContent = s.kind === 'category' ? '#' : '⌕';
-        const label = document.createElement('span');
-        label.className = 'sugg-label';
-        label.innerHTML = highlightMatches(s.display, q);
-        const kind = document.createElement('span');
-        kind.className = 'sugg-kind';
-        kind.textContent = s.kind === 'category' ? 'category' : 'search';
-        li.appendChild(icon);
-        li.appendChild(label);
-        li.appendChild(kind);
-        // mousedown (not click) so it fires before the input's blur handler.
-        li.addEventListener('mousedown', (e) => { e.preventDefault(); applySuggestion(s); });
-        suggestionsEl.appendChild(li);
-    });
-    suggestionsEl.classList.remove('hidden');
-    searchInput.setAttribute('aria-expanded', 'true');
-}
-
-function hideSuggestions() {
-    suggestionsEl.classList.add('hidden');
-    suggestionsEl.innerHTML = '';
-    suggCurrent = [];
-    suggActive = -1;
-    searchInput.setAttribute('aria-expanded', 'false');
-}
-
-function applySuggestion(s) {
-    if (s.kind === 'category') {
-        // Switch to that category and clear the text search.
-        searchInput.value = '';
-        searchQuery = '';
-        setCategory(s.value);
-    } else {
-        searchInput.value = s.value;
-        searchQuery = s.value.toLowerCase().trim();
-        renderProducts(true);
-    }
-    hideSuggestions();
-}
-
-function setSuggActive(i) {
-    const items = suggestionsEl.querySelectorAll('li');
-    if (!items.length) return;
-    suggActive = (i + items.length) % items.length;
-    items.forEach((li, idx) => li.classList.toggle('active', idx === suggActive));
-}
-
-if (searchInput) searchInput.addEventListener('keydown', (e) => {
-    if (suggestionsEl.classList.contains('hidden') || !suggCurrent.length) {
-        if (e.key === 'Escape') hideSuggestions();
-        return;
-    }
-    if (e.key === 'ArrowDown') { e.preventDefault(); setSuggActive(suggActive + 1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setSuggActive(suggActive - 1); }
-    else if (e.key === 'Enter') {
-        if (suggActive >= 0 && suggCurrent[suggActive]) { e.preventDefault(); applySuggestion(suggCurrent[suggActive]); }
-        else hideSuggestions();
-    } else if (e.key === 'Escape') { hideSuggestions(); }
 });
 
 // =============================================================
@@ -2014,43 +1360,13 @@ if (searchInput) searchInput.addEventListener('keydown', (e) => {
 function renderProducts(skipAnimation) {
     let filtered = allProducts;
 
-    if (activeCategory === SAVED_CATEGORY) {
-        filtered = filtered.filter(isSaved);
-    } else if (activeCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === activeCategory);
-    }
-    for (const [facet, value] of Object.entries(activeFilters)) {
-        if (value) filtered = filtered.filter(p => productFacetValues(p, facet).includes(value));
-    }
-    // activeCategory === 'all' → no filter, show everything.
+    if (hasActiveType() || hasActiveFilters()) filtered = filtered.filter(p => matchesFilters(p));
 
-    let isSearching = false;
-    if (searchQuery) {
-        isSearching = true;
+    // Copy before sorting so allProducts keeps its original order.
+    if (filtered === allProducts) filtered = filtered.slice();
 
-        // Score every product; keep those that match (all core terms present
-        // for a "full" hit, at least one otherwise).
-        const scored = [];
-        for (const p of filtered) {
-            const r = searchScore(p.searchText, searchQuery);
-            if (r.matched) { p._searchScore = r.score; scored.push({ p, full: r.full }); }
-        }
-
-        // Prefer products matching EVERY (non-colour) term. Only when nothing
-        // matches all terms do we fall back to partial matches — so an
-        // over-specific query never shows an empty page. Colours rank within
-        // the chosen tier rather than filtering it (see searchScore).
-        const fullHits = scored.filter(x => x.full);
-        filtered = (fullHits.length ? fullHits : scored).map(x => x.p);
-    }
-
-    // Sort: when searching, best match first (more terms matched). Then photos
-    // first, then sourceOrder tiebreak (the sheet's own section order).
+    // Sort: photos first, then sourceOrder tiebreak (the sheet's own order).
     filtered.sort((a, b) => {
-        if (isSearching) {
-            const scoreCmp = (b._searchScore || 0) - (a._searchScore || 0);
-            if (scoreCmp !== 0) return scoreCmp;
-        }
         const photoCmp = (b.photo ? 1 : 0) - (a.photo ? 1 : 0);
         if (photoCmp !== 0) return photoCmp;
         return (a.sourceOrder || 0) - (b.sourceOrder || 0);
@@ -2071,10 +1387,12 @@ function renderProducts(skipAnimation) {
         gridEl.innerHTML = '';
         const msg = noResultsEl.querySelector('p');
         if (msg) {
-            const key = (activeCategory === SAVED_CATEGORY && !searchQuery && !hasActiveFilters()) ? 'saved_empty' : 'no_results';
+            const key = (activeCategory === SAVED_CATEGORY && !hasActiveFilters()) ? 'saved_empty' : 'no_results';
             msg.setAttribute('data-i18n', key);
             msg.textContent = (window.i18n && window.i18n.t(key)) || msg.textContent;
         }
+        // Offer a way out when filters caused the empty page.
+        if (noResultsClearEl) noResultsClearEl.classList.toggle('hidden', !(hasActiveFilters() || (hasActiveType() && activeCategory !== SAVED_CATEGORY)));
         noResultsEl.classList.remove('hidden');
         currentFiltered = [];
         renderedCount = 0;
@@ -2087,7 +1405,7 @@ function renderProducts(skipAnimation) {
 
     // Append when the view is unchanged AND the cards already on screen are
     // still a prefix of the freshly sorted list — i.e. a progressive-load
-    // wave that only adds items below what's shown. Otherwise (search /
+    // wave that only adds items below what's shown. Otherwise (filter /
     // category / price change, or a reordering newcomer) do a full re-render.
     const key = renderKey();
     const canAppend = key === lastRenderKey && prefixEqual(filtered, currentFiltered, renderedCount);
@@ -2110,10 +1428,10 @@ function renderProducts(skipAnimation) {
     }
 }
 
-// View signature — a change here (active pill, search text, price sort)
+// View signature — a change here (type, filters, price sort)
 // means the displayed list is different and must be fully re-rendered.
 function renderKey() {
-    return [activeCategory, searchQuery || '', priceSort || '', JSON.stringify(activeFilters)].join('|');
+    return [activeCategory, priceSort || '', JSON.stringify(activeFilters)].join('|');
 }
 
 // True when the first n entries of a and b are the same object references.
@@ -2175,8 +1493,7 @@ function buildCard(p, i) {
     const nameDiv = document.createElement('div');
     nameDiv.className = 'product-name';
     const displayName = cleanName((window.i18n && window.i18n.dyn(p.name)) || p.name);
-    if (searchQuery) nameDiv.innerHTML = highlightMatches(displayName, searchQuery);
-    else nameDiv.textContent = displayName;
+    nameDiv.textContent = displayName;
     info.appendChild(nameDiv);
 
     const tags = cardTags(p, 2);
@@ -2253,30 +1570,15 @@ window.scrollTo(0, 0);
 
 let lastScrollY = 0;
 let scrollTicking = false;
-let searchFocused = false;
 const header = document.querySelector('header');
 const headerBanner = document.querySelector('.header-banner');
 
-// The sticky header only contains search + category tabs. It should
+// The sticky header only contains the page nav and language menu. It should
 // only hide once the user has scrolled past the (non-sticky) banner —
 // otherwise the bar appears to jump while the banner is still on-screen.
 function getStickyThreshold() {
     return (headerBanner ? headerBanner.offsetHeight : 0) + 20;
 }
-
-// Pin the header to its full visible state while the search is focused.
-// Mobile keyboards shrink the viewport and auto-scroll the focused input,
-// which can yank a sticky header (and the input inside it) off-screen.
-if (searchInput) searchInput.addEventListener('focus', () => {
-    searchFocused = true;
-    if (header) header.classList.remove('header-hidden');
-    if (searchInput.value.trim()) updateSuggestions(searchInput.value);
-});
-if (searchInput) searchInput.addEventListener('blur', () => {
-    searchFocused = false;
-    // Delay so a click on a suggestion (which blurs the input) still registers.
-    setTimeout(hideSuggestions, 150);
-});
 
 // Hide the header on scroll-down, show on scroll-up. Hysteresis is
 // only applied to the HIDE direction — any scroll-up reveals the bar
@@ -2288,10 +1590,6 @@ if (header) window.addEventListener('scroll', () => {
     scrollTicking = true;
     requestAnimationFrame(() => {
         scrollTicking = false;
-        if (searchFocused) {
-            lastScrollY = window.scrollY;
-            return;
-        }
         const currentY = window.scrollY;
         const delta = currentY - lastScrollY;
 
@@ -2561,9 +1859,106 @@ async function loadMissingImages() {
 }
 
 // =============================================================
+// QC PHOTO VIEWER — full-size QC photos on top of the product popup
+// =============================================================
+// Arrows / swipe move between photos; Escape, the × or a click on the dark
+// background closes it and returns to the product.
+let qcViewerEl = null;
+let qcViewerList = [];
+let qcViewerIdx = 0;
+
+// Large version of a QC photo: resized (not cropped) through the same proxy
+// the thumbnails use; falls back to the original file if the proxy fails.
+function qcLargeUrl(src) {
+    if (!/^https?:\/\//i.test(src) || /(^|\.)googleusercontent\.com\//.test(src)) return src;
+    return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=1400&h=1400&fit=inside&we`;
+}
+
+function buildQcViewer() {
+    const el = document.createElement('div');
+    el.className = 'qc-viewer hidden';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', (window.i18n && window.i18n.t('qc_photos')) || 'QC Photos');
+    el.innerHTML =
+        '<button type="button" class="qc-viewer-close" aria-label="Close">&times;</button>' +
+        '<button type="button" class="qc-viewer-nav qc-viewer-prev" aria-label="Previous photo">' +
+            '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+        '<div class="qc-viewer-stage"><div class="spinner"></div><img class="qc-viewer-img" alt="" referrerpolicy="no-referrer"></div>' +
+        '<button type="button" class="qc-viewer-nav qc-viewer-next" aria-label="Next photo">' +
+            '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '<div class="qc-viewer-count"></div>';
+    document.body.appendChild(el);
+
+    const img = el.querySelector('.qc-viewer-img');
+    img.addEventListener('load', () => el.classList.remove('loading'));
+    img.addEventListener('error', () => {
+        const orig = qcViewerList[qcViewerIdx];
+        if (orig && img.src !== orig) img.src = orig; // proxy failed: try the original
+        else el.classList.remove('loading');
+    });
+    el.querySelector('.qc-viewer-close').addEventListener('click', closeQcViewer);
+    el.querySelector('.qc-viewer-prev').addEventListener('click', (e) => { e.stopPropagation(); showQcPhoto(qcViewerIdx - 1); });
+    el.querySelector('.qc-viewer-next').addEventListener('click', (e) => { e.stopPropagation(); showQcPhoto(qcViewerIdx + 1); });
+    // Click on the dark area (not the photo or buttons) closes.
+    el.addEventListener('click', (e) => {
+        if (e.target === el || e.target.classList.contains('qc-viewer-stage')) closeQcViewer();
+    });
+    // Swipe left / right on phones.
+    let x0 = null, y0 = null;
+    el.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) showQcPhoto(qcViewerIdx + (dx < 0 ? 1 : -1));
+    });
+    document.addEventListener('keydown', (e) => {
+        if (el.classList.contains('hidden')) return;
+        if (e.key === 'Escape') { e.stopPropagation(); closeQcViewer(); }
+        else if (e.key === 'ArrowLeft') showQcPhoto(qcViewerIdx - 1);
+        else if (e.key === 'ArrowRight') showQcPhoto(qcViewerIdx + 1);
+    }, true);
+    return el;
+}
+
+function showQcPhoto(i) {
+    const n = qcViewerList.length;
+    if (!n) return;
+    qcViewerIdx = (i + n) % n;
+    const el = qcViewerEl;
+    const img = el.querySelector('.qc-viewer-img');
+    const url = qcLargeUrl(qcViewerList[qcViewerIdx]);
+    if (img.getAttribute('src') !== url) {
+        el.classList.add('loading');
+        img.src = url;
+    }
+    el.querySelector('.qc-viewer-count').textContent = (qcViewerIdx + 1) + ' / ' + n;
+    el.classList.toggle('single', n < 2);
+    // Warm up the neighbours so arrowing through feels instant.
+    for (const d of [1, -1]) {
+        if (n > 1) { const pre = new Image(); pre.referrerPolicy = 'no-referrer'; pre.src = qcLargeUrl(qcViewerList[(qcViewerIdx + d + n) % n]); }
+    }
+}
+
+function openQcViewer(list, idx) {
+    if (!list || !list.length) return;
+    if (!qcViewerEl) qcViewerEl = buildQcViewer();
+    qcViewerList = list;
+    qcViewerEl.classList.remove('hidden');
+    showQcPhoto(Math.max(0, idx));
+    qcViewerEl.querySelector('.qc-viewer-close').focus({ preventScroll: true });
+}
+
+function closeQcViewer() {
+    if (qcViewerEl) qcViewerEl.classList.add('hidden');
+}
+
+// =============================================================
 // PRODUCT MODAL CLOSE
 // =============================================================
 function closeProductModal() {
+    closeQcViewer();
     // Cancel any in-flight styles render so a late resolve can't repaint.
     modalStyleToken++;
     const modal = document.getElementById('product-modal');
@@ -2756,17 +2151,10 @@ function buildFeaturedCarousel(root) {
 // =============================================================
 // INIT
 // =============================================================
-// The home page has no grid, so its search box is a GET form pointing
-// here; pick the query up and start filtered.
-if (searchInput) {
+// ?cat=<category key> and one param per facet (?style=korean) come from
+// the home page collections or a shared link: start with them applied.
+if (gridEl) {
     try {
-        const q = new URLSearchParams(window.location.search).get('q');
-        if (q) {
-            searchInput.value = q;
-            searchQuery = q.toLowerCase().trim();
-        }
-        // ?cat=<category key>, ?q=, and one param per facet (?style=korean)
-        // come from the home page collections or a shared link.
         const params = new URLSearchParams(window.location.search);
         const cat = params.get('cat');
         if (cat && (cat === SAVED_CATEGORY || CATEGORY_BY_KEY.has(cat))) activeCategory = cat;
@@ -2774,11 +2162,10 @@ if (searchInput) {
             const v = params.get(facet);
             if (v && def.valueMap.has(v)) activeFilters[facet] = v;
         }
-        if (Object.values(activeFilters).some(Boolean) && filterBarEl) filterBarEl.classList.add('open');
     } catch (e) {}
 }
 
-// Home page: "Shop by style" collections under the hero search, each a
+// Home page: "Shop by style" collections in the hero, each a
 // link to the Products page with one filter applied. Rebuilt on language
 // change (see onLanguageApplied).
 const homeChipsEl = document.getElementById('home-chips');

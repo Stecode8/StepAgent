@@ -12,27 +12,19 @@
     <title>China Top Finds</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=2026-11-24-catalogue">
+    <link rel="stylesheet" href="style.css?v=2026-11-26-filters">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- One sticky top bar: wordmark, search, page nav, category menu.
+    <!-- One sticky top bar: wordmark, page nav, language menu.
          It's a <header> so the existing scroll behaviour (hide on
          scroll-down, reveal on scroll-up) applies unchanged. -->
     <header class="topbar">
         <div class="topbar-inner">
             <a href="home.html" class="topbar-brand"><img src="favicon.svg" class="brand-mark" alt="" width="26" height="26"><span class="brand-text">China Top Finds</span></a>
 
-            <div class="topbar-search">
-                <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" id="search-input" data-i18n-attr="placeholder:search_placeholder" placeholder="Search products…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-suggestions">
-                <ul id="search-suggestions" class="search-suggestions hidden" role="listbox"></ul>
-            </div>
 
             <nav class="topbar-nav" aria-label="Pages">
                 <a href="home.html" class="nav-seg" data-i18n="home">Home</a>
@@ -56,19 +48,37 @@
         <div class="page-head">
             <h1 class="page-title" data-i18n="nav_products">Products</h1>
             <span id="product-count" class="page-count"></span>
-            <button type="button" id="filters-toggle" class="filters-toggle" aria-expanded="false" aria-controls="filter-bar" data-i18n="filters">Filters</button>
         </div>
 
-        <!-- Style / pattern / colour / fit / season / price dropdowns, built
-             by app.js (buildFilterBar). Always shown on wide screens; on
-             phones it opens from the Filters button above. -->
-        <div id="filter-bar" class="filter-bar">
-            <select id="price-sort" class="filter-select">
-                <option value="default" data-i18n="sort_default">Sort by</option>
-                <option value="low" data-i18n="sort_low">Price: Low to High</option>
-                <option value="high" data-i18n="sort_high">Price: High to Low</option>
-            </select>
-        </div>
+        <!-- Filter panel. Labelled type / style / pattern / colour / fit /
+             season / price dropdowns plus sort, built by app.js
+             (buildFilterBar). Always open on wide screens; on phones the
+             header is a big button that opens it. The chips row shows what's
+             applied even while the panel is closed. -->
+        <section class="filter-panel" aria-labelledby="filters-toggle">
+            <div class="filter-panel-head">
+                <button type="button" id="filters-toggle" class="filters-toggle" aria-expanded="false" aria-controls="filter-bar">
+                    <svg class="filters-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>
+                    </svg>
+                    <span class="filters-title" data-i18n="filter_heading">Filter products</span>
+                    <span id="filters-count" class="filters-count hidden"></span>
+                    <svg class="filters-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <button type="button" id="filters-clear-all" class="filter-clear hidden" data-i18n="clear_filters">Clear filters</button>
+            </div>
+            <div id="filter-bar" class="filter-bar">
+                <label class="filter-field filter-field-sort">
+                    <span class="filter-label" data-i18n="sort_label">Sort</span>
+                    <select id="price-sort" class="filter-select">
+                        <option value="default" data-i18n="sort_featured">Recommended</option>
+                        <option value="low" data-i18n="sort_low">Price: Low to High</option>
+                        <option value="high" data-i18n="sort_high">Price: High to Low</option>
+                    </select>
+                </label>
+            </div>
+            <div id="active-filters" class="active-filters hidden" aria-live="polite"></div>
+        </section>
 
         <div id="loading" class="loading">
             <div class="spinner"></div>
@@ -84,6 +94,7 @@
 
         <div id="no-results" class="no-results hidden">
             <p data-i18n="no_results">No products found.</p>
+            <button type="button" id="no-results-clear" class="no-results-clear hidden" data-i18n="clear_filters">Clear filters</button>
         </div>
     </main>
 
@@ -189,6 +200,6 @@
     })();
     </script>
 
-    <script src="app.js?v=2026-11-24-catalogue"></script>
+    <script src="app.js?v=2026-11-26-filters"></script>
 </body>
 </html>

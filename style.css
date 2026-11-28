@@ -101,7 +101,7 @@ body::before {
     margin: 0 auto;
 }
 
-/* The one sticky bar (wordmark, search, page nav, category menu).
+/* The one sticky bar (wordmark, page nav, language menu).
    Hide on scroll-down, slide back in on scroll-up. */
 header {
     position: sticky;
@@ -343,9 +343,8 @@ header.header-hidden {
 .telegram-link .social-logo path { fill: #4fb6ee; }
 
 /* ===== Top bar =====
-   Mobile-first, three rows: brand + page nav / search / tools. From
-   900px up it collapses to the single row of the reference design:
-   wordmark | search | page nav | tools. */
+   One row: wordmark | page nav | language. On narrow phones the
+   language menu drops to a second row if it can't fit. */
 .topbar-inner {
     display: flex;
     align-items: center;
@@ -364,16 +363,6 @@ header.header-hidden {
     text-decoration: none;
     white-space: nowrap;
     flex-shrink: 0;
-}
-
-/* Pill-shaped search, the widest thing in the bar. */
-.topbar-search {
-    order: 3;
-    position: relative;
-    flex: 1 1 100%;
-    min-width: 0;
-    display: flex;
-    align-items: center;
 }
 
 /* Segmented page nav — one lit segment marks the current page. */
@@ -416,20 +405,17 @@ header.header-hidden {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex: 1 1 100%;
-    justify-content: space-between;
+    flex: 0 0 auto;
 }
 
 @media (min-width: 900px) {
     .topbar-inner { flex-wrap: nowrap; gap: 12px; }
-    .topbar-search { order: 2; flex: 1 1 auto; }
-    .topbar-nav { order: 3; margin-left: 0; }
-    .topbar-tools { order: 4; flex: 0 0 auto; margin-left: auto; }
+    .topbar-nav { order: 2; margin-left: auto; }
+    .topbar-tools { order: 3; }
 }
 
 /* Phones: keep all three rows tight and inside the viewport. Row 1 is
-   wordmark + compact page nav, row 2 search, row 3 category / sort /
-   language sharing the width (the category label ellipsizes if needed). */
+   wordmark + compact page nav, then the language menu if it doesn't fit. */
 @media (max-width: 599px) {
     header { padding: 8px 12px; }
     .topbar-inner { gap: 7px; position: relative; }
@@ -446,28 +432,13 @@ header.header-hidden {
     .nav-seg { padding: 6px 10px; font-size: 12px; }
 
     /* 16px stops iOS from zooming the page when the field is focused. */
-    #search-input,
-    #home-search-input { font-size: 16px; padding-top: 8px; padding-bottom: 8px; }
-
     .topbar-tools { gap: 6px; justify-content: flex-start; }
     .cat-select { position: static; flex: 1 1 auto; min-width: 0; }
     .cat-select .cat-btn,
     .topbar-tools > .cat-btn { width: 100%; max-width: none; justify-content: space-between; }
     .topbar-tools > .cat-btn { width: auto; flex: 0 1 auto; }
-    .cat-btn,
-    #price-sort { padding-top: 8px; padding-bottom: 8px; font-size: 12.5px; }
+    .cat-btn { padding-top: 8px; padding-bottom: 8px; font-size: 12.5px; }
     .cat-btn { padding-left: 11px; padding-right: 10px; }
-    /* Selects size to their longest option, so pin their widths; a long
-       chosen sort label ellipsizes instead of widening the row. */
-    #price-sort {
-        flex: 0 0 94px;
-        width: 94px;
-        padding-left: 11px;
-        padding-right: 24px;
-        background-position: right 8px center;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
     .topbar-tools .lang-select {
         flex: 0 0 100px;
         width: 100px;
@@ -573,144 +544,6 @@ header.header-hidden {
     font-style: italic;
     font-weight: 500;
     color: var(--text-secondary);
-}
-
-/* ===== Search ===== */
-.search-icon {
-    position: absolute;
-    left: 13px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--accent);
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-#search-input,
-#home-search-input {
-    width: 100%;
-    padding: 10px 14px 10px 40px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: var(--pill-bg);
-    font-size: 15px;
-    font-family: inherit;
-    color: var(--text);
-    outline: none;
-    -webkit-appearance: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-#home-search-input {
-    font-size: 15px;
-    font-family: inherit;
-    color: var(--text);
-    outline: none;
-    -webkit-appearance: none;
-}
-
-#search-input::placeholder,
-#home-search-input::placeholder {
-    color: var(--text-secondary);
-    opacity: 0.8;
-}
-
-#search-input:focus,
-#home-search-input:focus {
-    border-color: var(--border-light);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-    background: var(--bg-elevated);
-}
-
-/* ===== Search suggestions (autocomplete) ===== */
-.search-suggestions {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    z-index: 200;
-    margin: 0;
-    padding: 5px;
-    list-style: none;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    max-height: 320px;
-    overflow-y: auto;
-}
-
-.search-suggestions li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    color: var(--text);
-    cursor: pointer;
-    transition: background-color 0.12s ease;
-}
-
-.search-suggestions li:hover,
-.search-suggestions li.active {
-    background: var(--pill-hover);
-}
-
-.search-suggestions li .sugg-icon {
-    flex: none;
-    opacity: 0.6;
-    width: 16px;
-    text-align: center;
-    color: var(--accent);
-}
-
-.search-suggestions li .sugg-kind {
-    margin-left: auto;
-    font-size: 11px;
-    color: var(--text-secondary);
-    text-transform: lowercase;
-    letter-spacing: 0.3px;
-}
-
-.search-suggestions mark,
-.product-name mark {
-    background: transparent;
-    color: var(--accent-bright);
-    border-radius: 0;
-    padding: 0;
-    font-weight: 700;
-}
-
-#price-sort {
-    padding: 9px 30px 9px 14px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: var(--pill-bg);
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 500;
-    color: var(--text);
-    outline: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    white-space: nowrap;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9a9a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 11px center;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-#price-sort:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-}
-
-#price-sort option {
-    background: var(--card-bg);
-    color: var(--text);
 }
 
 /* ===== Category pills (inside the top bar's category menu) ===== */
@@ -2018,7 +1851,7 @@ main {
 
 /* =============================================================
    2026-11 refresh: cleaner product cards, save hearts, popup
-   extras (category, tier, save, similar products), home search
+   extras (category, tier, save, similar products), home
    + category chips, and the site footer.
    ============================================================= */
 
@@ -2287,47 +2120,7 @@ main {
     font-weight: 700;
 }
 
-/* ----- Home: big search + category chips ----- */
-.hero-search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 520px;
-    padding: 6px 6px 6px 14px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-light);
-    border-radius: 14px;
-    color: var(--text-secondary);
-    transition: border-color 0.15s ease;
-}
-.hero-search:focus-within { border-color: var(--hairline); }
-.hero-search svg { flex: 0 0 auto; }
-.hero-search input {
-    flex: 1;
-    min-width: 0;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font: inherit;
-    font-size: 16px;
-    padding: 8px 0;
-}
-.hero-search input::placeholder { color: var(--text-secondary); }
-.hero-search button {
-    flex: 0 0 auto;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 10px;
-    background: var(--accent-gradient);
-    color: #101012;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
+/* ----- Home: category chips ----- */
 .home-chips {
     display: flex;
     flex-wrap: wrap;
@@ -2349,20 +2142,6 @@ main {
     .home-chip:hover { background: var(--pill-hover); border-color: var(--hairline); }
 }
 .home-chip-saved { color: #ff8a98; }
-
-/* The search is now the main action, so the browse button steps back. */
-.hero-center .browse-cta {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border-light);
-    box-shadow: none;
-    padding: 13px 18px;
-    font-size: 15px;
-    font-weight: 700;
-}
-@media (hover: hover) {
-    .hero-center .browse-cta:hover { background: var(--pill-hover); box-shadow: none; }
-}
 
 /* ----- Footer ----- */
 .site-footer {
@@ -2489,84 +2268,6 @@ main {
     .cat-select .cat-btn > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
-/* ===== Catalogue filters (Products page) =====
-   A row of compact dropdowns under the page heading. On phones the row is
-   collapsed behind the Filters button; on wider screens it's always shown
-   and the button is hidden. */
-.filters-toggle {
-    margin-left: auto;
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: var(--pill-bg);
-    color: var(--text);
-    font: 500 13px/1 inherit;
-    font-family: inherit;
-    cursor: pointer;
-}
-.filters-toggle.active {
-    background: var(--pill-active-bg);
-    color: var(--pill-active-text);
-    border-color: var(--accent);
-    font-weight: 700;
-}
-.filter-bar {
-    display: none;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: -6px 0 18px;
-}
-.filter-bar.open { display: flex; }
-@media (min-width: 700px) {
-    .filters-toggle { display: none; }
-    .filter-bar { display: flex; }
-}
-.filter-select {
-    max-width: 100%;
-    padding: 8px 28px 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: var(--pill-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9a9a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    outline: none;
-}
-.filter-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-.filter-select.active {
-    background-color: var(--pill-active-bg);
-    color: var(--pill-active-text);
-    border-color: var(--accent);
-    font-weight: 700;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23101012' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-}
-.filter-select option { background: var(--card-bg); color: var(--text); font-weight: 400; }
-.filter-chip {
-    padding: 8px 12px;
-    border: 1px solid var(--accent);
-    border-radius: 100px;
-    background: var(--pill-active-bg);
-    color: var(--pill-active-text);
-    font: 700 13px inherit;
-    font-family: inherit;
-    cursor: pointer;
-}
-.filter-clear {
-    padding: 8px 6px;
-    border: 0;
-    background: none;
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 13px;
-    text-decoration: underline;
-    cursor: pointer;
-}
-.filter-clear.hidden { display: none; }
-
 /* Group headings inside the category menu (Clothing / Shoes & Accessories / More). */
 .cat-menu-head {
     flex-basis: 100%;
@@ -2598,9 +2299,272 @@ main {
     background: #0c0c0e;
 }
 .qc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* Phones: the open filter panel is a tidy two-column grid. */
+
+/* ===== Catalogue filters (Products page) =====
+   A card under the page heading: a "Filter products" header, a grid of
+   labelled dropdowns, and a row of chips for what's applied. On wide
+   screens it's always open; on phones the header is a big button that
+   opens the dropdowns, and the chips stay visible while it's closed. */
+.filter-panel {
+    margin: -4px 0 22px;
+    padding: 16px 18px 18px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 10px 30px -18px var(--accent-glow);
+}
+.filter-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.filters-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: default;
+}
+.filters-icon { flex: none; }
+.filters-chevron { display: none; flex: none; transition: transform 0.2s ease; }
+.filters-count {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 100px;
+    background: var(--accent);
+    color: #101012;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 22px;
+    text-align: center;
+}
+.filters-count.hidden { display: none; }
+.filter-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px 14px;
+}
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+.filter-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+.filter-field.active .filter-label { color: var(--accent); }
+.filter-select,
+.filter-field #price-sort {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 32px 10px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d8d8d8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 11px center;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+@media (hover: hover) {
+    .filter-select:hover,
+    .filter-field #price-sort:hover { border-color: var(--accent); }
+}
+.filter-select:focus,
+.filter-field #price-sort:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.filter-field.active .filter-select,
+.filter-field.active #price-sort {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--accent);
+}
+.filter-select option,
+.filter-select optgroup { background: var(--card-bg); color: var(--text); font-weight: 400; }
+
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+.active-filters.hidden { display: none; }
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px 7px 13px;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    background: var(--pill-active-bg);
+    color: var(--pill-active-text);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+.filter-chip-k { font-weight: 500; opacity: 0.75; }
+.filter-chip-v { font-weight: 700; }
+.filter-chip-x { margin-left: 3px; font-size: 16px; line-height: 1; font-weight: 700; }
+.filter-clear {
+    margin-left: auto;
+    padding: 6px 4px;
+    border: 0;
+    background: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+@media (hover: hover) {
+    .filter-clear:hover { color: var(--accent); }
+}
+.filter-clear.hidden { display: none; }
+
+/* Phones: the header becomes a big full-width button that opens the panel. */
 @media (max-width: 699px) {
-    .filter-bar.open { display: grid; grid-template-columns: 1fr 1fr; }
-    .filter-select { width: 100%; text-overflow: ellipsis; }
-    .filter-chip, .filter-clear { grid-column: 1 / -1; justify-self: start; }
+    .filter-panel { padding: 0; }
+    .filter-panel-head { margin: 0; gap: 0; flex-wrap: wrap; }
+    .filters-toggle {
+        flex: 1 1 auto;
+        padding: 15px 16px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .filters-chevron { display: block; margin-left: auto; }
+    .filter-panel.open .filters-chevron { transform: rotate(180deg); }
+    .filter-clear { margin: 0 14px 0 0; }
+    .filter-bar {
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 2px 14px 16px;
+    }
+    .filter-panel.open .filter-bar { display: grid; }
+    /* 16px stops iOS zooming the page when a dropdown is tapped. */
+    .filter-select,
+    .filter-field #price-sort { font-size: 16px; padding-top: 9px; padding-bottom: 9px; }
+    .active-filters { margin: 0; padding: 12px 14px 14px; }
+}
+
+.no-results-clear {
+    margin-top: 14px;
+    padding: 10px 18px;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    background: none;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.no-results-clear.hidden { display: none; }
+
+/* ===== QC photo viewer =====
+   Full-screen dark overlay above the product popup: the photo as large as
+   the screen allows, arrows either side, a counter and a close button. */
+.qc-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 5, 7, 0.94);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    animation: qcFade 0.18s ease;
+}
+.qc-viewer.hidden { display: none; }
+@keyframes qcFade { from { opacity: 0; } to { opacity: 1; } }
+.qc-viewer-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 56px 72px;
+}
+.qc-viewer-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.15s ease;
+}
+.qc-viewer .spinner { position: absolute; display: none; }
+.qc-viewer.loading .spinner { display: block; }
+.qc-viewer.loading .qc-viewer-img { opacity: 0.25; }
+.qc-viewer-close,
+.qc-viewer-nav {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    background: rgba(20, 20, 24, 0.8);
+    color: #fff;
+    cursor: pointer;
+}
+.qc-viewer-close { top: 14px; right: 14px; width: 44px; height: 44px; font-size: 28px; line-height: 1; }
+.qc-viewer-nav { top: 50%; width: 48px; height: 48px; transform: translateY(-50%); }
+.qc-viewer-prev { left: 14px; }
+.qc-viewer-next { right: 14px; }
+@media (hover: hover) {
+    .qc-viewer-close:hover,
+    .qc-viewer-nav:hover { background: rgba(255, 255, 255, 0.16); }
+}
+.qc-viewer.single .qc-viewer-nav,
+.qc-viewer.single .qc-viewer-count { display: none; }
+.qc-viewer-count {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    border-radius: 100px;
+    background: rgba(20, 20, 24, 0.8);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.qc-thumb { cursor: zoom-in; }
+/* Phones: photo uses the full width; arrows sit over its edges. */
+@media (max-width: 599px) {
+    .qc-viewer-stage { padding: 64px 8px 56px; }
+    .qc-viewer-nav { width: 40px; height: 40px; }
+    .qc-viewer-prev { left: 8px; }
+    .qc-viewer-next { right: 8px; }
 }
